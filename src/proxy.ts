@@ -41,10 +41,12 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  // Cuidado: '/empresas' (plural, publica) e DIFERENTE de '/empresa/...' (B2B logada).
+  // Usar match exato + barra final para diferenciar.
   const isProtected =
-    path.startsWith("/dashboard") ||
-    path.startsWith("/empresa") ||
-    path.startsWith("/admin");
+    path.startsWith("/dashboard/") || path === "/dashboard" ||
+    path.startsWith("/empresa/") || path === "/empresa" ||
+    path.startsWith("/admin/") || path === "/admin";
 
   if (isProtected && !user) {
     const loginUrl = new URL("/login", request.url);
@@ -53,7 +55,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // Admin precisa ter account_type='admin'
-  if (path.startsWith("/admin") && user) {
+  if ((path === "/admin" || path.startsWith("/admin/")) && user) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("account_type")
