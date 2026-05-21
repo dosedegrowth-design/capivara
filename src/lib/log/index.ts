@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { ErrorSeverity } from "@/types/database";
 
-export type ErrorSeverity = "info" | "warning" | "error" | "critical";
+export type { ErrorSeverity };
 
 export interface LogErrorParams {
   context: string; // ex: 'webhook_asaas', 'api_full_call', 'pdf_generation'

@@ -12,6 +12,7 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      db: { schema: "capivara" },
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -23,7 +24,7 @@ export async function createClient() {
             );
           } catch {
             // Server Components nao podem set cookies — ignorar
-            // O middleware ja faz refresh de sessao
+            // O proxy ja faz refresh de sessao
           }
         },
       },

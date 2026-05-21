@@ -151,6 +151,32 @@ capivara/
 
 ## 4. Modelo de Dados
 
+### Decisão · Multi-schema no projeto DDG
+
+A Dose de Growth tem **limite de 2 projetos free** no Supabase (`DDG` e `HL Models`,
+ambos em produção). Em vez de pagar Pro, o Capivara usa o projeto `DDG`
+(`hkjukobqpjezhpxzplpj`) com um **schema dedicado** chamado `capivara`.
+
+```
+projeto DDG (Supabase)
+├── public.*              ← dash-supervisao (SPV_CRM, SPV_Base, SPV_Users, ...)
+└── capivara.*            ← Capivara (profiles, companies, consultations, ...)
+```
+
+**Vantagens:**
+- Zero custo extra
+- Isolamento de dados garantido (queries de um sistema nunca acessam tabelas do outro)
+- RLS continua funcionando normalmente
+- Cada sistema pode ter seu próprio padrão de nomes
+
+**Pré-requisitos de configuração:**
+- Schema `capivara` deve estar exposto na API REST do PostgREST
+  (Dashboard > Settings > API > Exposed schemas)
+- Clients Supabase configurados com `db: { schema: 'capivara' }`
+  (já feito em `src/lib/supabase/{client,server,admin}.ts`)
+
+Passo-a-passo completo em `docs/SETUP_SUPABASE.md`.
+
 ### Tabelas principais
 
 | Tabela | Conteúdo |
