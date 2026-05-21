@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   Capivara · Design System Cerrado v1.0
+   Fonte da verdade dos tokens — extraido do brandbook oficial.
+   ========================================================================= */
+
+@theme {
+  /* ---- Cores Cerrado · primarias ---- */
+  --color-cocoa:    #1F1611;  /* texto principal · base dark */
+  --color-cocoa-2:  #2C211A;
+  --color-cocoa-3:  #14100C;
+  --color-fur:      #C46A3F;  /* BRAND primary (capivara) */
+  --color-fur-2:    #D88456;  /* fur clarear · dark mode */
+  --color-tabaco:   #8E4628;
+  --color-saffron:  #E8A547;  /* ACCENT / CTA */
+  --color-sage:     #8B9778;
+
+  /* ---- Cores Cerrado · neutros ---- */
+  --color-cream:    #F4EAD8;
+  --color-paper:    #FBF6EC;  /* background light */
+  --color-paper-2:  #FFFCF5;
+  --color-line:     #E6D8BD;  /* bordas */
+
+  /* ---- Cores Cerrado · semanticas ---- */
+  --color-ok:       #5E7C4F;  /* sucesso */
+  --color-err:      #B23A2A;  /* erro */
+  --color-warn:     #D78A1E;  /* atencao */
+  --color-info:     #527090;  /* info */
+
+  /* ---- Tipografia ---- */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-sans:    "Manrope", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---- Radius · familia ---- */
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+  --radius-2xl: 32px;
+
+  /* ---- Sombras macias com tom cocoa ---- */
+  --shadow-card: 0 4px 12px rgba(31, 22, 17, 0.08);
+  --shadow-pop:  0 12px 32px rgba(31, 22, 17, 0.12);
+  --shadow-xl:   0 24px 56px rgba(31, 22, 17, 0.16);
+
+  /* ---- Animacao · easing oficial ---- */
+  --ease-cap: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* =========================================================================
+   shadcn/ui · mapeamento dos slots semanticos para tokens Cerrado
+   ========================================================================= */
+
+@layer base {
+  :root {
+    --background:          var(--color-paper);
+    --foreground:          var(--color-cocoa);
+    --card:                var(--color-paper-2);
+    --card-foreground:     var(--color-cocoa);
+    --popover:             var(--color-paper-2);
+    --popover-foreground:  var(--color-cocoa);
+    --primary:             var(--color-cocoa);
+    --primary-foreground:  var(--color-cream);
+    --secondary:           var(--color-cream);
+    --secondary-foreground: var(--color-cocoa);
+    --muted:               var(--color-cream);
+    --muted-foreground:    var(--color-tabaco);
+    --accent:              var(--color-saffron);
+    --accent-foreground:   var(--color-cocoa);
+    --destructive:         var(--color-err);
+    --destructive-foreground: var(--color-cream);
+    --border:              var(--color-line);
+    --input:               var(--color-line);
+    --ring:                var(--color-fur);
+    --radius:              var(--radius-md);
+  }
+
+  .dark {
+    --background:          var(--color-cocoa-3);
+    --foreground:          var(--color-cream);
+    --card:                var(--color-cocoa-2);
+    --card-foreground:     var(--color-cream);
+    --popover:             var(--color-cocoa-2);
+    --popover-foreground:  var(--color-cream);
+    --primary:             var(--color-cream);
+    --primary-foreground:  var(--color-cocoa);
+    --secondary:           var(--color-cocoa-2);
+    --secondary-foreground: var(--color-cream);
+    --muted:               var(--color-cocoa-2);
+    --muted-foreground:    var(--color-cream);
+    --accent:              var(--color-saffron);
+    --accent-foreground:   var(--color-cocoa);
+    --destructive:         var(--color-err);
+    --destructive-foreground: var(--color-cream);
+    --border:              #3A2C22;
+    --input:               #3A2C22;
+    --ring:                var(--color-fur-2);
+  }
+}
+
+/* =========================================================================
+   Fontes via next/font/google (em src/app/layout.tsx)
+   As variaveis --font-display, --font-sans, --font-mono sao injetadas
+   automaticamente pelo Next.js no <html>.
+   ========================================================================= */
+
+/* =========================================================================
+   Reset + utilitarios globais
+   ========================================================================= */
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  code, kbd, pre {
+    font-family: var(--font-mono);
+  }
+}
+
+/* =========================================================================
+   Animacoes assinatura Capivara
+   ========================================================================= */
+
+@keyframes capivara-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.capivara-idle {
+  animation: capivara-bob 2s var(--ease-cap) infinite;
+}
+
+@keyframes capivara-investigate {
+  0%   { transform: rotate(-2deg); }
+  50%  { transform: rotate(2deg); }
+  100% { transform: rotate(-2deg); }
+}
+
+.capivara-investigando {
+  animation: capivara-investigate 1.2s var(--ease-cap) infinite;
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="capi-base" viewBox="0 0 480 320">
+<rect x="358" y="208" width="28" height="62" rx="10" fill="var(--m-dark, #8E4628)"></rect>
+<rect x="378" y="240" width="36" height="20" rx="6" fill="var(--m-dark, #8E4628)"></rect>
+<rect x="138" y="208" width="28" height="62" rx="10" fill="var(--m-dark, #8E4628)"></rect>
+<rect x="120" y="240" width="36" height="20" rx="6" fill="var(--m-dark, #8E4628)"></rect>
+<path d="M 60 168 Q 58 128 96 118 Q 118 92 156 96 Q 178 80 220 80 L 360 80 Q 420 82 432 130 Q 440 142 438 168 Q 438 215 388 220 L 110 220 Q 60 218 60 178 Z" fill="var(--m-fur, #C46A3F)"></path>
+<path d="M 100 200 Q 200 218 380 210 Q 410 212 420 200 L 420 220 L 100 220 Z" fill="var(--m-dark, #8E4628)" opacity=".32"></path>
+<path d="M 60 158 Q 58 132 96 118 Q 102 132 100 156 Q 80 162 60 170 Z" fill="var(--m-snout, #A05533)"></path>
+<ellipse cx="178" cy="82" rx="16" ry="12" fill="var(--m-fur, #C46A3F)"></ellipse>
+<ellipse cx="178" cy="84" rx="8" ry="6" fill="var(--m-dark, #8E4628)"></ellipse>
+<circle cx="116" cy="135" r="5.5" fill="var(--m-ink, #1F1611)"></circle>
+<circle cx="118" cy="133" r="1.6" fill="var(--m-eye, #F4EAD8)"></circle>
+<ellipse cx="72" cy="142" rx="3" ry="2.2" fill="var(--m-ink, #1F1611)"></ellipse>
+<path d="M 62 158 Q 70 162 82 160" stroke="var(--m-ink, #1F1611)" stroke-width="1.6" fill="none" stroke-linecap="round"></path>
+</symbol>
+<symbol id="pose-lupa" viewBox="0 0 480 320">
+<circle cx="34" cy="200" r="40" fill="none" stroke="var(--m-ink, #1F1611)" stroke-width="6"></circle>
+<circle cx="34" cy="200" r="34" fill="var(--m-accent, #E8A547)" opacity=".22"></circle>
+<line x1="62" y1="228" x2="92" y2="262" stroke="var(--m-ink, #1F1611)" stroke-width="8" stroke-linecap="round"></line>
+</symbol>
+<symbol id="pose-check" viewBox="0 0 480 320">
+<circle cx="100" cy="50" r="28" fill="var(--m-accent, #E8A547)"></circle>
+<path d="M 86 52 L 96 62 L 116 40" stroke="var(--m-ink, #1F1611)" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+</symbol>
+<symbol id="pose-alert" viewBox="0 0 480 320">
+<circle cx="100" cy="50" r="28" fill="var(--m-snout, #A05533)"></circle>
+<rect x="96" y="36" width="8" height="20" rx="2" fill="var(--m-eye, #F4EAD8)"></rect>
+<rect x="96" y="60" width="8" height="6" rx="2" fill="var(--m-eye, #F4EAD8)"></rect>
+</symbol>
+<symbol id="pose-think" viewBox="0 0 480 320">
+<circle cx="92" cy="46" r="14" fill="var(--m-eye, #F4EAD8)" stroke="var(--m-ink, #1F1611)" stroke-width="2"></circle>
+<circle cx="58" cy="76" r="6" fill="var(--m-eye, #F4EAD8)" stroke="var(--m-ink, #1F1611)" stroke-width="2"></circle>
+<circle cx="36" cy="98" r="3" fill="var(--m-eye, #F4EAD8)" stroke="var(--m-ink, #1F1611)" stroke-width="2"></circle>
+</symbol>
+<symbol id="capi-mono" viewBox="0 0 480 320">
+<rect x="358" y="208" width="28" height="62" rx="10" fill="currentColor"></rect>
+<rect x="378" y="240" width="36" height="20" rx="6" fill="currentColor"></rect>
+<rect x="138" y="208" width="28" height="62" rx="10" fill="currentColor"></rect>
+<rect x="120" y="240" width="36" height="20" rx="6" fill="currentColor"></rect>
+<path d="M 60 168 Q 58 128 96 118 Q 118 92 156 96 Q 178 80 220 80 L 360 80 Q 420 82 432 130 Q 440 142 438 168 Q 438 215 388 220 L 110 220 Q 60 218 60 178 Z" fill="currentColor"></path>
+<ellipse cx="178" cy="82" rx="16" ry="12" fill="currentColor"></ellipse>
+</symbol>
+</defs>
+</svg>
