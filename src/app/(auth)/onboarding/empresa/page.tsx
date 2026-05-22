@@ -4,6 +4,7 @@ import { Building2 } from "lucide-react";
 import { Mascot } from "@/components/capivara/mascot";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { CriarEmpresaForm } from "./criar-empresa-form";
+import { COMPANY_TERMS } from "@/lib/legal/documents";
 
 export default async function OnboardingEmpresaPage() {
   const profile = await getCurrentProfile();
@@ -32,7 +33,7 @@ export default async function OnboardingEmpresaPage() {
           </p>
         </div>
 
-        <CriarEmpresaForm />
+        <CriarEmpresaForm companyTermsVersion={COMPANY_TERMS.version} />
       </div>
 
       <p className="text-center text-xs font-mono text-tabaco/70 mt-6">

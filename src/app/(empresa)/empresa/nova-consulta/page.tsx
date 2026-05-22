@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCurrentProfile, getActiveCompany } from "@/lib/auth/session";
 import { NovaConsultaB2BForm } from "./nova-consulta-form";
+import { CONSULTATION_RESPONSIBILITY } from "@/lib/legal/documents";
 
 export const metadata = {
   title: "Nova consulta · Empresa · Capivara",
@@ -66,7 +67,10 @@ export default async function NovaConsultaB2BPage() {
         </div>
       )}
 
-      <NovaConsultaB2BForm saldoFolhas={saldo} />
+      <NovaConsultaB2BForm
+        saldoFolhas={saldo}
+        responsibilityVersion={CONSULTATION_RESPONSIBILITY.version}
+      />
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { logError } from "@/lib/log";
 import { sendEmail } from "@/lib/email/client";
 import { emailPagamentoAguardando } from "@/lib/email/templates";
 import { formatBRL } from "@/lib/formatters";
+import { logConsent } from "@/lib/legal/consent";
 
 /**
  * Server action: inicia uma consulta.
@@ -87,6 +88,15 @@ export async function iniciarConsultaAction(
       ok: false,
       error: "Descreva a finalidade.",
       fieldErrors: { finalidadeDescricao: "Minimo 5 caracteres" },
+    };
+  }
+
+  // Aceite OBRIGATORIO do termo de responsabilidade
+  const acceptResponsibility = formData.get("acceptResponsibility") === "true";
+  if (!acceptResponsibility) {
+    return {
+      ok: false,
+      error: "Você precisa aceitar o termo de responsabilidade pela consulta.",
     };
   }
 
@@ -175,6 +185,21 @@ export async function iniciarConsultaAction(
     });
     return { ok: false, error: "Falha ao criar consulta. Tente novamente." };
   }
+
+  // Registra aceite do termo de responsabilidade (LGPD, ligado a consulta)
+  await logConsent("consultation_responsibility", {
+    userId: user.id,
+    metadata: {
+      consultation_id: consulta.id,
+      target_hash: targetHash,
+      plan_id: plano.id,
+      finality: finalidade,
+      finality_description: finalidade === "other" ? finalidadeDesc : null,
+      context: "consulta_b2c",
+    },
+  }).catch(() => {
+    // logError ja foi chamado internamente
+  });
 
   // ---- 6. Criar/reusar customer + cobranca Asaas ----
   try {

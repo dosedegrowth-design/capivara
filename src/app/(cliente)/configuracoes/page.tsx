@@ -82,6 +82,26 @@ export default async function ConfiguracoesPage() {
         <SenhaForm />
       </section>
 
+      {/* LGPD: meus aceites */}
+      <section className="rounded-lg border border-line bg-card p-6 space-y-2">
+        <div>
+          <h2 className="font-display text-xl font-bold text-cocoa">
+            Meus aceites (LGPD)
+          </h2>
+          <p className="text-sm text-tabaco mt-1">
+            Histórico de tudo que você aceitou na Capivara: Termos, Política de
+            Privacidade, Responsabilidade por Consulta, etc. Cada aceite tem
+            IP, timestamp e hash de integridade.
+          </p>
+        </div>
+        <Link
+          href="/configuracoes/meus-aceites"
+          className="inline-flex items-center gap-1 text-sm font-medium text-fur hover:underline"
+        >
+          Ver histórico completo →
+        </Link>
+      </section>
+
       {/* LGPD: exportar */}
       <section className="rounded-lg border border-info/30 bg-info/5 p-6 space-y-4">
         <div>

@@ -28,6 +28,7 @@ const NAV = [
   { href: "/admin/erros", icon: Bug, label: "Erros & logs" },
   { href: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },
   { href: "/admin/lgpd", icon: AlertTriangle, label: "LGPD" },
+  { href: "/admin/aceites", icon: AlertTriangle, label: "Audit Aceites" },
   { href: "/admin/configuracoes", icon: Settings, label: "Configurações" },
 ];
 

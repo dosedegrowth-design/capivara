@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,7 +52,13 @@ const FINALIDADES_VEICULAR = [
   { id: "other", label: "Outros (descrever)" },
 ];
 
-export function ConsultaForm({ plano }: { plano: Plano }) {
+export function ConsultaForm({
+  plano,
+  responsibilityVersion,
+}: {
+  plano: Plano;
+  responsibilityVersion: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
@@ -60,6 +68,7 @@ export function ConsultaForm({ plano }: { plano: Plano }) {
   const [finalidade, setFinalidade] = useState("");
   const [finalidadeDescricao, setFinalidadeDescricao] = useState("");
   const [paymentType, setPaymentType] = useState<"pix" | "boleto" | "cartao_avista">("pix");
+  const [acceptResponsibility, setAcceptResponsibility] = useState(false);
 
   const finalidades =
     plano.categoria === "cpf"
@@ -102,6 +111,13 @@ export function ConsultaForm({ plano }: { plano: Plano }) {
     formData.set("finalidade", finalidade);
     formData.set("finalidadeDescricao", finalidadeDescricao);
     formData.set("paymentType", paymentType);
+    formData.set("acceptResponsibility", acceptResponsibility ? "true" : "false");
+    formData.set("responsibilityVersion", responsibilityVersion);
+
+    if (!acceptResponsibility) {
+      setErro("Você precisa aceitar o termo de responsabilidade.");
+      return;
+    }
 
     startTransition(async () => {
       const result: IniciarConsultaResult = await iniciarConsultaAction(formData);
@@ -205,12 +221,59 @@ export function ConsultaForm({ plano }: { plano: Plano }) {
         </div>
       </div>
 
+      {/* TERMO DE RESPONSABILIDADE — OBRIGATORIO */}
+      <div className="rounded-lg border-2 border-saffron/40 bg-saffron/5 p-4 space-y-3">
+        <div className="flex items-start gap-2">
+          <Lock className="size-4 text-saffron shrink-0 mt-0.5" />
+          <div className="text-xs leading-relaxed">
+            <p className="text-cocoa font-semibold mb-1">
+              Termo de Responsabilidade por Consulta (LGPD)
+            </p>
+            <p className="text-tabaco">
+              Antes de prosseguir, declare que tem finalidade legítima e
+              assume responsabilidade pelo uso dos dados. Este aceite é
+              registrado com seu IP, horário e versão do documento.
+            </p>
+          </div>
+        </div>
+
+        <label
+          htmlFor="acceptResponsibility"
+          className="flex items-start gap-3 cursor-pointer bg-card rounded-md border border-line p-3"
+        >
+          <Checkbox
+            id="acceptResponsibility"
+            checked={acceptResponsibility}
+            onCheckedChange={(v) => setAcceptResponsibility(Boolean(v))}
+            className="mt-0.5"
+          />
+          <div className="text-xs leading-relaxed">
+            <span className="text-cocoa">
+              <span className="text-red-600 mr-0.5">*</span>
+              <strong>Declaro</strong> ter base legal (LGPD Art. 7º) e
+              finalidade legítima pra esta consulta. Assumo integralmente a
+              responsabilidade pelo uso dos dados obtidos, isentando a
+              Capivara de qualquer responsabilidade pelo uso após o download
+              do relatório.{" "}
+              <Link
+                href="/responsabilidade-consulta"
+                target="_blank"
+                className="text-fur font-medium hover:underline"
+              >
+                Ler termo completo (v{responsibilityVersion})
+              </Link>
+            </span>
+          </div>
+        </label>
+      </div>
+
       {/* LGPD reassurance */}
       <div className="flex items-start gap-2 rounded-md bg-cream/60 border border-line p-3 text-xs">
         <Lock className="size-4 text-fur shrink-0 mt-0.5" />
         <p className="text-tabaco leading-relaxed">
-          Toda consulta é registrada com finalidade, IP e horário. Mantemos os
-          dados por 90 dias e respeitamos a LGPD em 100% do fluxo.
+          Esta consulta + aceite ficam registrados por 5 anos (logs LGPD).
+          Dados consultados ficam acessíveis por 90 dias e depois são
+          anonimizados automaticamente.
         </p>
       </div>
 
@@ -225,9 +288,13 @@ export function ConsultaForm({ plano }: { plano: Plano }) {
         variant="accent"
         size="xl"
         className="w-full"
-        disabled={pending}
+        disabled={pending || !acceptResponsibility}
       >
-        {pending ? "Criando cobrança..." : `Puxar capivara · ir para pagamento`}
+        {pending
+          ? "Criando cobrança..."
+          : !acceptResponsibility
+          ? "Aceite o termo acima pra continuar"
+          : `Puxar capivara · ir para pagamento`}
       </Button>
     </form>
   );

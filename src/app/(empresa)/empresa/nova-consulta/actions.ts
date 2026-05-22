@@ -16,6 +16,7 @@ import {
   isValidPlaca,
 } from "@/lib/formatters";
 import { logError } from "@/lib/log";
+import { logConsent } from "@/lib/legal/consent";
 
 /**
  * Server action: cria consulta B2B pagando com creditos (folhas) da empresa.
@@ -36,6 +37,14 @@ export async function novaConsultaB2BAction(
   const finalidade = String(formData.get("finalidade") ?? "");
   const finalidadeDesc = String(formData.get("finalidadeDescricao") ?? "").trim();
   const costCenter = String(formData.get("costCenter") ?? "").trim() || null;
+  const acceptResponsibility = formData.get("acceptResponsibility") === "true";
+
+  if (!acceptResponsibility) {
+    return {
+      ok: false,
+      error: "Você precisa aceitar o termo de responsabilidade.",
+    };
+  }
   const externalRef = String(formData.get("externalReference") ?? "").trim() || null;
 
   const plano = findPlano(planoId);
@@ -193,6 +202,22 @@ export async function novaConsultaB2BAction(
     await admin.from("consultations").delete().eq("id", consulta.id);
     return { ok: false, error: "Falha ao debitar créditos." };
   }
+
+  // Registra aceite do termo de responsabilidade (LGPD, ligado a consulta + empresa)
+  await logConsent("consultation_responsibility", {
+    userId: user.id,
+    companyId: empresa.id,
+    metadata: {
+      consultation_id: consulta.id,
+      target_hash: targetHash,
+      plan_id: plano.id,
+      finality: finalidade,
+      finality_description: finalidade === "other" ? finalidadeDesc : null,
+      cost_center: costCenter,
+      external_reference: externalRef,
+      context: "consulta_b2b_web",
+    },
+  }).catch(() => {});
 
   // Dispara processamento (fire-and-forget)
   fireAndForgetProcess(consulta.id);

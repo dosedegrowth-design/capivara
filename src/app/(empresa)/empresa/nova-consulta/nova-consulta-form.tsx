@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2, Lock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +22,7 @@ import { novaConsultaB2BAction } from "./actions";
 
 interface Props {
   saldoFolhas: number;
+  responsibilityVersion: string;
 }
 
 const CATEGORIAS = [
@@ -38,12 +41,13 @@ const FINALIDADES = [
   { value: "other", label: "Outra (especificar)" },
 ];
 
-export function NovaConsultaB2BForm({ saldoFolhas }: Props) {
+export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [categoria, setCategoria] = useState<"cpf" | "cnpj" | "veicular">("cpf");
   const [selectedPlano, setSelectedPlano] = useState<Plano | null>(null);
   const [finalidade, setFinalidade] = useState("");
+  const [acceptResponsibility, setAcceptResponsibility] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const cat = CATEGORIAS.find((c) => c.id === categoria)!;
@@ -56,8 +60,14 @@ export function NovaConsultaB2BForm({ saldoFolhas }: Props) {
       setError("Escolha um plano.");
       return;
     }
+    if (!acceptResponsibility) {
+      setError("Você precisa aceitar o termo de responsabilidade.");
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     fd.set("planoId", selectedPlano.id);
+    fd.set("acceptResponsibility", "true");
+    fd.set("responsibilityVersion", responsibilityVersion);
     startTransition(async () => {
       const res = await novaConsultaB2BAction(fd);
       if (!res.ok) {
@@ -257,6 +267,49 @@ export function NovaConsultaB2BForm({ saldoFolhas }: Props) {
         </div>
       )}
 
+      {/* TERMO DE RESPONSABILIDADE — OBRIGATORIO B2B */}
+      <div className="rounded-lg border-2 border-saffron/40 bg-saffron/5 p-4 space-y-3">
+        <div className="flex items-start gap-2">
+          <Lock className="size-4 text-saffron shrink-0 mt-0.5" />
+          <div className="text-xs leading-relaxed">
+            <p className="text-cocoa font-semibold mb-1">
+              Termo de Responsabilidade por Consulta (LGPD)
+            </p>
+            <p className="text-tabaco">
+              Cada consulta exige aceite individual com IP + timestamp pra
+              respaldo da empresa e do operador.
+            </p>
+          </div>
+        </div>
+
+        <label
+          htmlFor="acceptResponsibility"
+          className="flex items-start gap-3 cursor-pointer bg-card rounded-md border border-line p-3"
+        >
+          <Checkbox
+            id="acceptResponsibility"
+            checked={acceptResponsibility}
+            onCheckedChange={(v) => setAcceptResponsibility(Boolean(v))}
+            className="mt-0.5"
+          />
+          <div className="text-xs leading-relaxed">
+            <span className="text-cocoa">
+              <span className="text-red-600 mr-0.5">*</span>
+              <strong>Declaro</strong> ter base legal (LGPD Art. 7º), finalidade
+              legítima e autorização interna da empresa pra esta consulta.
+              Assumo responsabilidade pelo uso dos dados.{" "}
+              <Link
+                href="/responsabilidade-consulta"
+                target="_blank"
+                className="text-fur font-medium hover:underline"
+              >
+                Ler termo completo (v{responsibilityVersion})
+              </Link>
+            </span>
+          </div>
+        </label>
+      </div>
+
       {error && (
         <div className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-sm text-red-700">
           {error}
@@ -268,7 +321,7 @@ export function NovaConsultaB2BForm({ saldoFolhas }: Props) {
         variant="accent"
         size="lg"
         className="w-full"
-        disabled={pending || !selectedPlano || !podePagar}
+        disabled={pending || !selectedPlano || !podePagar || !acceptResponsibility}
       >
         {pending ? (
           <>

@@ -7,6 +7,7 @@ import { cadastroSchema, loginSchema } from "@/lib/validators";
 import { normalizeCPF, normalizeCNPJ } from "@/lib/formatters";
 import { sendEmail } from "@/lib/email/client";
 import { emailBoasVindas } from "@/lib/email/templates";
+import { logConsents } from "@/lib/legal/consent";
 
 /**
  * Server Actions de autenticacao.
@@ -34,6 +35,19 @@ export async function signUpAction(formData: FormData): Promise<AuthResult> {
     tipo: String(formData.get("tipo") ?? "pf"),
   };
 
+  // Aceite obrigatorio dos Termos + Privacidade
+  const acceptTOS = formData.get("acceptTOS") === "on" || formData.get("acceptTOS") === "true";
+  const acceptPrivacy = formData.get("acceptPrivacy") === "on" || formData.get("acceptPrivacy") === "true";
+  if (!acceptTOS || !acceptPrivacy) {
+    return {
+      error: "Você precisa aceitar os Termos de Uso e a Política de Privacidade.",
+      fieldErrors: {
+        ...(acceptTOS ? {} : { acceptTOS: "Obrigatório" }),
+        ...(acceptPrivacy ? {} : { acceptPrivacy: "Obrigatório" }),
+      },
+    };
+  }
+
   // Telefone opcional — se vazio, vira undefined pro schema
   const dataForSchema = {
     ...raw,
@@ -54,7 +68,7 @@ export async function signUpAction(formData: FormData): Promise<AuthResult> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data: signupData, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.senha,
     options: {
@@ -71,6 +85,22 @@ export async function signUpAction(formData: FormData): Promise<AuthResult> {
 
   if (error) {
     return { error: traduzirErroAuth(error.message) };
+  }
+
+  // Registra aceite de ToS + Privacidade (consent_logs append-only)
+  if (signupData.user) {
+    await logConsents(
+      ["terms_of_use", "privacy_policy"],
+      {
+        userId: signupData.user.id,
+        metadata: {
+          context: "signup",
+          account_type: raw.tipo === "empresa" ? "pj" : "pf",
+        },
+      }
+    ).catch(() => {
+      // logError ja foi chamado dentro de logConsents
+    });
   }
 
   // Email de boas-vindas (fire-and-forget; falha nao bloqueia signup)
@@ -167,6 +197,7 @@ export async function criarEmpresaAction(formData: FormData): Promise<AuthResult
   const nomeFantasia = String(formData.get("nomeFantasia") ?? "").trim();
   const cnpjRaw = normalizeCNPJ(String(formData.get("cnpj") ?? ""));
   const emailBilling = String(formData.get("emailBilling") ?? "").trim().toLowerCase();
+  const acceptCompanyTerms = formData.get("acceptCompanyTerms") === "true";
 
   if (razaoSocial.length < 3) {
     return { error: "Razao social muito curta." };
@@ -174,6 +205,10 @@ export async function criarEmpresaAction(formData: FormData): Promise<AuthResult
 
   if (!cnpjRaw || cnpjRaw.length !== 14) {
     return { error: "CNPJ invalido." };
+  }
+
+  if (!acceptCompanyTerms) {
+    return { error: "Voce precisa aceitar os Termos B2B pra criar a empresa." };
   }
 
   const supabase = await createClient();
@@ -217,6 +252,17 @@ export async function criarEmpresaAction(formData: FormData): Promise<AuthResult
       account_type: "pj_admin",
     })
     .eq("id", user.id);
+
+  // Registra aceite dos Termos B2B (com company_id pra rastreio juridico)
+  await logConsents(["company_terms"], {
+    userId: user.id,
+    companyId: empresa.id,
+    metadata: {
+      context: "onboarding_empresa",
+      cnpj: cnpjRaw,
+      razao_social: razaoSocial,
+    },
+  }).catch(() => {});
 
   revalidatePath("/", "layout");
   redirect("/empresa");

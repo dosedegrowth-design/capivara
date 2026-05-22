@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateApiKey } from "@/lib/api-keys";
+import { logConsent } from "@/lib/legal/consent";
 
 /**
  * Server actions para gestao de API keys (B2B).
@@ -65,8 +66,13 @@ export async function createApiKeyAction(formData: FormData): Promise<ApiKeyActi
   }
 
   const name = String(formData.get("name") ?? "").trim();
+  const acceptApiTerms = formData.get("acceptApiTerms") === "true";
+
   if (name.length < 3) {
     return { ok: false, error: "name_too_short" };
+  }
+  if (!acceptApiTerms) {
+    return { ok: false, error: "api_terms_required" };
   }
 
   const { fullKey, prefix, hash } = generateApiKey();
@@ -89,6 +95,17 @@ export async function createApiKeyAction(formData: FormData): Promise<ApiKeyActi
   if (error || !data) {
     return { ok: false, error: error?.message ?? "insert_failed" };
   }
+
+  // Registra aceite dos Termos da API + Termos B2B (chave nova = novo aceite)
+  await logConsent("api_terms", {
+    userId: guard.userId,
+    companyId: guard.companyId,
+    metadata: {
+      api_key_id: data.id,
+      api_key_prefix: prefix,
+      context: "generate_api_key",
+    },
+  }).catch(() => {});
 
   revalidatePath("/empresa/api");
 

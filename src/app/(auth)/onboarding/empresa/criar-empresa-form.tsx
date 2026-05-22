@@ -1,21 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCNPJ, normalizeCNPJ } from "@/lib/formatters";
 import { criarEmpresaAction } from "@/lib/auth/actions";
 
-export function CriarEmpresaForm() {
+export function CriarEmpresaForm({ companyTermsVersion }: { companyTermsVersion: string }) {
   const [erro, setErro] = useState<string | null>(null);
   const [cnpj, setCnpj] = useState("");
+  const [acceptCompanyTerms, setAcceptCompanyTerms] = useState(false);
 
   async function action(formData: FormData) {
     setErro(null);
+    if (!acceptCompanyTerms) {
+      setErro("Você precisa aceitar os Termos B2B.");
+      return;
+    }
     formData.set("cnpj", normalizeCNPJ(cnpj));
+    formData.set("acceptCompanyTerms", "true");
     const result = await criarEmpresaAction(formData);
     if (result.error) setErro(result.error);
   }
@@ -71,18 +79,49 @@ export function CriarEmpresaForm() {
         </p>
       </div>
 
+      {/* Aceite dos Termos B2B */}
+      <div className="rounded-lg border-2 border-saffron/40 bg-saffron/5 p-4">
+        <label
+          htmlFor="acceptCompanyTerms"
+          className="flex items-start gap-3 cursor-pointer"
+        >
+          <Checkbox
+            id="acceptCompanyTerms"
+            checked={acceptCompanyTerms}
+            onCheckedChange={(v) => setAcceptCompanyTerms(Boolean(v))}
+            className="mt-0.5"
+          />
+          <div className="text-xs leading-relaxed">
+            <span className="text-cocoa">
+              <span className="text-red-600 mr-0.5">*</span>
+              Declaro ser <strong>representante legal autorizado</strong> da
+              empresa cadastrada (razão social e CNPJ acima), com poderes pra
+              vinculá-la a estes Termos. Li e aceito os{" "}
+              <Link
+                href="/empresa-termos"
+                target="_blank"
+                className="text-fur font-medium hover:underline"
+              >
+                Termos B2B Capivara (v{companyTermsVersion})
+              </Link>
+              .
+            </span>
+          </div>
+        </label>
+      </div>
+
       {erro && (
         <div className="rounded-md border border-err/30 bg-err/10 px-3 py-2 text-sm text-err">
           {erro}
         </div>
       )}
 
-      <SubmitButton />
+      <SubmitButton disabled={!acceptCompanyTerms} />
     </form>
   );
 }
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button
@@ -90,7 +129,7 @@ function SubmitButton() {
       variant="primary"
       size="lg"
       className="w-full"
-      disabled={pending}
+      disabled={pending || disabled}
     >
       {pending ? "Criando empresa..." : "Criar empresa"}
     </Button>

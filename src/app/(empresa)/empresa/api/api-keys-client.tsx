@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Copy, Eye, Key, Plus, ShieldOff, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +31,7 @@ export function ApiKeysClient({ keys }: Props) {
     null
   );
   const [name, setName] = useState("");
+  const [acceptApiTerms, setAcceptApiTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -39,9 +42,14 @@ export function ApiKeysClient({ keys }: Props) {
       setError("Nome precisa de pelo menos 3 caracteres.");
       return;
     }
+    if (!acceptApiTerms) {
+      setError("Você precisa aceitar os Termos da API.");
+      return;
+    }
     startTransition(async () => {
       const fd = new FormData();
       fd.set("name", name);
+      fd.set("acceptApiTerms", "true");
       const res = await createApiKeyAction(fd);
       if (!res.ok) {
         setError(traduzErro(res.error));
@@ -50,6 +58,7 @@ export function ApiKeysClient({ keys }: Props) {
       if (res.key) {
         setRevealed({ id: res.key.id, name: res.key.name, fullKey: res.key.fullKey });
         setName("");
+        setAcceptApiTerms(false);
         setCreating(false);
       }
     });
@@ -146,9 +155,40 @@ export function ApiKeysClient({ keys }: Props) {
               So pra voce identificar. Nao aparece pra outros sistemas.
             </p>
           </div>
+
+          {/* Aceite dos Termos da API */}
+          <div className="rounded-md border-2 border-saffron/40 bg-saffron/5 p-3">
+            <label
+              htmlFor="acceptApiTerms"
+              className="flex items-start gap-3 cursor-pointer"
+            >
+              <Checkbox
+                id="acceptApiTerms"
+                checked={acceptApiTerms}
+                onCheckedChange={(v) => setAcceptApiTerms(Boolean(v))}
+                className="mt-0.5"
+              />
+              <div className="text-xs leading-relaxed">
+                <span className="text-cocoa">
+                  <span className="text-red-600 mr-0.5">*</span>
+                  Declaro ser administrador autorizado da empresa e aceito os{" "}
+                  <Link
+                    href="/api-termos"
+                    target="_blank"
+                    className="text-fur font-medium hover:underline"
+                  >
+                    Termos da API Capivara
+                  </Link>
+                  . Comprometo-me a guardar a chave em segredo (variáveis de
+                  ambiente, secret manager) e nunca expor em código frontend.
+                </span>
+              </div>
+            </label>
+          </div>
+
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-2">
-            <Button type="submit" disabled={pending}>
+            <Button type="submit" disabled={pending || !acceptApiTerms}>
               {pending ? "Gerando..." : "Gerar chave"}
             </Button>
             <Button
@@ -260,6 +300,8 @@ function traduzErro(code: string): string {
       return "Apenas administradores da empresa podem criar chaves.";
     case "name_too_short":
       return "Nome muito curto (minimo 3 caracteres).";
+    case "api_terms_required":
+      return "Aceite obrigatório dos Termos da API.";
     case "no_company":
       return "Empresa nao configurada.";
     default:

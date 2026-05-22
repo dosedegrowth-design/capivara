@@ -52,8 +52,41 @@ export function SiteFooter() {
             </h4>
             <ul className="space-y-2 text-sm text-tabaco">
               <li><Link href="/como-funciona" className="hover:text-fur transition-colors">Como funciona</Link></li>
-              <li><Link href="/lgpd" className="hover:text-fur transition-colors">Privacidade · LGPD</Link></li>
+              <li><Link href="/casos-de-uso" className="hover:text-fur transition-colors">Casos de uso</Link></li>
               <li><Link href="/contato" className="hover:text-fur transition-colors">Contato</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Footer secundário: legal */}
+        <div className="mt-10 pt-6 border-t border-line/60 grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
+          <div>
+            <h5 className="font-mono uppercase tracking-wider text-tabaco/70 text-[10px] mb-2">
+              Legal
+            </h5>
+            <ul className="space-y-1 text-tabaco">
+              <li><Link href="/termos" className="hover:text-fur transition-colors">Termos de Uso</Link></li>
+              <li><Link href="/privacidade" className="hover:text-fur transition-colors">Política de Privacidade</Link></li>
+              <li><Link href="/cookies" className="hover:text-fur transition-colors">Política de Cookies</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-mono uppercase tracking-wider text-tabaco/70 text-[10px] mb-2">
+              B2B
+            </h5>
+            <ul className="space-y-1 text-tabaco">
+              <li><Link href="/empresa-termos" className="hover:text-fur transition-colors">Termos B2B / Empresa</Link></li>
+              <li><Link href="/api-termos" className="hover:text-fur transition-colors">Termos da API</Link></li>
+              <li><Link href="/responsabilidade-consulta" className="hover:text-fur transition-colors">Responsabilidade por Consulta</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="font-mono uppercase tracking-wider text-tabaco/70 text-[10px] mb-2">
+              Hub
+            </h5>
+            <ul className="space-y-1 text-tabaco">
+              <li><Link href="/legal" className="hover:text-fur transition-colors">Todos os documentos</Link></li>
+              <li><Link href="/configuracoes/meus-aceites" className="hover:text-fur transition-colors">Meus aceites (LGPD)</Link></li>
             </ul>
           </div>
         </div>

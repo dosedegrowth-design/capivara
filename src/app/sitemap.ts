@@ -27,6 +27,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/casos-de-uso/rh-contratacao`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/casos-de-uso/revenda-automotiva`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/casos-de-uso/analise-credito`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    // Documentos legais
+    { url: `${BASE_URL}/legal`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/termos`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE_URL}/privacidade`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE_URL}/cookies`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE_URL}/responsabilidade-consulta`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE_URL}/empresa-termos`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE_URL}/api-termos`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
   ];
 
   const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({

@@ -12,7 +12,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatCPF } from "@/lib/formatters";
 import { signUpAction } from "@/lib/auth/actions";
 
-export function CadastroForm({ tipoInicial }: { tipoInicial: "pf" | "empresa" }) {
+export function CadastroForm({
+  tipoInicial,
+  toSVersion,
+  privacyVersion,
+}: {
+  tipoInicial: "pf" | "empresa";
+  toSVersion: string;
+  privacyVersion: string;
+}) {
   const [erro, setErro] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [tipo, setTipo] = useState<"pf" | "empresa">(tipoInicial);
@@ -137,25 +145,53 @@ export function CadastroForm({ tipoInicial }: { tipoInicial: "pf" | "empresa" })
         )}
       </div>
 
+      {/* Aceite de Termos de Uso */}
       <div className="flex items-start gap-2 pt-2">
-        <Checkbox id="lgpdAceito" name="lgpdAceito" required />
+        <Checkbox id="acceptTOS" name="acceptTOS" required />
         <label
-          htmlFor="lgpdAceito"
+          htmlFor="acceptTOS"
           className="text-xs text-tabaco leading-relaxed cursor-pointer select-none"
         >
-          Li e concordo com os{" "}
+          <span className="text-red-600 mr-0.5">*</span>
+          Li e aceito os{" "}
           <Link
-            href="/lgpd"
+            href="/termos"
             target="_blank"
             className="text-fur underline-offset-4 hover:underline"
           >
-            termos de privacidade e LGPD
+            Termos de Uso
           </Link>
-          .
+          {" "}da Capivara (v{toSVersion})
         </label>
       </div>
-      {fieldErrors.lgpdAceito && (
-        <p className="text-xs text-err">{fieldErrors.lgpdAceito}</p>
+
+      {/* Aceite de Política de Privacidade */}
+      <div className="flex items-start gap-2">
+        <Checkbox id="acceptPrivacy" name="acceptPrivacy" required />
+        <label
+          htmlFor="acceptPrivacy"
+          className="text-xs text-tabaco leading-relaxed cursor-pointer select-none"
+        >
+          <span className="text-red-600 mr-0.5">*</span>
+          Li e aceito a{" "}
+          <Link
+            href="/privacidade"
+            target="_blank"
+            className="text-fur underline-offset-4 hover:underline"
+          >
+            Política de Privacidade
+          </Link>
+          {" "}(LGPD, v{privacyVersion})
+        </label>
+      </div>
+
+      <input type="hidden" name="lgpdAceito" value="on" />
+
+      {fieldErrors.acceptTOS && (
+        <p className="text-xs text-err">{fieldErrors.acceptTOS}</p>
+      )}
+      {fieldErrors.acceptPrivacy && (
+        <p className="text-xs text-err">{fieldErrors.acceptPrivacy}</p>
       )}
 
       {erro && (

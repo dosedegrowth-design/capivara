@@ -8,6 +8,7 @@ import { Mascot } from "@/components/capivara/mascot";
 import { findPlano, getResumoIncluido } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
 import { ConsultaForm } from "./consulta-form";
+import { CONSULTATION_RESPONSIBILITY } from "@/lib/legal/documents";
 
 export async function generateMetadata({
   params,
@@ -52,7 +53,10 @@ export default async function PlanoPage({
             <p className="mt-2 text-tabaco">{planoObj.descricao}</p>
           </div>
 
-          <ConsultaForm plano={planoObj} />
+          <ConsultaForm
+            plano={planoObj}
+            responsibilityVersion={CONSULTATION_RESPONSIBILITY.version}
+          />
         </div>
 
         {/* Sidebar: resumo + lista detalhada do que vem */}
