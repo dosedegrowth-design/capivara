@@ -16,9 +16,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/contato`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
     { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/consultar`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE_URL}/consultar/cpf`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/consultar/cnpj`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE_URL}/consultar/veicular`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/consultar/cpf`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE_URL}/consultar/cnpj`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE_URL}/consultar/veicular`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE_URL}/api-publica`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    { url: `${BASE_URL}/docs/api`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/docs/webhooks`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },
   ];
 
   const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({

@@ -9,11 +9,12 @@ import { Mascot } from "@/components/capivara/mascot";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/precos", label: "Preços" },
-  { href: "/como-funciona", label: "Como funciona" },
+  { href: "/consultar/cpf", label: "CPF" },
+  { href: "/consultar/cnpj", label: "CNPJ" },
+  { href: "/consultar/veicular", label: "Veicular" },
+  { href: "/api-publica", label: "API" },
   { href: "/empresas", label: "Empresas" },
   { href: "/blog", label: "Blog" },
-  { href: "/lgpd", label: "LGPD" },
 ];
 
 export function SiteHeader() {
