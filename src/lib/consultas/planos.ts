@@ -41,7 +41,7 @@ export const PLANOS_CPF: Plano[] = [
   {
     id: "cpf-investigacao",
     categoria: "cpf",
-    nome: "Investigacao",
+    nome: "Investigação",
     descricao: "Cadastro + enderecos, telefones, emails, parentes, empresas.",
     precoB2C_centavos: 1990,
     custoFolhasB2B: 12,
@@ -51,7 +51,7 @@ export const PLANOS_CPF: Plano[] = [
   {
     id: "cpf-avancada",
     categoria: "cpf",
-    nome: "Avancada",
+    nome: "Avançada",
     destaque: "popular",
     descricao: "Ultra completo + score + dividas Boa Vista + protestos.",
     precoB2C_centavos: 3990,
@@ -107,7 +107,7 @@ export const PLANOS_CNPJ: Plano[] = [
   {
     id: "cnpj-socios",
     categoria: "cnpj",
-    nome: "Espiadinha + Socios",
+    nome: "Espiadinha + Sócios",
     destaque: "popular",
     descricao: "Espiadinha + CPF Completo dos socios + Trabalhista da empresa.",
     precoB2C_centavos: 4990,
@@ -173,7 +173,7 @@ export const PLANOS_VEICULAR: Plano[] = [
   {
     id: "veicular-avancado",
     categoria: "veicular",
-    nome: "Avancado",
+    nome: "Avançado",
     destaque: "popular",
     descricao: "Completo + BIN Estadual + Proprietario + Gravame + Historico Roubo/Furto.",
     precoB2C_centavos: 5990,

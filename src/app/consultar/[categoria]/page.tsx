@@ -90,7 +90,7 @@ export default async function CategoriaPage({
       <PlanCarousel
         planos={planos}
         inclui={RESUMO_INCLUI}
-        cardWidth={260}
+        cardWidth={300}
       />
     </div>
   );

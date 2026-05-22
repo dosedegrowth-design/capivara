@@ -242,7 +242,7 @@ function CategoriaPlanos({
       </div>
 
       {/* Carrossel horizontal: ~4 cards visiveis em desktop, swipe em mobile */}
-      <PlanCarousel planos={planos} inclui={RESUMO_INCLUI} cardWidth={260} />
+      <PlanCarousel planos={planos} inclui={RESUMO_INCLUI} cardWidth={300} />
     </section>
   );
 }
