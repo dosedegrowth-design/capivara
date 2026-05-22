@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { Mascot } from "@/components/capivara/mascot";
+import { HeroMascot } from "@/components/capivara/hero-mascot";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCard } from "@/components/consulta/plan-card";
@@ -82,15 +83,12 @@ function Hero() {
             </div>
           </div>
 
-          {/* Mascote investigando — animação idle */}
-          <div className="relative flex items-center justify-center">
+          {/* Mascote investigando — SVG inline com animacoes elaboradas */}
+          <div className="relative flex items-center justify-center min-h-[260px] md:min-h-[340px]">
             <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
-            <Mascot
-              pose="investigando"
-              size={360}
-              animate="idle"
-              priority
-              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)]"
+            <HeroMascot
+              width={520}
+              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] max-w-full h-auto"
             />
           </div>
         </div>
