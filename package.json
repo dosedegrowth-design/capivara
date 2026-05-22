@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "gen:pdfs": "tsx scripts/generate-sample-pdfs.tsx"
+    "gen:pdfs": "tsx scripts/generate-sample-pdfs.tsx",
+    "seed:test": "tsx scripts/seed-test-accounts.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -50,6 +51,7 @@
     "@types/node": "^20.17.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9.18.0",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4.0.0",
