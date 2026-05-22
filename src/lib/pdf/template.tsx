@@ -1052,6 +1052,143 @@ function ItemsRenderer({ section }: { section: ResultSection }) {
       );
     }
 
+    case "protestos": {
+      const arr = items as Array<{
+        cartorio: string;
+        cidade_uf: string;
+        valor_centavos: number;
+        data_protesto: string;
+        status: string;
+      }>;
+      return (
+        <View>
+          <View style={styles.tableHeaderRow}>
+            <Text style={[styles.tableHeaderCell, { flex: 2 }]}>CARTÓRIO</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 1 }]}>CIDADE</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 1, textAlign: "right" }]}>VALOR</Text>
+            <Text style={[styles.tableHeaderCell, { width: 70, textAlign: "right" }]}>STATUS</Text>
+          </View>
+          {arr.map((p, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{p.cartorio}</Text>
+              <Text style={[styles.tableCellMono, { flex: 1 }]}>{p.cidade_uf}</Text>
+              <Text style={[styles.tableCellMono, { flex: 1, textAlign: "right" }]}>
+                {brl(p.valor_centavos)}
+              </Text>
+              <View style={{ width: 70, alignItems: "flex-end" }}>
+                <Badge
+                  label={p.status}
+                  variant={p.status === "ATIVO" ? "warn" : "ok"}
+                />
+              </View>
+            </View>
+          ))}
+        </View>
+      );
+    }
+
+    case "cheques": {
+      const arr = items as Array<{
+        banco: string;
+        data: string;
+        motivo: string;
+      }>;
+      return (
+        <View>
+          <View style={styles.tableHeaderRow}>
+            <Text style={[styles.tableHeaderCell, { flex: 2 }]}>BANCO</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 1 }]}>DATA</Text>
+            <Text style={[styles.tableHeaderCell, { flex: 2 }]}>MOTIVO</Text>
+          </View>
+          {arr.map((ch, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{ch.banco}</Text>
+              <Text style={[styles.tableCellMono, { flex: 1 }]}>
+                {new Date(ch.data).toLocaleDateString("pt-BR")}
+              </Text>
+              <Text style={[styles.tableCell, { flex: 2 }]}>{ch.motivo}</Text>
+            </View>
+          ))}
+        </View>
+      );
+    }
+
+    case "veiculo_recall": {
+      const arr = items as Array<{
+        campanha: string;
+        fabricante: string;
+        problema: string;
+        status: string;
+      }>;
+      return (
+        <View>
+          {arr.map((r, i) => (
+            <View
+              key={i}
+              style={[
+                styles.listItem,
+                { borderLeftColor: r.status === "ATIVO" ? c.warn : c.ok, borderLeftWidth: 3 },
+              ]}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <Text style={styles.listItemMain}>{r.campanha}</Text>
+                <Badge
+                  label={r.status}
+                  variant={r.status === "ATIVO" ? "warn" : "ok"}
+                />
+              </View>
+              <Text style={styles.listItemSub}>
+                {r.fabricante} · {r.problema}
+              </Text>
+            </View>
+          ))}
+        </View>
+      );
+    }
+
+    case "veiculo_leilao": {
+      const arr = items as Array<{
+        leiloeiro: string;
+        data: string;
+        motivo: string;
+        cidade_uf: string;
+      }>;
+      return (
+        <View>
+          {arr.map((l, i) => (
+            <View
+              key={i}
+              style={[
+                styles.listItem,
+                { borderLeftColor: c.warn, borderLeftWidth: 3 },
+              ]}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  marginBottom: 4,
+                }}
+              >
+                <Text style={styles.listItemMain}>{l.motivo}</Text>
+                <Badge label="LEILÃO" variant="warn" />
+              </View>
+              <Text style={styles.listItemSub}>
+                {l.leiloeiro} · {l.cidade_uf} ·{" "}
+                {new Date(l.data).toLocaleDateString("pt-BR")}
+              </Text>
+            </View>
+          ))}
+        </View>
+      );
+    }
+
     default:
       return (
         <View>

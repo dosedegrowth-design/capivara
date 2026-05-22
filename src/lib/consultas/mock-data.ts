@@ -288,7 +288,15 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
     id: "protestos",
     type: "table",
     title: "Protestos cartoriais",
-    items: [],
+    items: [
+      {
+        cartorio: "1º Tabelionato de Protesto",
+        cidade_uf: "São Paulo / SP",
+        valor_centavos: 156000,
+        data_protesto: "2024-03-22",
+        status: "BAIXADO",
+      },
+    ],
   });
 
   if (planTier === "cpf-avancada") return sections;
