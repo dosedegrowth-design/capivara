@@ -46,7 +46,7 @@ export default async function ApiPage() {
             </h1>
             <p className="mt-2 text-tabaco">
               Puxe capivaras direto do seu sistema. Sem painel, sem login,
-              cobrado em folhas (creditos) da empresa.
+              cobrado por consulta — você compra um pacote de créditos e cada chamada debita o valor da consulta.
             </p>
           </div>
 
@@ -109,7 +109,7 @@ export default async function ApiPage() {
               </li>
               <li>
                 <Link href="/empresa/creditos" className="text-fur hover:underline">
-                  Como funcionam as folhas
+                  Como funcionam os créditos
                 </Link>
               </li>
             </ul>

@@ -132,7 +132,7 @@ export default function CNPJLandingPage() {
             },
             {
               q: "Posso usar via API no meu sistema (ERP, CRM, antifraude)?",
-              a: "Sim. API REST com Bearer token, idempotência via external_reference e webhooks HMAC. Cobramos em folhas (créditos B2B). Veja em /api-publica.",
+              a: "Sim. API REST com Bearer token, idempotência via external_reference e webhooks HMAC. Cobrança por consulta (você compra um pacote de créditos e cada chamada debita o valor). Veja em /api-publica.",
             },
             {
               q: "E se o CNPJ estiver baixado ou suspenso?",

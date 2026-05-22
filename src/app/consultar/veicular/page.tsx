@@ -145,7 +145,7 @@ export default function VeicularLandingPage() {
             },
             {
               q: "Posso consultar várias placas de uma vez (frota)?",
-              a: "Sim. Empresas usam nossa API B2B com idempotência por external_reference. Cobramos em folhas (créditos prepagos). Veja em /api-publica.",
+              a: "Sim. Empresas usam nossa API B2B com idempotência por external_reference. Cobrança por consulta (créditos prepagos, R$ por chamada). Veja em /api-publica.",
             },
           ],
           planos: PLANOS_VEICULAR,

@@ -282,6 +282,40 @@ export function planosPorCategoria(cat: CategoriaConsulta): Plano[] {
 }
 
 // =========================================================================
+// Preço por consulta (B2B)
+//
+// Internamente, empresas usam um wallet de creditos (folhas). Quando uma
+// API call e feita, debitamos N creditos do saldo, onde N = plano.custoFolhasB2B.
+// O preço POR CONSULTA depende do pacote que a empresa comprou (quanto maior
+// o pacote, menor o R$/credito).
+//
+// As funcoes abaixo convertem creditos -> R$ pra exibir nas tabelas publicas
+// sempre em "R$ por consulta" (que e o que o cliente entende).
+// =========================================================================
+
+/** R$ por credito (centavos) em cada tier do pacote Manada. */
+export function precoPorCreditoCentavos(pacote: PacoteManada): number {
+  return pacote.valor_centavos / pacote.folhasTotais;
+}
+
+/** Quanto custa uma consulta de um plano específico, num determinado pacote. */
+export function precoConsultaCentavos(plano: Plano, pacote: PacoteManada): number {
+  return Math.round(precoPorCreditoCentavos(pacote) * plano.custoFolhasB2B);
+}
+
+/**
+ * Range de preço por consulta: do pacote mais caro/credito (Start) ao
+ * mais barato/credito (Master). Útil pra mostrar "a partir de R$X" + "ate R$Y".
+ */
+export function rangePrecoConsultaCentavos(plano: Plano): { min: number; max: number } {
+  const precos = PACOTES_MANADA.map((p) => precoConsultaCentavos(plano, p));
+  return {
+    min: Math.min(...precos),
+    max: Math.max(...precos),
+  };
+}
+
+// =========================================================================
 // RESUMO_INCLUI — fonte da verdade do conteudo de cada plano
 //
 // Usado em: /precos cards, /consultar/[cat]/[plano] checkout, PDF do relatorio.

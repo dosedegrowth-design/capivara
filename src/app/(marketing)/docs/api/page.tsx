@@ -4,6 +4,15 @@ import { ArrowLeft, ArrowRight, Book, ChevronRight, Webhook } from "lucide-react
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  TODOS_PLANOS,
+  PACOTES_MANADA,
+  precoConsultaCentavos,
+} from "@/lib/consultas/planos";
+import { formatBRL } from "@/lib/formatters";
+
+const PACOTE_MAIOR = PACOTES_MANADA[PACOTES_MANADA.length - 1];
+const PACOTE_MENOR = PACOTES_MANADA[0];
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
 
@@ -34,8 +43,9 @@ export default function ApiDocsPage() {
             Documentação da API
           </h1>
           <p className="mt-3 text-tabaco text-lg">
-            Endpoints REST pra consultar CPF, CNPJ e veicular. Auth por Bearer token, cobrança em
-            folhas (créditos prepagos B2B).
+            Endpoints REST pra consultar CPF, CNPJ e veicular. Auth por Bearer token,
+            <strong className="text-cocoa"> cobrança por consulta</strong> em créditos prepagos
+            (você compra um pacote e cada chamada debita o valor da consulta).
           </p>
         </header>
 
@@ -95,8 +105,8 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
             <section id="post-consultations" className="scroll-mt-20">
               <H2>POST /consultations</H2>
               <P>
-                Cria uma consulta nova. Cobra <Code>custo_folhas</Code> do plano em folhas da
-                empresa. Retorna <Code>201 Created</Code> com o registro.
+                Cria uma consulta nova. Debita o valor da consulta dos créditos da empresa.
+                Retorna <Code>201 Created</Code> com o registro.
               </P>
 
               <H3>Request body</H3>
@@ -174,7 +184,7 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
               </CodeBlock>
 
               <P>
-                <Code>status</Code> começa em <Code>paid</Code> (folhas já debitadas) e vira{" "}
+                <Code>status</Code> começa em <Code>paid</Code> (créditos já debitados) e vira{" "}
                 <Code>processing</Code> → <Code>completed</Code>. Quando ficar completed, o{" "}
                 <Code>pdf_url</Code> é populado e disparamos o webhook{" "}
                 <Code>consultation.completed</Code>.
@@ -250,10 +260,10 @@ curl 'https://capivara.app/api/v1/consultations/a1b2c3d4-...?include=result' \\
                   </tr>
                 </thead>
                 <tbody>
-                  <Row field="paid" type="" desc="Pagamento confirmado (folhas debitadas). Vai pra fila de processamento." />
+                  <Row field="paid" type="" desc="Pagamento confirmado (créditos debitados). Vai pra fila de processamento." />
                   <Row field="processing" type="" desc="Edge function rodando. Geralmente <30s." />
                   <Row field="completed" type="" desc="PDF gerado + webhook disparado. pdf_url disponível." />
-                  <Row field="error" type="" desc="Falha em alguma API externa. Folhas devolvidas automaticamente." />
+                  <Row field="error" type="" desc="Falha em alguma API externa. Créditos devolvidos automaticamente." />
                 </tbody>
               </Table>
             </section>
@@ -304,7 +314,7 @@ curl 'https://capivara.app/api/v1/consultations/a1b2c3d4-...?include=result' \\
                   <Row field="missing_fields" type="400" desc="plan_id ou target faltando" />
                   <Row field="invalid_target" type="422" desc="CPF/CNPJ/placa inválido (dígito verificador)" />
                   <Row field="plan_not_found" type="404" desc="plan_id não existe" />
-                  <Row field="insufficient_credits" type="402" desc="Empresa sem folhas suficientes" />
+                  <Row field="insufficient_credits" type="402" desc="Empresa sem créditos suficientes" />
                   <Row field="invalid_json" type="400" desc="Body não é JSON válido" />
                 </tbody>
               </Table>
@@ -312,26 +322,48 @@ curl 'https://capivara.app/api/v1/consultations/a1b2c3d4-...?include=result' \\
 
             {/* IDs de plano */}
             <section id="plan-ids" className="scroll-mt-20">
-              <H2>IDs de plano</H2>
-              <Table>
-                <thead>
-                  <tr>
-                    <Th>plan_id</Th>
-                    <Th>Categoria</Th>
-                    <Th>Folhas</Th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {PLAN_IDS.map((p) => (
-                    <Row
-                      key={p.id}
-                      field={p.id}
-                      type={p.cat}
-                      desc={`${p.folhas} folhas`}
-                    />
-                  ))}
-                </tbody>
-              </Table>
+              <H2>IDs de plano e preço por consulta</H2>
+              <P>
+                Cada chamada da API debita o valor da consulta. O preço efetivo varia
+                pelo pacote de créditos comprado — colunas abaixo mostram o intervalo
+                entre o pacote menor (Start) e o maior (Reserva).
+              </P>
+              <div className="rounded-lg border border-line bg-card overflow-hidden my-4 overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      <Th>plan_id</Th>
+                      <Th>Categoria</Th>
+                      <Th>R$ / consulta</Th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TODOS_PLANOS.map((p) => {
+                      const min = precoConsultaCentavos(p, PACOTE_MAIOR);
+                      const max = precoConsultaCentavos(p, PACOTE_MENOR);
+                      return (
+                        <tr key={p.id} className="border-t border-line/40">
+                          <td className="px-4 py-2 font-mono text-xs text-fur whitespace-nowrap">
+                            {p.id}
+                          </td>
+                          <td className="px-4 py-2 font-mono text-xs text-tabaco">
+                            {p.categoria}
+                          </td>
+                          <td className="px-4 py-2 text-xs text-cocoa whitespace-nowrap">
+                            <strong className="text-fur font-mono">{formatBRL(min)}</strong>
+                            <span className="text-tabaco/70 font-mono"> a </span>
+                            <span className="font-mono">{formatBRL(max)}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs font-mono text-tabaco/70 leading-relaxed">
+                Min = pacote Reserva (R$ 3.000) · Max = pacote Start (R$ 200). Mais
+                consultas no pacote = menor R$/consulta.
+              </p>
             </section>
 
             {/* Webhooks link */}
@@ -371,23 +403,6 @@ const TOC = [
   { href: "#rate-limits", label: "Rate limits" },
   { href: "#errors", label: "Erros" },
   { href: "#plan-ids", label: "IDs de plano" },
-];
-
-const PLAN_IDS = [
-  { id: "cpf-espiadinha", cat: "cpf", folhas: 6 },
-  { id: "cpf-investigacao", cat: "cpf", folhas: 12 },
-  { id: "cpf-avancada", cat: "cpf", folhas: 24 },
-  { id: "cpf-premium", cat: "cpf", folhas: 48 },
-  { id: "cpf-raio-x", cat: "cpf", folhas: 96 },
-  { id: "cnpj-espiadinha", cat: "cnpj", folhas: 5 },
-  { id: "cnpj-socios", cat: "cnpj", folhas: 12 },
-  { id: "cnpj-premium", cat: "cnpj", folhas: 24 },
-  { id: "cnpj-total", cat: "cnpj", folhas: 60 },
-  { id: "veicular-espiadinha", cat: "veicular", folhas: 8 },
-  { id: "veicular-completo", cat: "veicular", folhas: 16 },
-  { id: "veicular-avancado", cat: "veicular", folhas: 28 },
-  { id: "veicular-premium", cat: "veicular", folhas: 50 },
-  { id: "veicular-total", cat: "veicular", folhas: 90 },
 ];
 
 function H2({ children }: { children: React.ReactNode }) {
