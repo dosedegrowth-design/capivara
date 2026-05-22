@@ -83,7 +83,7 @@ export default async function PlanoPage({
           </dl>
 
           <p className="text-xs font-mono text-tabaco/70 mt-4 leading-relaxed">
-            Pagamento via Asaas. PIX confirma em segundos. Boleto até 2 dias úteis.
+            PIX confirma em segundos. Boleto leva até 2 dias úteis.
           </p>
         </aside>
       </div>

@@ -186,7 +186,7 @@ const RECURSOS = [
     icon: Receipt,
     title: "NF-e automática",
     description:
-      "Toda recarga emite NF-e via Asaas. Envio direto para o e-mail de cobrança da empresa.",
+      "Toda recarga emite NF-e automaticamente. Envio direto para o e-mail de cobrança da empresa.",
   },
   {
     icon: Headphones,
