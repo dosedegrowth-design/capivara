@@ -40,34 +40,34 @@ export default function Home() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-12 md:pt-16 md:pb-16">
-        <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-4 pb-8 sm:pt-8 sm:pb-10 md:pt-16 md:pb-16">
+        <div className="grid items-center gap-4 sm:gap-8 md:gap-12 md:grid-cols-2">
           {/* Mascote no MOBILE aparece primeiro (centralizado, menor); em desktop fica na direita */}
-          <div className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] md:min-h-[340px] md:order-2">
+          <div className="relative flex items-center justify-center min-h-[140px] sm:min-h-[220px] md:min-h-[340px] md:order-2">
             <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
             <HeroMascot
               width={520}
-              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[280px] sm:max-w-[360px] md:max-w-[520px] h-auto"
+              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[200px] sm:max-w-[320px] md:max-w-[520px] h-auto"
             />
           </div>
 
-          <div className="space-y-5 md:space-y-6 text-center md:text-left md:order-1">
+          <div className="space-y-3 sm:space-y-5 md:space-y-6 text-center md:text-left md:order-1">
             <Badge variant="secondary" className="font-mono">
               <span className="text-fur mr-1.5">●</span> Sem mensalidade, sem cadastro complicado
             </Badge>
 
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cocoa leading-[1.05]">
+            <h1 className="font-display text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cocoa leading-[1.05]">
               Puxe a capivara antes de fechar negócio.
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
+            <p className="text-sm sm:text-lg md:text-xl text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
               Consulta rápida e completa de histórico de qualquer{" "}
               <strong className="text-cocoa">pessoa</strong>,{" "}
               <strong className="text-cocoa">empresa</strong> ou{" "}
               <strong className="text-cocoa">veículo</strong>. Em segundos, com PDF baixável.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 pt-1 sm:pt-2 justify-center md:justify-start">
               <Button asChild variant="accent" size="xl">
                 <Link href="/consultar">
                   Puxar minha primeira capivara
@@ -79,7 +79,7 @@ function Hero() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4 text-xs font-mono text-tabaco/80">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-2 sm:pt-4 text-[11px] sm:text-xs font-mono text-tabaco/80">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-ok" /> LGPD compliant
               </span>

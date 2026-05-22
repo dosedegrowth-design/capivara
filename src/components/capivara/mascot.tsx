@@ -27,6 +27,16 @@ const POSE_LABELS: Record<MascotPose, string> = {
   heroico: "Capivara em pose heroica",
 };
 
+// Aspect ratio (width / height) de cada SVG. Heroico inclui aura ao redor,
+// por isso e mais quadrado que o resto.
+const POSE_ASPECT: Record<MascotPose, number> = {
+  padrao: 1.5,
+  investigando: 1.5,
+  concluido: 1.5,
+  atencao: 1.5,
+  heroico: 1.2,
+};
+
 /**
  * Mascote oficial Capivara · brandbook Cerrado v1.0.
  *
@@ -48,13 +58,16 @@ export function Mascot({
       ? "capivara-investigando"
       : "";
 
+  const aspect = POSE_ASPECT[pose] ?? 1.5;
+  const height = Math.round(size / aspect);
+
   return (
     <span className={cn("inline-block", animClass, className)}>
       <Image
         src={`/brand/mascot/${pose}.svg`}
         alt={alt ?? POSE_LABELS[pose]}
         width={size}
-        height={size}
+        height={height}
         priority={priority}
       />
     </span>
