@@ -21,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
+import { ManadaCarousel } from "@/components/consulta/manada-carousel";
 import { PACOTES_MANADA } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
 
@@ -242,60 +243,7 @@ function PacotesResumo() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {PACOTES_MANADA.map((pacote, i) => (
-            <div
-              key={pacote.id}
-              className={`relative flex flex-col rounded-lg border p-6 bg-card transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-0.5 ${
-                i === 1 ? "border-saffron ring-1 ring-saffron/30" : "border-line"
-              }`}
-            >
-              {i === 1 && (
-                <Badge variant="accent" className="absolute -top-3 left-6">
-                  Mais escolhido
-                </Badge>
-              )}
-              <h3 className="font-display text-xl font-bold text-cocoa">
-                {pacote.nome}
-              </h3>
-              <div className="mt-3 flex items-baseline gap-1">
-                <span className="font-display text-3xl font-bold text-cocoa">
-                  {formatBRL(pacote.valor_centavos)}
-                </span>
-              </div>
-              <div className="mt-1 flex items-center gap-2 text-sm">
-                <span className="font-mono font-bold text-fur">
-                  {pacote.folhasTotais}
-                </span>
-                <span className="text-tabaco">créditos</span>
-              </div>
-              <Badge variant="ok" className="text-[10px] mt-2 self-start">
-                +{pacote.bonusPercent}% bônus
-              </Badge>
-
-              <ul className="mt-5 mb-6 space-y-2 flex-1">
-                {pacote.recursos.map((r) => (
-                  <li
-                    key={r}
-                    className="flex items-start gap-2 text-sm text-cocoa"
-                  >
-                    <Check className="size-4 shrink-0 text-ok mt-0.5" />
-                    <span>{r}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                asChild
-                variant={i === 1 ? "accent" : "secondary"}
-                size="md"
-                className="w-full"
-              >
-                <Link href="/cadastro?tipo=empresa">Começar</Link>
-              </Button>
-            </div>
-          ))}
-        </div>
+        <ManadaCarousel pacotes={PACOTES_MANADA} />
 
         <div className="text-center mt-8">
           <Link
