@@ -40,7 +40,7 @@ export default function Home() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-20 md:pt-28 md:pb-32">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-12 md:pt-16 md:pb-16">
         <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
           {/* Mascote no MOBILE aparece primeiro (centralizado, menor); em desktop fica na direita */}
           <div className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] md:min-h-[340px] md:order-2">
