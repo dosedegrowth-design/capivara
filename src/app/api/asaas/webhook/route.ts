@@ -55,10 +55,77 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
 
-  // 3. Buscar consulta pela ref
+  // 3. Buscar referencia: pode ser consulta (B2C avulso) ou recarga (B2B)
   const externalRef = payment.externalReference ?? "";
+
+  // ---- RECARGA B2B: recharge:companyId:pacoteId ----
+  if (externalRef.startsWith("recharge:")) {
+    const [, companyId, pacoteId] = externalRef.split(":");
+    if (!companyId || !pacoteId) return NextResponse.json({ ok: true });
+
+    try {
+      switch (event.event) {
+        case "PAYMENT_CONFIRMED":
+        case "PAYMENT_RECEIVED": {
+          // Pega a transaction da recarga
+          const { data: tx } = await admin
+            .from("transactions")
+            .select("id, folhas_added, status")
+            .eq("asaas_payment_id", payment.id)
+            .maybeSingle();
+
+          if (!tx || tx.status === "paid") {
+            // Ja processado (idempotencia)
+            break;
+          }
+
+          // Marca como paga
+          await admin
+            .from("transactions")
+            .update({
+              status: "paid",
+              paid_at: new Date().toISOString(),
+              asaas_response: payment as unknown as Record<string, unknown>,
+            })
+            .eq("id", tx.id);
+
+          // Adiciona folhas no saldo da empresa (atomic via RPC)
+          const folhas = tx.folhas_added ?? 0;
+          if (folhas > 0) {
+            await admin.rpc("add_credits", {
+              p_company_id: companyId,
+              p_credits: folhas,
+            });
+          }
+          break;
+        }
+
+        case "PAYMENT_OVERDUE":
+        case "PAYMENT_DELETED": {
+          await admin
+            .from("transactions")
+            .update({
+              status: event.event === "PAYMENT_OVERDUE" ? "expired" : "cancelled",
+              expired_at: event.event === "PAYMENT_OVERDUE" ? new Date().toISOString() : null,
+            })
+            .eq("asaas_payment_id", payment.id);
+          break;
+        }
+      }
+    } catch (err) {
+      await logError({
+        context: "asaas_webhook.recharge",
+        severity: "error",
+        message: `Falha processando recarga ${event.event}`,
+        error: err instanceof Error ? err : new Error(String(err)),
+        metadata: { event: event.event, paymentId: payment.id, companyId, pacoteId },
+      });
+    }
+    return NextResponse.json({ ok: true });
+  }
+
+  // ---- CONSULTA B2C: consultation:consultaId ----
   if (!externalRef.startsWith("consultation:")) {
-    // Pode ser recharge B2B ou outra origem — futuro
     return NextResponse.json({ ok: true });
   }
   const consultaId = externalRef.slice("consultation:".length);

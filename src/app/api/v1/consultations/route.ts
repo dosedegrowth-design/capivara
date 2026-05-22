@@ -54,6 +54,38 @@ export async function POST(req: NextRequest) {
     return errResponse(401, `unauthorized:${auth.reason ?? "unknown"}`);
   }
 
+  // Rate limiting: conta consultas criadas pela mesma chave no ultimo minuto.
+  // Limite default 60/min, configuravel por chave em api_keys.rate_limit_per_min.
+  const adminRL = createAdminClient();
+  const oneMinAgo = new Date(Date.now() - 60_000).toISOString();
+  const { count: recentCount } = await adminRL
+    .from("consultations")
+    .select("id", { count: "exact", head: true })
+    .eq("api_key_id", auth.apiKey.id)
+    .gte("created_at", oneMinAgo);
+
+  if ((recentCount ?? 0) >= auth.apiKey.rate_limit_per_min) {
+    return NextResponse.json(
+      {
+        error: "rate_limited",
+        details: {
+          limit: auth.apiKey.rate_limit_per_min,
+          window: "60s",
+          retry_after: 60,
+        },
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": "60",
+          "X-RateLimit-Limit": String(auth.apiKey.rate_limit_per_min),
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + 60),
+        },
+      }
+    );
+  }
+
   let body: CreateBody;
   try {
     body = (await req.json()) as CreateBody;

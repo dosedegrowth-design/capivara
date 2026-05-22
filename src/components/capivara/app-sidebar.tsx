@@ -13,7 +13,7 @@ const NAV = [
   { href: "/dashboard/nova-consulta", icon: Search, label: "Nova consulta" },
   { href: "/dashboard/historico", icon: History, label: "Histórico" },
   { href: "/dashboard/pagamentos", icon: CreditCard, label: "Pagamentos" },
-  { href: "/dashboard/configuracoes", icon: Settings, label: "Configurações" },
+  { href: "/configuracoes", icon: Settings, label: "Configurações" },
 ];
 
 export function AppSidebar({ userName }: { userName: string }) {

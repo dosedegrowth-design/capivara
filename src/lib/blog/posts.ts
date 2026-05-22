@@ -11,6 +11,11 @@ import type { ReactNode } from "react";
 import { PostComoConsultarCPF } from "./posts/como-consultar-cpf";
 import { PostAntesDeComprarCarro } from "./posts/antes-de-comprar-carro";
 import { PostInquilino } from "./posts/verificar-inquilino";
+import { PostLGPDFinalidade } from "./posts/lgpd-finalidade-consulta";
+import { PostScoreCredito } from "./posts/score-credito-explicado";
+import { PostCNPJDueDiligence } from "./posts/cnpj-due-diligence";
+import { PostAPIIntegracao } from "./posts/api-integracao-passo-a-passo";
+import { PostRecallVeicular } from "./posts/recall-veicular-checagem";
 
 export interface BlogPost {
   slug: string;
@@ -64,6 +69,71 @@ export const BLOG_POSTS: BlogPost[] = [
     readingMinutes: 6,
     body: PostInquilino,
     ogImageEmoji: "🏠",
+  },
+  {
+    slug: "lgpd-finalidade-consulta-cpf-cnpj",
+    title: "LGPD na consulta de CPF e CNPJ: o que você precisa declarar",
+    excerpt:
+      "Toda consulta exige finalidade. Veja o que aceitar, o que evitar e como provar legítimo interesse em auditoria da ANPD.",
+    category: "LGPD",
+    tags: ["lgpd", "anpd", "compliance", "legitimo interesse", "consulta cpf"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-20T10:00:00Z",
+    readingMinutes: 5,
+    body: PostLGPDFinalidade,
+    ogImageEmoji: "🔒",
+  },
+  {
+    slug: "score-credito-explicado-faixas",
+    title: "Score de crédito explicado: faixas, cálculo e como melhorar",
+    excerpt:
+      "0 a 1000. Mas o que cada faixa significa e por que a mesma pessoa tem scores diferentes em Serasa e Boa Vista no mesmo dia.",
+    category: "Crédito",
+    tags: ["score", "credito", "serasa", "boa vista", "spc"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-18T10:00:00Z",
+    readingMinutes: 6,
+    body: PostScoreCredito,
+    ogImageEmoji: "📊",
+  },
+  {
+    slug: "cnpj-due-diligence-checklist",
+    title: "Due diligence de CNPJ: checklist antes de assinar contrato",
+    excerpt:
+      "Quadro de sócios, certidões, score empresarial, processos trabalhistas. Em 5 minutos você sabe com quem está lidando.",
+    category: "CPF",
+    tags: ["cnpj", "due diligence", "contrato", "fornecedor", "compliance"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-16T10:00:00Z",
+    readingMinutes: 8,
+    body: PostCNPJDueDiligence,
+    ogImageEmoji: "🏢",
+  },
+  {
+    slug: "api-integracao-consulta-cpf-cnpj",
+    title: "Como integrar consulta de CPF/CNPJ via API no seu sistema",
+    excerpt:
+      "Bearer token, idempotência, webhook HMAC. Tudo que você precisa pra automatizar consultas no seu CRM ou antifraude.",
+    category: "CPF",
+    tags: ["api", "integracao", "rest", "webhook", "hmac"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-14T10:00:00Z",
+    readingMinutes: 7,
+    body: PostAPIIntegracao,
+    ogImageEmoji: "🔌",
+  },
+  {
+    slug: "recall-veicular-como-verificar",
+    title: "Recall veicular: como verificar antes de comprar carro usado",
+    excerpt:
+      "40% dos recalls no Brasil ficam não atendidos. Antes de comprar, sempre confira — peça defeituosa segue rodando.",
+    category: "Veicular",
+    tags: ["recall", "carro usado", "seguranca", "denatran"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-12T10:00:00Z",
+    readingMinutes: 5,
+    body: PostRecallVeicular,
+    ogImageEmoji: "🛞",
   },
 ];
 
