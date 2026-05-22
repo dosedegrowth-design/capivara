@@ -3,7 +3,7 @@ import { ArrowRight, Check, ShieldCheck, Zap, FileText, type LucideIcon } from "
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mascot, type MascotPose } from "@/components/capivara/mascot";
+import { CategoriaHeroMascot } from "@/components/capivara/categoria-hero-mascot";
 import { PlanCarousel } from "@/components/consulta/plan-carousel";
 import { RESUMO_INCLUI, type Plano } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
@@ -23,8 +23,6 @@ export interface CategoriaLandingContent {
   subheadline: string;
   /** Badge no topo do hero */
   badgeText: string;
-  /** Pose da capivara no hero */
-  mascotPose: MascotPose;
   /** Casos de uso (4 cards) */
   useCases: { icon: LucideIcon; title: string; description: string }[];
   /** O que voce recebe (4-6 bullets por nivel) */
@@ -44,15 +42,13 @@ export function CategoriaLanding({ content }: { content: CategoriaLandingContent
       <section className="relative overflow-hidden">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-12 md:pt-16 md:pb-20">
           <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
-            {/* Mascote */}
-            <div className="relative flex items-center justify-center min-h-[160px] md:min-h-[320px] md:order-2">
+            {/* Mascote contextualizado por categoria */}
+            <div className="relative flex items-center justify-center min-h-[180px] md:min-h-[340px] md:order-2">
               <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
-              <Mascot
-                pose={content.mascotPose}
-                size={420}
-                animate="idle"
-                className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[220px] sm:max-w-[320px] md:max-w-[420px] h-auto"
-                priority
+              <CategoriaHeroMascot
+                category={content.categoria}
+                width={560}
+                className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[260px] sm:max-w-[380px] md:max-w-[480px] h-auto"
               />
             </div>
 

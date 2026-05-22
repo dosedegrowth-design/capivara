@@ -22,9 +22,9 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   }
 
   return (
-    <form action={action} className="mt-6 space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+    <form action={action} className="space-y-4">
+      <div className="space-y-1.5">
+        <Label htmlFor="email" className="text-cream/80">Email</Label>
         <Input
           id="email"
           name="email"
@@ -32,15 +32,16 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           placeholder="voce@email.com"
           autoComplete="email"
           required
+          className="bg-cream/[0.06] border-cream/20 text-cream placeholder:text-cream/30 focus-visible:border-saffron focus-visible:ring-saffron/20"
         />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <Label htmlFor="senha">Senha</Label>
+          <Label htmlFor="senha" className="text-cream/80">Senha</Label>
           <Link
             href="/recuperar-senha"
-            className="text-xs text-tabaco hover:text-fur transition-colors"
+            className="text-xs text-cream/60 hover:text-saffron transition-colors"
           >
             Esqueci minha senha
           </Link>
@@ -52,12 +53,12 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
             type={mostrarSenha ? "text" : "password"}
             autoComplete="current-password"
             required
-            className="pr-10"
+            className="pr-10 bg-cream/[0.06] border-cream/20 text-cream placeholder:text-cream/30 focus-visible:border-saffron focus-visible:ring-saffron/20"
           />
           <button
             type="button"
             onClick={() => setMostrarSenha((v) => !v)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-tabaco hover:text-fur transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-cream/50 hover:text-saffron transition-colors"
             tabIndex={-1}
             aria-label={mostrarSenha ? "Esconder senha" : "Mostrar senha"}
           >
@@ -71,7 +72,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
       </div>
 
       {error && (
-        <div className="rounded-md border border-err/30 bg-err/10 px-3 py-2 text-sm text-err">
+        <div className="rounded-md border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
           {error}
         </div>
       )}
@@ -86,7 +87,7 @@ function SubmitButton() {
   return (
     <Button
       type="submit"
-      variant="primary"
+      variant="accent"
       size="lg"
       className="w-full"
       disabled={pending}

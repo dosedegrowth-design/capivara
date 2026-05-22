@@ -46,7 +46,6 @@ export default function CPFLandingPage() {
           subheadline:
             "Score, dívidas, protestos, vínculos, telefones e endereços. Tudo em um PDF assinado, pronto em segundos. Sem mensalidade — você só paga as consultas que fizer.",
           badgeText: "Consulta CPF · pessoa física",
-          mascotPose: "investigando",
           useCases: [
             {
               icon: Home,

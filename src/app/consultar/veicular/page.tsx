@@ -42,7 +42,6 @@ export default function VeicularLandingPage() {
           subheadline:
             "Leilão, sinistro, roubo, multas, débitos e recall. Tudo que o vendedor não te conta sobre a história do carro. Em segundos, com PDF baixável.",
           badgeText: "Consulta veicular · placa",
-          mascotPose: "investigando",
           useCases: [
             {
               icon: Car,

@@ -41,7 +41,6 @@ export default function CNPJLandingPage() {
           subheadline:
             "Quadro de sócios, situação na Receita, certidões trabalhistas e fiscais, score empresarial. Tudo em PDF assinado, pronto em segundos. Sem mensalidade.",
           badgeText: "Consulta CNPJ · pessoa jurídica",
-          mascotPose: "heroico",
           useCases: [
             {
               icon: FileSignature,
