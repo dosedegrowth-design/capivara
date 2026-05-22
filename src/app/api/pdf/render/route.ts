@@ -4,6 +4,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { RelatorioPDF } from "@/lib/pdf/template";
 import { logError } from "@/lib/log";
 import type { ConsultaResult } from "@/lib/consultas/mock-data";
+import { sendEmail } from "@/lib/email/client";
+import { emailConsultaPronta } from "@/lib/email/templates";
+import { findPlano } from "@/lib/consultas/planos";
+import { dispatchEvent } from "@/lib/webhooks";
 
 /**
  * POST /api/pdf/render
@@ -126,6 +130,87 @@ export async function POST(req: NextRequest) {
       .from("consultations")
       .update({ pdf_url: signed.signedUrl })
       .eq("id", consulta.id);
+
+    // 6. Email "consulta pronta" (fire-and-forget; idempotente via flag)
+    try {
+      if (!consulta.email_completion_sent_at) {
+        // Carregar profile pra pegar nome + email
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("full_name, email")
+          .eq("id", consulta.user_id)
+          .maybeSingle();
+
+        if (profile?.email) {
+          const plano = findPlano(consulta.plan_tier);
+          const categoriaLabel: "CPF" | "CNPJ" | "Veicular" =
+            consulta.category === "cpf"
+              ? "CPF"
+              : consulta.category === "cnpj"
+              ? "CNPJ"
+              : "Veicular";
+
+          const tpl = emailConsultaPronta({
+            nome: profile.full_name ?? "voce",
+            categoria: categoriaLabel,
+            target: consulta.target_value,
+            plano: plano?.nome ?? consulta.plan_tier,
+            consultationId: consulta.id,
+            pdfUrl: signed.signedUrl,
+          });
+
+          const r = await sendEmail({
+            to: profile.email,
+            subject: tpl.subject,
+            html: tpl.html,
+            tags: [
+              { name: "type", value: "consultation_ready" },
+              { name: "category", value: consulta.category },
+            ],
+          });
+
+          if (r.ok) {
+            await admin
+              .from("consultations")
+              .update({ email_completion_sent_at: new Date().toISOString() })
+              .eq("id", consulta.id);
+          }
+        }
+      }
+    } catch (emailErr) {
+      // Nao bloqueia o response: log e segue
+      await logError({
+        context: "pdf_render.email",
+        severity: "warning",
+        message: "Falha ao enviar email de consulta pronta",
+        error: emailErr instanceof Error ? emailErr : new Error(String(emailErr)),
+        consultationId: consulta.id,
+      });
+    }
+
+    // 7. Dispatch webhook B2B consultation.completed (se company_id setado)
+    if (consulta.company_id) {
+      try {
+        await dispatchEvent(consulta.company_id, "consultation.completed", {
+          consultation_id: consulta.id,
+          external_reference: consulta.external_reference ?? null,
+          plan_id: consulta.plan_tier,
+          category: consulta.category,
+          target: consulta.target_value,
+          status: "completed",
+          pdf_url: signed.signedUrl,
+          completed_at: consulta.completed_at ?? new Date().toISOString(),
+        });
+      } catch (whErr) {
+        await logError({
+          context: "pdf_render.webhook_dispatch",
+          severity: "warning",
+          message: "Falha ao despachar webhook consultation.completed",
+          error: whErr instanceof Error ? whErr : new Error(String(whErr)),
+          consultationId: consulta.id,
+        });
+      }
+    }
 
     return NextResponse.json({
       ok: true,

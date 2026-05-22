@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logError } from "@/lib/log";
 import type { AsaasWebhookEvent } from "@/lib/asaas/types";
+import { dispatchEvent } from "@/lib/webhooks";
 
 /**
  * Webhook Asaas — recebe eventos de pagamento.
@@ -83,6 +84,27 @@ export async function POST(request: NextRequest) {
 
         // Dispara Edge Function para processar (em background, fire-and-forget)
         await disparaProcessamento(consultaId);
+
+        // Dispara webhook B2B payment.confirmed (se for consulta de empresa)
+        try {
+          const { data: c } = await admin
+            .from("consultations")
+            .select("company_id, external_reference, plan_tier, category, target_value")
+            .eq("id", consultaId)
+            .maybeSingle();
+          if (c?.company_id) {
+            await dispatchEvent(c.company_id, "payment.confirmed", {
+              consultation_id: consultaId,
+              external_reference: c.external_reference ?? null,
+              plan_id: c.plan_tier,
+              category: c.category,
+              target: c.target_value,
+              confirmed_at: new Date().toISOString(),
+            });
+          }
+        } catch (e) {
+          console.error("[asaas_webhook] dispatch payment.confirmed:", e);
+        }
 
         break;
       }

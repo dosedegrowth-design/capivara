@@ -16,6 +16,9 @@ import {
   dueDate,
 } from "@/lib/asaas/client";
 import { logError } from "@/lib/log";
+import { sendEmail } from "@/lib/email/client";
+import { emailPagamentoAguardando } from "@/lib/email/templates";
+import { formatBRL } from "@/lib/formatters";
 
 /**
  * Server action: inicia uma consulta.
@@ -235,6 +238,29 @@ export async function iniciarConsultaAction(
       boleto_url: payment.bankSlipUrl ?? null,
       status: "pending",
       due_date: payment.dueDate,
+    });
+
+    // Email "pagamento aguardando" (fire-and-forget)
+    const categoriaLabel: "CPF" | "CNPJ" | "Veicular" =
+      plano.categoria === "cpf" ? "CPF" : plano.categoria === "cnpj" ? "CNPJ" : "Veicular";
+    const pagAguardando = emailPagamentoAguardando({
+      nome: profile.full_name,
+      categoria: categoriaLabel,
+      target: targetRaw,
+      valor: formatBRL(plano.precoB2C_centavos),
+      consultationId: consulta.id,
+    });
+    sendEmail({
+      to: profile.email,
+      subject: pagAguardando.subject,
+      html: pagAguardando.html,
+      tags: [
+        { name: "type", value: "payment_pending" },
+        { name: "category", value: plano.categoria },
+        { name: "payment_method", value: paymentType },
+      ],
+    }).catch(() => {
+      // logError ja chamado dentro do sendEmail
     });
 
     return { ok: true, consultationId: consulta.id };

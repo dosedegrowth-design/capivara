@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { cadastroSchema, loginSchema } from "@/lib/validators";
 import { normalizeCPF, normalizeCNPJ } from "@/lib/formatters";
+import { sendEmail } from "@/lib/email/client";
+import { emailBoasVindas } from "@/lib/email/templates";
 
 /**
  * Server Actions de autenticacao.
@@ -70,6 +72,20 @@ export async function signUpAction(formData: FormData): Promise<AuthResult> {
   if (error) {
     return { error: traduzirErroAuth(error.message) };
   }
+
+  // Email de boas-vindas (fire-and-forget; falha nao bloqueia signup)
+  const boasVindas = emailBoasVindas({ nome: parsed.data.nomeCompleto });
+  sendEmail({
+    to: parsed.data.email,
+    subject: boasVindas.subject,
+    html: boasVindas.html,
+    tags: [
+      { name: "type", value: "welcome" },
+      { name: "account_type", value: raw.tipo === "empresa" ? "pj" : "pf" },
+    ],
+  }).catch(() => {
+    // logError ja foi chamado dentro do sendEmail
+  });
 
   // Redireciona pro onboarding (cliente PF) ou cadastro de empresa (PJ)
   redirect(raw.tipo === "empresa" ? "/onboarding/empresa" : "/onboarding");
