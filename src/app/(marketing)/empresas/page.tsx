@@ -243,7 +243,7 @@ function PacotesResumo() {
           </p>
         </div>
 
-        <ManadaCarousel pacotes={PACOTES_MANADA} />
+        <ManadaCarousel pacotes={PACOTES_MANADA} fadeColor="paper-2" />
 
         <div className="text-center mt-8">
           <Link

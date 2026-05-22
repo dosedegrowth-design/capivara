@@ -6,23 +6,27 @@ import type { PacoteManada } from "@/lib/consultas/planos";
 
 interface ManadaCarouselProps {
   pacotes: PacoteManada[];
-  /** Índice do pacote a centralizar no carregamento. Padrão 1 (Manada Pro). */
   initialIndex?: number;
   cardWidth?: number;
+  fadeColor?: "paper" | "paper-2" | "card";
 }
 
 /**
  * Carrossel de pacotes Manada (B2B). Inicia centralizado no "Manada Pro"
- * (índice 1) — o pacote mais escolhido. Cards extremos (Start e Reserva)
- * aparecem em peek nas laterais.
+ * (índice 1) — o pacote mais escolhido.
  */
 export function ManadaCarousel({
   pacotes,
   initialIndex = 1,
   cardWidth = 300,
+  fadeColor = "paper",
 }: ManadaCarouselProps) {
   return (
-    <Carousel cardWidth={cardWidth} initialIndex={initialIndex}>
+    <Carousel
+      cardWidth={cardWidth}
+      initialIndex={initialIndex}
+      fadeColor={fadeColor}
+    >
       {pacotes.map((p, i) => (
         <ManadaCard
           key={p.id}

@@ -8,6 +8,8 @@ interface PlanCarouselProps {
   planos: Plano[];
   inclui?: Record<string, string[]>;
   cardWidth?: number;
+  /** Cor do fundo onde o carrossel está embutido (afeta o fade lateral). */
+  fadeColor?: "paper" | "paper-2" | "card";
 }
 
 /**
@@ -18,12 +20,17 @@ export function PlanCarousel({
   planos,
   inclui = {},
   cardWidth = 300,
+  fadeColor = "paper",
 }: PlanCarouselProps) {
   const popularIdx = planos.findIndex((p) => p.destaque === "popular");
   const initialIndex = popularIdx >= 0 ? popularIdx : 0;
 
   return (
-    <Carousel cardWidth={cardWidth} initialIndex={initialIndex}>
+    <Carousel
+      cardWidth={cardWidth}
+      initialIndex={initialIndex}
+      fadeColor={fadeColor}
+    >
       {planos.map((p) => (
         <PlanCard key={p.id} plano={p} inclui={inclui[p.id] ?? []} />
       ))}
