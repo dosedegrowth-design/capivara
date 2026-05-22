@@ -15,28 +15,20 @@ import { findPlano } from "@/lib/consultas/planos";
 // Fontes (Google Fonts CDN — react-pdf carrega no momento do render)
 // ============================================================
 
-Font.register({
-  family: "Bricolage Grotesque",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/bricolagegrotesque/v8/3y9U6as8bTXq_nANBjzKo3IeZx8z6up5BeSl5jBNz_19PpbpMXuECpwUxJBOm_OJWiaaD30YfKfjZZoLvRviyM0nTYjLrwou.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/bricolagegrotesque/v8/3y9U6as8bTXq_nANBjzKo3IeZx8z6up5BeSl5jBNz_19PpbpMXuECpwUxJBOm_OJWiaaD30YfKfjZZoLvRviyM0nTaTLrwou.ttf", fontWeight: 700 },
-  ],
-});
+// Fontes do PDF — usando Helvetica (PDF nativo).
+// Bricolage Grotesque, Manrope e JetBrains Mono sao nossas fontes de brand
+// mas exigem TTF estatico (nao variable). Por enquanto Helvetica garante
+// renderizacao confiavel em qualquer ambiente.
+//
+// TODO: quando contratar API Full, embedar TTFs estaticos das fontes brand
+// em /public/fonts/ e usar Font.register com Buffer.
+//
+// Pra customizar mais tarde: react-pdf aceita TTF via data URL ou URL HTTP.
+// Variable fonts NAO funcionam — precisa baixar versoes static do GitHub
+// dos repos oficiais (atelier triay/bricolage, sharanda/manrope).
 
-Font.register({
-  family: "Manrope",
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/manrope/v18/xn7gYHE41ni1AdIRggexSg.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/manrope/v18/xn7gYHE41ni1AdIRgnFSSL_T.ttf", fontWeight: 500 },
-    { src: "https://fonts.gstatic.com/s/manrope/v18/xn7gYHE41ni1AdIRgmJSSL_T.ttf", fontWeight: 600 },
-    { src: "https://fonts.gstatic.com/s/manrope/v18/xn7gYHE41ni1AdIRgg9SSL_T.ttf", fontWeight: 700 },
-  ],
-});
-
-Font.register({
-  family: "JetBrains Mono",
-  src: "https://fonts.gstatic.com/s/jetbrainsmono/v20/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxTNlOWqA.ttf",
-});
+// Helvetica e built-in do PDF — nao precisa Font.register.
+// Mantemos JetBrains Mono via URL CDN ja que e a unica que e estatica original.
 
 // ============================================================
 // Estilos (paleta Cerrado)
@@ -60,7 +52,7 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 60,
     paddingHorizontal: 40,
-    fontFamily: "Manrope",
+    fontFamily: "Helvetica",
     fontSize: 10,
     color: colors.cocoa,
     backgroundColor: "#FFFFFF",
@@ -80,13 +72,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   brandText: {
-    fontFamily: "Bricolage Grotesque",
+    fontFamily: "Helvetica-Bold",
     fontSize: 18,
     fontWeight: 700,
     color: colors.cocoa,
   },
   brandTagline: {
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 8,
     color: colors.tabaco,
     marginTop: 2,
@@ -95,13 +87,13 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontSize: 8,
     color: colors.tabaco,
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
   },
   titleBlock: {
     marginBottom: 30,
   },
   category: {
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 9,
     color: colors.tabaco,
     textTransform: "uppercase",
@@ -109,7 +101,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   title: {
-    fontFamily: "Bricolage Grotesque",
+    fontFamily: "Helvetica-Bold",
     fontSize: 26,
     fontWeight: 700,
     color: colors.cocoa,
@@ -128,7 +120,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   sectionTitle: {
-    fontFamily: "Bricolage Grotesque",
+    fontFamily: "Helvetica-Bold",
     fontSize: 13,
     fontWeight: 600,
     color: colors.cocoa,
@@ -145,7 +137,7 @@ const styles = StyleSheet.create({
   },
   kvKey: {
     width: "40%",
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -180,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
     paddingVertical: 6,
     paddingHorizontal: 4,
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 7,
     textTransform: "uppercase",
     color: colors.tabaco,
@@ -191,7 +183,7 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   scoreNumber: {
-    fontFamily: "Bricolage Grotesque",
+    fontFamily: "Helvetica-Bold",
     fontSize: 36,
     fontWeight: 700,
     color: colors.cocoa,
@@ -199,7 +191,7 @@ const styles = StyleSheet.create({
   scoreLabel: {
     fontSize: 9,
     color: colors.tabaco,
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
   },
   emptyState: {
     backgroundColor: "#5E7C4F1A",
@@ -220,17 +212,17 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: colors.line,
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 7,
     color: colors.tabaco,
   },
   pageNumber: {
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 8,
     color: colors.tabaco,
   },
   badge: {
-    fontFamily: "JetBrains Mono",
+    fontFamily: "Courier",
     fontSize: 7,
     paddingVertical: 2,
     paddingHorizontal: 6,
