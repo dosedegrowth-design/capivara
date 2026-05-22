@@ -1,10 +1,41 @@
 # Setup Vercel · Capivara
 
-> Passo-a-passo para conectar o repo `dosedegrowth-design/capivara` ao Vercel
-> e ativar deploy automático. Tempo estimado: ~3 minutos.
+> Status: **✅ projeto criado, deploy em produção rodando**
+> URL: https://capivara-green.vercel.app
 
 **Team Vercel:** Dose de Growth's projects (`dose-de-growths-projects`)
+**Projeto:** `capivara`
 **Região:** `gru1` (São Paulo)
+**Conectado ao GitHub:** `dosedegrowth-design/capivara` (autodeploy no push)
+
+---
+
+## ✅ Já configurado via Vercel CLI
+
+- Projeto `capivara` criado
+- Repo GitHub conectado (deploy automático no push to `main`)
+- Env vars configuradas:
+  - `NEXT_PUBLIC_SUPABASE_URL` (production + preview + development)
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (production + preview + development)
+  - `NEXT_PUBLIC_SITE_URL` (production + preview + development)
+- Deploy de produção: READY em https://capivara-green.vercel.app
+
+## 🟡 Pendente — adicionar quando começar fluxo de pagamento
+
+`SUPABASE_SERVICE_ROLE_KEY` — pegar no Supabase Dashboard (ver SETUP_SUPABASE.md)
+`ASAAS_API_KEY` — após criar conta sandbox+prod no Asaas
+`ASAAS_WEBHOOK_SECRET` — gerar string aleatória 32+ chars
+`APIFULL_API_KEY` — após assinar contrato API Full
+`RESEND_API_KEY` — pegar no painel Resend
+
+Comando rápido pra adicionar:
+```bash
+echo "VALOR" | ~/.npm-global/bin/vercel env add NOME_VAR production
+```
+
+---
+
+## 📦 Setup original (referência histórica)
 
 ---
 

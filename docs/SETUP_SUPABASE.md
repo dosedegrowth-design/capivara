@@ -13,26 +13,16 @@
 - Schema `capivara` criado
 - Migration `0001_initial_schema.sql` aplicada (8 tabelas + índices + RLS + policies)
 - Migration `0002_admin_policies_logs.sql` aplicada (policies admin de logs)
+- Migration `0003_expose_schema_postgrest.sql` aplicada (schema exposto na API REST)
 - Advisors de segurança: 0 erros
+- Validado via curl: `/rest/v1/profiles?...` resolve para `capivara.profiles`
+  (retorna 401 anon RLS — comportamento esperado)
 
 ---
 
 ## 🟡 Pendente — Configuração manual no Dashboard
 
-### 1. Expor o schema `capivara` na API REST (PostgREST)
-
-Sem isso, o `supabase-js` retorna 404 ao tentar acessar tabelas do schema custom.
-
-1. Abra: https://supabase.com/dashboard/project/hkjukobqpjezhpxzplpj/settings/api
-2. Em **"Exposed schemas"**, adicione `capivara` (mantenha `public` também)
-3. Em **"Extra search path"**, adicione `capivara` antes de `public`
-4. Clique em **Save**
-
-> Após salvar, a API REST passa a aceitar requisições para `/rest/v1/profiles`
-> resolvendo para `capivara.profiles`. O `db: { schema: 'capivara' }` nos
-> clients (`src/lib/supabase/*.ts`) garante que toda query aponta para lá.
-
-### 2. Pegar a service_role key
+### 1. Pegar a service_role key
 
 1. Mesma página do passo 1, role até **"Project API keys"**
 2. Copie a chave `service_role` (clique no botão "reveal")
@@ -43,7 +33,7 @@ Sem isso, o `supabase-js` retorna 404 ao tentar acessar tabelas do schema custom
 
 ⚠️ **NUNCA** comitar essa chave. Ela bypassa RLS.
 
-### 3. Configurar Auth Providers
+### 2. Configurar Auth Providers
 
 1. Abra: https://supabase.com/dashboard/project/hkjukobqpjezhpxzplpj/auth/providers
 2. **Email**: já vem ativo. Confirmar:
@@ -54,16 +44,17 @@ Sem isso, o `supabase-js` retorna 404 ao tentar acessar tabelas do schema custom
    - Configurar Client ID + Secret no Google Cloud
    - Authorized redirect URI: `https://hkjukobqpjezhpxzplpj.supabase.co/auth/v1/callback`
 
-### 4. Configurar URL de redirecionamento
+### 3. Configurar URL de redirecionamento
 
 1. Abra: https://supabase.com/dashboard/project/hkjukobqpjezhpxzplpj/auth/url-configuration
-2. **Site URL**: `http://localhost:3000` (dev) ou `https://capivara.app` (prod)
+2. **Site URL**: `http://localhost:3000` (dev) ou `https://capivara-green.vercel.app` (prod)
 3. **Redirect URLs** (whitelist):
    - `http://localhost:3000/**`
-   - `https://capivara.vercel.app/**`
+   - `https://capivara-green.vercel.app/**`
+   - `https://capivara-*.vercel.app/**` (previews)
    - `https://capivara.app/**` (quando comprar domínio)
 
-### 5. Criar buckets de Storage
+### 4. Criar buckets de Storage
 
 1. Abra: https://supabase.com/dashboard/project/hkjukobqpjezhpxzplpj/storage/buckets
 2. Criar bucket `capivara-relatorios-pdf`:
@@ -75,7 +66,7 @@ Sem isso, o `supabase-js` retorna 404 ao tentar acessar tabelas do schema custom
 
 > Prefixo `capivara-` evita colisão com buckets do dash-supervisao.
 
-### 6. (Opcional) Configurar email templates
+### 5. (Opcional) Configurar email templates
 
 Personalizar emails de signup, recuperação de senha, magic link em:
 https://supabase.com/dashboard/project/hkjukobqpjezhpxzplpj/auth/templates
