@@ -121,12 +121,27 @@ export async function iniciarConsultaAction(
   const ip = h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? null;
   const ua = h.get("user-agent") ?? null;
 
+  // ---- 4.5. Anti-fraude ----
+  const admin = createAdminClient();
+  const { data: fraudCheck } = await admin.rpc("check_fraud_rules", {
+    p_user_id: user.id,
+    p_target_normalized: targetNormalized,
+    p_ip_address: ip,
+  });
+
+  if (fraudCheck === "BLOCK") {
+    return {
+      ok: false,
+      error:
+        "Atividade suspeita detectada. Aguarde algumas horas ou entre em contato com o suporte.",
+    };
+  }
+
   const targetHash = createHash("sha256")
     .update(`${plano.id}:${targetNormalized}`)
     .digest("hex");
 
   // ---- 5. Inserir consulta (status pending_payment) ----
-  const admin = createAdminClient();
   const { data: consulta, error: insertError } = await admin
     .from("consultations")
     .insert({
