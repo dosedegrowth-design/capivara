@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Download, FileText, Sparkles, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Download, FileText, Info, Sparkles, AlertTriangle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,7 +120,32 @@ export default async function ResultadoPage({
           </div>
         </div>
       ) : (
-        <ResultadoConsolidado consulta={consulta} />
+        <>
+          {/* Aviso de intermediacao / atualidade dos dados */}
+          <div className="rounded-lg border border-saffron/30 bg-saffron/5 p-4 flex items-start gap-3">
+            <Info className="size-5 text-saffron shrink-0 mt-0.5" />
+            <div className="text-xs text-cocoa leading-relaxed">
+              <p className="font-semibold mb-1">
+                Sobre estes dados
+              </p>
+              <p className="text-tabaco">
+                Consulta realizada em <strong className="text-cocoa">{formatDateTimeBR(consulta.created_at)}</strong>.{" "}
+                A Capivara é intermediária técnica e <strong>não garante a atualidade após esta data</strong>.
+                {consulta.category === "veicular"
+                  ? " Multas, sinistros, débitos, transferências ou recalls registrados após esta consulta não estão refletidos. Para compra/venda formal, confirme no Detran na data da operação."
+                  : consulta.category === "cpf"
+                  ? " Score, dívidas e restrições mudam diariamente. Para decisões críticas, repita a consulta na data da decisão."
+                  : " Situação cadastral, certidões e score empresarial podem ter sido atualizados após esta consulta. Para contratos importantes, repita na data da assinatura."}{" "}
+                Em divergência com a fonte oficial, a fonte oficial prevalece.{" "}
+                <Link href="/responsabilidade-consulta" target="_blank" className="text-fur hover:underline">
+                  Ver termo completo
+                </Link>
+              </p>
+            </div>
+          </div>
+
+          <ResultadoConsolidado consulta={consulta} />
+        </>
       )}
     </div>
   );

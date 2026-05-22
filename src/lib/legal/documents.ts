@@ -44,14 +44,14 @@ export interface LegalDocument {
 // =============================================================================
 export const TERMS_OF_USE: LegalDocument = {
   type: "terms_of_use",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Termos de Uso da Capivara",
   effectiveDate: "2026-05-22",
   shortLabel: "Li e aceito os Termos de Uso",
   publicUrl: "/termos",
   text: `# Termos de Uso da Capivara
 
-**Versão 1.0.0 · Vigência a partir de 22 de maio de 2026**
+**Versão 1.1.0 · Vigência a partir de 22 de maio de 2026**
 
 Bem-vinda à Capivara. Estes Termos de Uso ("Termos") regem o acesso e o uso da plataforma Capivara ("Plataforma"), operada por Dose de Growth ("Capivara", "nós", "nosso"). Ao criar conta, fazer login ou usar qualquer recurso da Plataforma, você ("Usuário") declara que leu, entendeu e concorda com estes Termos integralmente.
 
@@ -148,6 +148,33 @@ A Plataforma é disponibilizada "como está", em regime de melhor esforço. Não
 ### 6.2. Manutenções
 Manutenções programadas serão comunicadas com 24h de antecedência. Manutenções emergenciais podem ocorrer sem aviso prévio.
 
+### 6.3. Natureza do serviço — INTERMEDIAÇÃO TÉCNICA SEM GARANTIA
+
+**A Capivara é exclusivamente intermediária técnica entre o Usuário e as bases de dados públicas e privadas consultadas. NÃO somos fonte primária de informação, NÃO produzimos os dados e NÃO garantimos sua veracidade, atualidade, completude, exatidão ou exaustividade.**
+
+Especificamente, o Usuário reconhece e aceita:
+
+**(a) Apenas repassamos.** Toda informação contida em um relatório Capivara é proveniente de fontes externas (Receita Federal, Detran, Serasa, Boa Vista, SPC, SCR Bacen, cartórios, bureaus privados, etc.). Nós consolidamos e apresentamos, mas não criamos, validamos ou garantimos.
+
+**(b) Os dados podem estar desatualizados.** As bases consultadas têm seus próprios ciclos de atualização (horas, dias, semanas). Uma multa, sinistro, débito, protesto ou restrição pode ter sido lançado nas fontes APÓS a consulta. O relatório reflete o que existia nas fontes no exato momento da consulta — e nada além disso.
+
+**(c) Os dados podem ter erros nas fontes.** Erros de cadastro, homonímia, atrasos de propagação entre sistemas, dados não migrados de papel pra digital — tudo isso é fora do nosso controle. Se há divergência entre nosso relatório e a fonte oficial, a fonte oficial prevalece.
+
+**(d) Específico para consulta veicular.** Histórico veicular muda com frequência: novas multas, débitos de IPVA, transferências, sinistros, leilões, recalls. Um veículo pode ter sido vendido em leilão APÓS você consultá-lo. Sinistro ocorrido depois da nossa consulta não aparecerá. Recall lançado depois não aparecerá. **Para uso oficial (compra/venda formal, processo judicial), sempre confirme com o Detran no dia da operação.**
+
+**(e) Específico para CPF/CNPJ.** Score, dívidas e restrições mudam diariamente. Pessoa com score alto na consulta pode ficar inadimplente no mês seguinte. Empresa ativa pode ser baixada na semana seguinte. **Para decisões críticas, repita a consulta na data da decisão.**
+
+**(f) Não somos auditoria nem perícia.** O relatório Capivara não substitui parecer jurídico, contábil, técnico veicular ou auditoria especializada. É apenas um insumo informativo.
+
+**(g) Em caso de problema posterior.** Se você usou um relatório Capivara, fechou negócio com base nele, e DEPOIS surgiu uma informação relevante (sinistro descoberto, dívida nova, fraude descoberta), **a Capivara não responde**. Você concordou que estávamos apenas mostrando o que as fontes diziam naquele exato momento.
+
+O Usuário expressamente isenta a Capivara de qualquer responsabilidade civil, criminal ou administrativa decorrente de:
+- Desatualização de dados em relação à fonte primária
+- Inexatidão originada nas fontes
+- Ausência de informação que existia nas fontes mas não foi disponibilizada via API
+- Decisões comerciais, judiciais ou pessoais tomadas com base no relatório
+- Eventos supervenientes (posteriores à consulta) não refletidos no relatório
+
 ## 7. Limitação de Responsabilidade
 
 Na máxima extensão permitida pela legislação brasileira, a Capivara não responde por:
@@ -202,14 +229,14 @@ Fica eleito o foro da Comarca de São Paulo - SP para dirimir qualquer questão 
 // =============================================================================
 export const PRIVACY_POLICY: LegalDocument = {
   type: "privacy_policy",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Política de Privacidade da Capivara",
   effectiveDate: "2026-05-22",
   shortLabel: "Li e aceito a Política de Privacidade",
   publicUrl: "/privacidade",
   text: `# Política de Privacidade da Capivara
 
-**Versão 1.0.0 · Vigência a partir de 22 de maio de 2026**
+**Versão 1.1.0 · Vigência a partir de 22 de maio de 2026**
 
 Esta Política de Privacidade descreve como a Capivara coleta, usa, armazena e protege dados pessoais dos usuários da plataforma, em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018 — "LGPD").
 
@@ -217,7 +244,22 @@ Esta Política de Privacidade descreve como a Capivara coleta, usa, armazena e p
 
 **Capivara** (operada por Dose de Growth) é a controladora dos dados pessoais dos seus usuários cadastrados.
 
-Encarregado de Proteção de Dados (DPO): lgpd@capivara.app
+### 1.1. Encarregado de Proteção de Dados (DPO)
+
+Conforme LGPD Art. 41, designamos um Encarregado responsável por:
+- Receber comunicações da ANPD e dos titulares
+- Orientar nossos colaboradores sobre proteção de dados
+- Executar demais atribuições determinadas pela controladora
+
+**Contato do Encarregado:**
+- Email: **lgpd@capivara.app**
+- Tempo de resposta: até 15 dias úteis (LGPD Art. 19)
+
+### 1.2. Identificação da operadora
+
+A Capivara atua como **controladora** dos dados dos seus usuários cadastrados, e como **operadora** dos dados pessoais que os usuários consultam por nosso intermédio (CPF, CNPJ, dados veiculares de terceiros).
+
+Quando você (usuário) consulta dados de um terceiro pela Capivara, **VOCÊ é o controlador** desses dados de terceiros e é responsável pelo tratamento conforme LGPD. Nós executamos a busca por sua conta e ordem.
 
 ## 2. Quais dados coletamos
 
@@ -311,12 +353,31 @@ Para exercer esses direitos: lgpd@capivara.app ou diretamente em /configuracoes.
 
 ## 7. Segurança
 
+### 7.1. Medidas técnicas
 - HTTPS obrigatório em todas as conexões
 - Senhas em bcrypt (custo 10+)
 - API keys em hash SHA-256 (nunca em texto puro no banco)
 - Row Level Security (RLS) em todas as tabelas com dados de usuário
 - Logs de acesso administrativo
 - Backups diários do Supabase
+
+### 7.2. Procedimento em caso de incidente de segurança (LGPD Art. 48)
+
+Caso ocorra incidente de segurança envolvendo dados pessoais que possa causar risco ou dano relevante aos titulares, a Capivara se compromete a:
+
+1. **Conter o incidente** o mais rápido possível
+2. **Investigar e documentar** a natureza, dados afetados, número aproximado de titulares envolvidos
+3. **Notificar a ANPD** em prazo razoável (referência: 2 dias úteis)
+4. **Notificar os titulares afetados** quando o risco for relevante
+5. **Aplicar medidas corretivas** pra evitar reincidência
+
+Canal de comunicação de incidentes (interno ou externo): **lgpd@capivara.app**
+
+Se você suspeitar que sua conta ou seus dados foram comprometidos, contate-nos imediatamente.
+
+### 7.3. Adequação dos operadores (Art. 39)
+
+Nossos operadores (Supabase, Vercel, Asaas, Resend) têm contratos com cláusulas de proteção de dados (DPA) alinhadas à LGPD. Para clientes empresariais que precisem de DPA específico (subprocessador), entre em contato pelo lgpd@capivara.app.
 
 ## 8. Cookies
 
@@ -359,15 +420,15 @@ Esta Política pode ser atualizada. Mudanças relevantes serão comunicadas por 
 // =============================================================================
 export const CONSULTATION_RESPONSIBILITY: LegalDocument = {
   type: "consultation_responsibility",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Termo de Responsabilidade por Consulta",
   effectiveDate: "2026-05-22",
   shortLabel:
-    "Declaro ter base legal e finalidade legítima pra esta consulta, assumindo total responsabilidade pelo uso dos dados.",
+    "Declaro ter base legal pra consultar, aceito que a Capivara só repassa dados de fontes externas e isento de responsabilidade pelo uso.",
   publicUrl: "/responsabilidade-consulta",
   text: `# Termo de Responsabilidade por Consulta
 
-**Versão 1.0.0 · Vigência a partir de 22 de maio de 2026**
+**Versão 1.1.0 · Vigência a partir de 22 de maio de 2026**
 
 Ao iniciar uma consulta de CPF, CNPJ ou dados veiculares na plataforma Capivara, eu, identificado(a) pelos dados de cadastro na minha conta e pelo endereço IP registrado, **declaro e me comprometo expressamente** com o seguinte:
 
@@ -398,7 +459,7 @@ Ao iniciar uma consulta de CPF, CNPJ ou dados veiculares na plataforma Capivara,
 
 **2.3.** Reconheço que sou o **controlador** dos dados pessoais obtidos nesta consulta para os fins da LGPD, sendo a Capivara apenas **operadora** que executou a busca em meu nome.
 
-## 3. Da Capivara
+## 3. Da Capivara — INTERMEDIAÇÃO TÉCNICA
 
 **3.1.** A Capivara não é responsável pelo uso que faço dos dados após o download do relatório.
 
@@ -406,7 +467,27 @@ Ao iniciar uma consulta de CPF, CNPJ ou dados veiculares na plataforma Capivara,
 
 **3.3.** Em caso de uso indevido por mim que cause prejuízo a terceiros ou ensejar multa da ANPD, **assumo integralmente o ônus**, isentando a Capivara de qualquer responsabilidade solidária ou subsidiária.
 
-**3.4.** A Capivara registra em log auditável (consent_logs):
+**3.4. RECONHECIMENTO EXPRESSO DE QUE A CAPIVARA SÓ REPASSA DADOS.**
+
+Reconheço e aceito expressamente que:
+
+**(a)** A Capivara é **apenas intermediária técnica** entre mim e as fontes externas (Receita Federal, Detran, Serasa, Boa Vista, SPC, SCR Bacen, cartórios, bureaus privados etc).
+
+**(b)** A Capivara **não produz, não valida, não certifica e não garante** as informações apresentadas. Todo conteúdo do relatório vem de fontes externas e reflete o que essas fontes informavam **no exato momento da consulta**.
+
+**(c)** Os dados podem estar **desatualizados ou conter erros nas fontes**. A Capivara não tem como verificar. Se isso me causar prejuízo, é problema entre eu e a fonte primária — não com a Capivara.
+
+**(d)** **Especificamente para consulta veicular**: estou ciente que histórico veicular muda diariamente. Sinistro, multa, débito, recall, transferência ou leilão registrado APÓS a minha consulta **não aparecerá** no meu relatório. Para uso oficial (compra/venda formal), preciso confirmar no Detran no dia da operação.
+
+**(e)** **Especificamente para CPF/CNPJ**: score, dívidas e restrições mudam diariamente. Pessoa com score alto pode ficar inadimplente no mês seguinte; empresa ativa pode ser baixada na semana seguinte. Para decisões críticas, devo repetir a consulta na data da decisão.
+
+**(f)** Se EU descobrir DEPOIS uma informação relevante (sinistro, dívida nova, fraude descoberta, problema na pessoa/empresa/veículo) que não estava no relatório porque foi gerada após a consulta — **a Capivara não tem culpa nem responsabilidade**.
+
+**(g)** A Capivara **não substitui** parecer jurídico, contábil, técnico veicular, auditoria especializada ou consulta presencial em órgão oficial.
+
+**(h)** **Em qualquer divergência entre o relatório Capivara e a fonte primária (Detran, Receita, cartório, bureau original), a fonte primária prevalece.**
+
+**3.5.** A Capivara registra em log auditável (consent_logs):
 - Meu IP e user-agent no momento da consulta
 - Hash do texto deste Termo (versão aceita)
 - Timestamp do aceite

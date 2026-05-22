@@ -343,15 +343,25 @@ const styles = StyleSheet.create({
   // Footer
   footer: {
     position: "absolute",
-    bottom: 24,
+    bottom: 16,
     left: 40,
     right: 40,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: c.line,
+  },
+  footerDisclaimer: {
+    fontSize: 6.5,
+    color: c.tabaco,
+    fontFamily: "Helvetica",
+    lineHeight: 1.3,
+    marginBottom: 4,
+    fontStyle: "italic",
+  },
+  footerBottomRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: c.line,
   },
   footerLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
   footerText: {
@@ -361,6 +371,29 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   pageNumber: { fontSize: 8, color: c.tabaco, fontFamily: "Courier-Bold" },
+
+  // Disclaimer destacado na capa
+  coverDisclaimer: {
+    marginTop: 12,
+    padding: 10,
+    backgroundColor: "#FFF7E6",
+    borderLeftWidth: 3,
+    borderLeftColor: c.saffron,
+    borderRadius: 3,
+  },
+  coverDisclaimerTitle: {
+    fontSize: 8,
+    color: c.tabaco,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 4,
+    letterSpacing: 0.5,
+  },
+  coverDisclaimerText: {
+    fontSize: 8,
+    color: c.cocoa,
+    fontFamily: "Helvetica",
+    lineHeight: 1.45,
+  },
 });
 
 // ============================================================
@@ -552,6 +585,34 @@ export function RelatorioPDF({
               </View>
             ))}
           </View>
+
+          {/* DISCLAIMER DE INTERMEDIACAO TECNICA */}
+          <View style={styles.coverDisclaimer}>
+            <Text style={styles.coverDisclaimerTitle}>
+              ⚠ AVISO IMPORTANTE — LEIA ANTES DE USAR
+            </Text>
+            <Text style={styles.coverDisclaimerText}>
+              Este relatório foi gerado em{" "}
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>{dateStr}</Text>
+              {" "}por intermediação técnica. A Capivara agrega informações de
+              fontes externas (Receita Federal, Detran, Serasa, Boa Vista, SPC,
+              SCR Bacen, cartórios, bureaus privados) e{" "}
+              <Text style={{ fontFamily: "Helvetica-Bold" }}>
+                não garante a atualidade, exatidão ou completude dos dados
+              </Text>
+              .
+              {"\n\n"}
+              Os dados podem ter sido atualizados nas fontes APÓS esta consulta.
+              Multas, sinistros, débitos, restrições, alterações cadastrais e
+              outros eventos posteriores não estarão refletidos neste relatório.
+              Em caso de divergência com a fonte oficial, prevalece a fonte
+              oficial.
+              {"\n\n"}
+              Para uso oficial (compra/venda formal, processo judicial),
+              recomendamos confirmar diretamente no órgão emissor (Detran,
+              Receita Federal, cartório) na data da decisão.
+            </Text>
+          </View>
         </View>
 
         <View style={styles.coverFooter}>
@@ -612,16 +673,24 @@ function PageHeader({
 function Footer({ verificationUrl }: { verificationUrl: string }) {
   return (
     <View style={styles.footer} fixed>
-      <View style={styles.footerLeft}>
-        <CapivaraMonoPDF width={14} color={c.tabaco} />
-        <Text style={styles.footerText}>
-          capivara.app · Verificar: {verificationUrl}
-        </Text>
+      <Text style={styles.footerDisclaimer}>
+        Relatório gerado por intermediação técnica. A Capivara agrega dados de fontes externas
+        (Receita Federal, Detran, bureaus de crédito, cartórios) e não garante a atualidade,
+        exatidão ou completude. Dados podem ter sido atualizados nas fontes após esta consulta.
+        Em divergência, prevalece a fonte primária. Não substitui consulta presencial em órgão oficial.
+      </Text>
+      <View style={styles.footerBottomRow}>
+        <View style={styles.footerLeft}>
+          <CapivaraMonoPDF width={14} color={c.tabaco} />
+          <Text style={styles.footerText}>
+            capivara.app · Verificar: {verificationUrl}
+          </Text>
+        </View>
+        <Text
+          style={styles.pageNumber}
+          render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+        />
       </View>
-      <Text
-        style={styles.pageNumber}
-        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
-      />
     </View>
   );
 }

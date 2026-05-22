@@ -156,35 +156,29 @@ export function ApiKeysClient({ keys }: Props) {
             </p>
           </div>
 
-          {/* Aceite dos Termos da API */}
-          <div className="rounded-md border-2 border-saffron/40 bg-saffron/5 p-3">
-            <label
-              htmlFor="acceptApiTerms"
-              className="flex items-start gap-3 cursor-pointer"
-            >
-              <Checkbox
-                id="acceptApiTerms"
-                checked={acceptApiTerms}
-                onCheckedChange={(v) => setAcceptApiTerms(Boolean(v))}
-                className="mt-0.5"
-              />
-              <div className="text-xs leading-relaxed">
-                <span className="text-cocoa">
-                  <span className="text-red-600 mr-0.5">*</span>
-                  Declaro ser administrador autorizado da empresa e aceito os{" "}
-                  <Link
-                    href="/api-termos"
-                    target="_blank"
-                    className="text-fur font-medium hover:underline"
-                  >
-                    Termos da API Capivara
-                  </Link>
-                  . Comprometo-me a guardar a chave em segredo (variáveis de
-                  ambiente, secret manager) e nunca expor em código frontend.
-                </span>
-              </div>
-            </label>
-          </div>
+          {/* Aceite compacto dos Termos da API */}
+          <label
+            htmlFor="acceptApiTerms"
+            className="flex items-start gap-2.5 cursor-pointer rounded-md border border-line bg-paper-2/40 p-3 hover:bg-paper-2/60 transition-colors"
+          >
+            <Checkbox
+              id="acceptApiTerms"
+              checked={acceptApiTerms}
+              onCheckedChange={(v) => setAcceptApiTerms(Boolean(v))}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-tabaco leading-relaxed">
+              Sou admin autorizado e aceito os{" "}
+              <Link
+                href="/api-termos"
+                target="_blank"
+                className="text-fur hover:underline"
+              >
+                Termos da API
+              </Link>
+              . Comprometo-me a guardar a chave em segredo.
+            </span>
+          </label>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-2">

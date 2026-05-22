@@ -267,48 +267,29 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
         </div>
       )}
 
-      {/* TERMO DE RESPONSABILIDADE — OBRIGATORIO B2B */}
-      <div className="rounded-lg border-2 border-saffron/40 bg-saffron/5 p-4 space-y-3">
-        <div className="flex items-start gap-2">
-          <Lock className="size-4 text-saffron shrink-0 mt-0.5" />
-          <div className="text-xs leading-relaxed">
-            <p className="text-cocoa font-semibold mb-1">
-              Termo de Responsabilidade por Consulta (LGPD)
-            </p>
-            <p className="text-tabaco">
-              Cada consulta exige aceite individual com IP + timestamp pra
-              respaldo da empresa e do operador.
-            </p>
-          </div>
-        </div>
-
-        <label
-          htmlFor="acceptResponsibility"
-          className="flex items-start gap-3 cursor-pointer bg-card rounded-md border border-line p-3"
-        >
-          <Checkbox
-            id="acceptResponsibility"
-            checked={acceptResponsibility}
-            onCheckedChange={(v) => setAcceptResponsibility(Boolean(v))}
-            className="mt-0.5"
-          />
-          <div className="text-xs leading-relaxed">
-            <span className="text-cocoa">
-              <span className="text-red-600 mr-0.5">*</span>
-              <strong>Declaro</strong> ter base legal (LGPD Art. 7º), finalidade
-              legítima e autorização interna da empresa pra esta consulta.
-              Assumo responsabilidade pelo uso dos dados.{" "}
-              <Link
-                href="/responsabilidade-consulta"
-                target="_blank"
-                className="text-fur font-medium hover:underline"
-              >
-                Ler termo completo (v{responsibilityVersion})
-              </Link>
-            </span>
-          </div>
-        </label>
-      </div>
+      {/* Aceite compacto */}
+      <label
+        htmlFor="acceptResponsibility"
+        className="flex items-start gap-2.5 cursor-pointer rounded-md border border-line bg-paper-2/40 p-3 hover:bg-paper-2/60 transition-colors"
+      >
+        <Checkbox
+          id="acceptResponsibility"
+          checked={acceptResponsibility}
+          onCheckedChange={(v) => setAcceptResponsibility(Boolean(v))}
+          className="mt-0.5"
+        />
+        <span className="text-xs text-tabaco leading-relaxed">
+          Tenho base legal e autorização interna pra esta consulta. Aceito o{" "}
+          <Link
+            href="/responsabilidade-consulta"
+            target="_blank"
+            className="text-fur hover:underline"
+          >
+            termo de responsabilidade
+          </Link>{" "}
+          e entendo que a Capivara só repassa dados de fontes externas.
+        </span>
+      </label>
 
       {error && (
         <div className="rounded-md border border-red-500/30 bg-red-500/5 px-3 py-2 text-sm text-red-700">
