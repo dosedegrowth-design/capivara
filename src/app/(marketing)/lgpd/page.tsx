@@ -38,7 +38,7 @@ function Header() {
           Privacidade não é asterisco.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
-          Como tratamos seus dados pessoais — e os dados que você puxa de
+          Como tratamos seus dados pessoais e os dados que você puxa de
           outras pessoas, empresas e veículos.
         </p>
         <p className="mt-2 font-mono text-xs text-tabaco/60">
@@ -357,7 +357,7 @@ function DPO() {
         </div>
 
         <p className="text-xs text-tabaco/70 mt-8 text-center font-mono leading-relaxed">
-          Capivara é mantida pela Dose de Growth Marketing LTDA — CNPJ XX.XXX.XXX/0001-XX
+          Capivara é mantida pela Dose de Growth Marketing LTDA · CNPJ XX.XXX.XXX/0001-XX
           <br />
           Em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018).
         </p>

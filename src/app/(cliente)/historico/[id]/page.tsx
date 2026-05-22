@@ -136,7 +136,7 @@ function ResultadoConsolidado({
     return (
       <div className="rounded-lg border border-line bg-card p-8 text-center">
         <FileText className="size-12 text-tabaco mx-auto mb-3" />
-        <p className="text-tabaco">Resultado vazio — algo inesperado ocorreu.</p>
+        <p className="text-tabaco">Resultado vazio. Algo inesperado ocorreu.</p>
       </div>
     );
   }
@@ -145,7 +145,7 @@ function ResultadoConsolidado({
     <div className="space-y-4">
       {consulta.cache_hit && (
         <div className="rounded-md bg-info/10 border border-info/30 p-3 text-xs font-mono text-info">
-          Resultado obtido do cache (consulta repetida em 24h — sem cobrar de novo).
+          Resultado obtido do cache (consulta repetida em 24h, sem cobrar de novo).
         </div>
       )}
 

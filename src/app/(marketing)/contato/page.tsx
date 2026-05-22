@@ -63,7 +63,7 @@ function Header() {
           A capivara responde rápido.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
-          Escolha o canal mais conveniente — ou envie uma mensagem pelo formulário.
+          Escolha o canal mais conveniente, ou envie uma mensagem pelo formulário.
         </p>
       </div>
     </section>

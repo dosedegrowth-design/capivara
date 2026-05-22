@@ -15,9 +15,9 @@ import {
 type CategoriaSlug = "cpf" | "cnpj" | "veicular";
 
 const TITULO: Record<CategoriaSlug, string> = {
-  cpf: "CPF — Pessoa Física",
-  cnpj: "CNPJ — Empresa",
-  veicular: "Veicular — Placa",
+  cpf: "Consultar CPF",
+  cnpj: "Consultar CNPJ",
+  veicular: "Consultar veicular",
 };
 
 const PLANOS_POR_CATEGORIA: Record<CategoriaSlug, Plano[]> = {

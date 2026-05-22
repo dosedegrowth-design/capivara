@@ -43,7 +43,7 @@ const RESUMO_INCLUI: Record<string, string[]> = {
   ],
   "cpf-avancada": [
     "Tudo da Investigação",
-    "Ultra Completo — 400+ bases unificadas",
+    "Ultra Completo (400+ bases unificadas)",
     "Score de crédito Boa Vista",
     "Pendências financeiras e dívidas em aberto",
     "Protestos cartoriais e histórico",
@@ -55,12 +55,12 @@ const RESUMO_INCLUI: Record<string, string[]> = {
     "Cheques sem fundos e sustados",
     "Certidão Negativa de Débitos Trabalhistas",
     "Informações QUOD (dívidas e crédito)",
-    "Cenprot — protestos nacionais",
+    "Cenprot (protestos nacionais)",
   ],
   "cpf-raio-x": [
     "Tudo da Premium",
-    "SPC Brasil — dados completos",
-    "SCR BACEN — operações no Banco Central",
+    "SPC Brasil completo",
+    "SCR BACEN (operações no Banco Central)",
     "Busca reversa por documentos (RG, CNH)",
     "Histórico de consultas feitas no CPF",
     "Análise consolidada multi-bureau",
@@ -83,7 +83,7 @@ const RESUMO_INCLUI: Record<string, string[]> = {
   ],
   "cnpj-premium": [
     "Tudo do +Sócios",
-    "Cred Plus — análise consolidada de risco",
+    "Cred Plus (análise consolidada de risco)",
     "Score de crédito empresarial",
     "Serasa e Boa Vista dos sócios",
     "Situação tributária e pendências fiscais",
@@ -108,14 +108,14 @@ const RESUMO_INCLUI: Record<string, string[]> = {
   ],
   "veicular-completo": [
     "Tudo da Espiadinha",
-    "BIN Nacional — dados consolidados",
+    "BIN Nacional consolidado",
     "Recall ativo do fabricante",
     "Categoria e espécie do veículo",
     "Capacidade e tipo de carroceria",
   ],
   "veicular-avancado": [
     "Tudo do Completo",
-    "BIN Estadual — dados regionais detalhados",
+    "BIN Estadual com dados regionais detalhados",
     "Nome e documento do proprietário atual",
     "Gravame (alienação fiduciária ativa)",
     "Histórico nacional de roubo e furto",
@@ -125,13 +125,13 @@ const RESUMO_INCLUI: Record<string, string[]> = {
     "Tudo do Avançado",
     "Histórico de leilão (sinistro, judicial)",
     "Certificado de Segurança Veicular (CSV)",
-    "RENAJUD — restrições judiciais ativas",
-    "RENAINF — infrações de trânsito",
+    "RENAJUD (restrições judiciais ativas)",
+    "RENAINF (infrações de trânsito)",
     "Verificação de adulteração estrutural",
   ],
   "veicular-total": [
     "Tudo do Premium",
-    "Vip Car — relatório completo concessionária",
+    "Vip Car (relatório completo de concessionária)",
     "CRLV digital (documento do veículo)",
     "Fotos do veículo no leilão (se houver)",
     "Histórico de proprietários anteriores",
@@ -154,21 +154,21 @@ export default function PrecosPage() {
         <TabsContent value="pf" className="space-y-20">
           <CategoriaPlanos
             categoria="CPF"
-            descricao="Verifique pessoas — score, dívidas, histórico, vínculos."
+            descricao="Verifique pessoas: score, dívidas, histórico e vínculos."
             icone={<UserRound className="size-5" />}
             cor="bg-info/15 text-info"
             planos={PLANOS_CPF}
           />
           <CategoriaPlanos
             categoria="CNPJ"
-            descricao="Verifique empresas — situação, sócios, crédito, fiscal."
+            descricao="Verifique empresas: situação, sócios, crédito e tributário."
             icone={<Building2 className="size-5" />}
             cor="bg-sage/20 text-sage"
             planos={PLANOS_CNPJ}
           />
           <CategoriaPlanos
             categoria="Veicular"
-            descricao="Verifique veículos — proprietário, gravame, leilão, recall."
+            descricao="Verifique veículos: proprietário, gravame, leilão e recall."
             icone={<CarFront className="size-5" />}
             cor="bg-saffron/25 text-fur"
             planos={PLANOS_VEICULAR}
@@ -200,7 +200,7 @@ function Header() {
           Sem mensalidade. Você só paga o que consultar.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
-          5 planos por categoria — do mais leve (R$ 7,90) ao mais completo
+          5 planos por categoria, do mais leve (R$ 7,90) ao mais completo
           (R$ 199,90). Empresas têm desconto via créditos (até 58%).
         </p>
       </div>
@@ -265,7 +265,7 @@ function PainelEmpresarial() {
       <section className="space-y-6">
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
-            Pacotes Manada — para empresas que consultam volume.
+            Pacotes Manada para empresas que consultam volume.
           </h2>
           <p className="mt-3 text-tabaco">
             Compre créditos antecipados e consuma conforme uso. Quanto maior o

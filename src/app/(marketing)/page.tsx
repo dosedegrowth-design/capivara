@@ -105,7 +105,15 @@ const CATEGORIAS = [
   {
     icon: UserRound,
     title: "CPF",
-    description: "Dados cadastrais, score, dívidas, certidões e muito mais.",
+    subtitle: "Pessoa física",
+    description:
+      "Saiba quem é a pessoa antes de fechar negócio: identidade, contato, situação financeira e vínculos.",
+    bullets: [
+      "Dados cadastrais e situação na Receita",
+      "Endereços, telefones e e-mails",
+      "Score, dívidas, protestos e cheques",
+      "Parentes, imóveis, veículos e empresas",
+    ],
     color: "bg-info/15 text-info",
     href: "/consultar/cpf",
     starts: "9,90",
@@ -113,7 +121,15 @@ const CATEGORIAS = [
   {
     icon: Building2,
     title: "CNPJ",
-    description: "Razão social, sócios, certidões, situação fiscal e crédito.",
+    subtitle: "Empresa",
+    description:
+      "Confirme se a empresa está ativa, com quem você está fechando contrato e qual a saúde financeira.",
+    bullets: [
+      "Razão social, situação e CNAE",
+      "Quadro de sócios completo",
+      "Certidões trabalhistas e fiscais",
+      "Score empresarial e protestos",
+    ],
     color: "bg-sage/20 text-sage",
     href: "/consultar/cnpj",
     starts: "7,90",
@@ -121,7 +137,15 @@ const CATEGORIAS = [
   {
     icon: CarFront,
     title: "Veicular",
-    description: "Placa, proprietário, gravame, leilão, recall e RENAJUD.",
+    subtitle: "Placa do veículo",
+    description:
+      "Antes de comprar ou vender um carro, descubra tudo sobre ele: dono, restrições, leilão e procedência.",
+    bullets: [
+      "Marca, modelo, ano, chassi e Fipe",
+      "Proprietário atual e histórico",
+      "Gravame, financiamento e leilão",
+      "Recall, RENAJUD e roubo/furto",
+    ],
     color: "bg-saffron/25 text-fur",
     href: "/consultar/veicular",
     starts: "9,90",
@@ -142,26 +166,47 @@ function Categorias() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {CATEGORIAS.map(({ icon: Icon, title, description, color, href, starts }) => (
+          {CATEGORIAS.map(({ icon: Icon, title, subtitle, description, bullets, color, href, starts }) => (
             <Link
               key={title}
               href={href}
-              className="group relative flex flex-col rounded-lg border border-line bg-card p-8 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60"
+              className="group relative flex flex-col rounded-lg border border-line bg-card p-7 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60"
             >
-              <div className={`size-14 rounded-md flex items-center justify-center ${color} mb-4`}>
-                <Icon className="size-7" strokeWidth={2} />
+              <div className="flex items-start justify-between mb-4">
+                <div className={`size-14 rounded-md flex items-center justify-center ${color}`}>
+                  <Icon className="size-7" strokeWidth={2} />
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
+                    A partir de
+                  </div>
+                  <div className="text-cocoa font-bold font-mono">R$ {starts}</div>
+                </div>
               </div>
-              <h3 className="font-display text-2xl font-bold text-cocoa mb-2">
-                {title}
-              </h3>
-              <p className="text-sm text-tabaco leading-relaxed mb-6 flex-1">
+
+              <div className="mb-3">
+                <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
+                  {title}
+                </h3>
+                <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
+                  {subtitle}
+                </p>
+              </div>
+
+              <p className="text-sm text-tabaco leading-relaxed mb-5">
                 {description}
               </p>
-              <div className="flex items-center justify-between text-xs font-mono">
-                <span className="text-tabaco">A partir de</span>
-                <span className="text-cocoa font-bold">R$ {starts}</span>
-              </div>
-              <div className="mt-4 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
+
+              <ul className="space-y-1.5 mb-6 flex-1">
+                {bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-xs text-cocoa">
+                    <span className="size-1.5 rounded-full bg-fur mt-1.5 shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-auto pt-4 border-t border-line/60 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
                 Puxar agora
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </div>
@@ -289,7 +334,7 @@ function CasosDeUso() {
             Quando usar
           </Badge>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
-            Antes de fechar negócio com qualquer estranho —
+            Antes de fechar negócio com qualquer estranho,
             <span className="text-fur"> puxe a capivara.</span>
           </h2>
         </div>
@@ -416,7 +461,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Os dados são atualizados?",
-    a: "Sim. Consultamos bases oficiais (Serasa, SPC, Boa Vista, SCR BACEN, RENAJUD, etc) em tempo real a cada solicitação. Cache de 24h se você repetir a mesma consulta — sem cobrar de novo.",
+    a: "Sim. Consultamos bases oficiais (Serasa, SPC, Boa Vista, SCR BACEN, RENAJUD, etc) em tempo real a cada solicitação. Cache de 24h se você repetir a mesma consulta, sem cobrar de novo.",
   },
 ];
 

@@ -58,7 +58,7 @@ const PASSOS = [
     icon: Search,
     title: "Escolha o plano e digite o dado",
     description:
-      "Selecione CPF, CNPJ ou placa. Escolha um dos 5 planos por categoria — do mais leve (Espiadinha) ao Raio-X. Digite o número e declare a finalidade conforme a LGPD.",
+      "Selecione CPF, CNPJ ou placa. Escolha um dos 5 planos por categoria, do mais leve (Espiadinha) ao Raio-X. Digite o número e declare a finalidade conforme a LGPD.",
     bullets: [
       "Formatação automática do CPF/CNPJ/placa",
       "Validação de dígitos verificadores antes de cobrar",
@@ -161,7 +161,7 @@ function Bases() {
             Dados oficiais, consultados em tempo real.
           </h2>
           <p className="mt-3 text-tabaco">
-            A Capivara é uma camada de orquestração — não armazenamos dados de
+            A Capivara é uma camada de orquestração. Não armazenamos dados de
             terceiros. Cada consulta busca direto na fonte autorizada.
           </p>
         </div>

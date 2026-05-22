@@ -21,7 +21,7 @@ export default async function CadastroPage({
           Criar conta
         </h1>
         <p className="text-sm text-tabaco mt-1">
-          Sem cobrança nessa etapa — você só paga quando puxar uma capivara.
+          Sem cobrança nessa etapa. Você só paga quando puxar uma capivara.
         </p>
 
         <CadastroForm tipoInicial={tipoInicial} />

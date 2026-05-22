@@ -25,7 +25,7 @@ export default async function OnboardingPage() {
           </h1>
           <p className="text-tabaco mt-3 leading-relaxed max-w-md mx-auto">
             Sua conta está pronta. Agora você pode puxar capivaras quando quiser
-            — sem mensalidade, sem compromisso.
+            sem mensalidade, sem compromisso.
           </p>
         </div>
 

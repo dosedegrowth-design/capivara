@@ -115,7 +115,7 @@ export function AguardandoPagamento({
 
         <p className="mt-2 text-center text-tabaco">
           {investigando
-            ? "Consultando bases — fique nessa tela, te avisamos quando terminar."
+            ? "Consultando bases. Fique nessa tela, te avisamos quando terminar."
             : `Total: ${formatBRL(amountCents)}`}
         </p>
 

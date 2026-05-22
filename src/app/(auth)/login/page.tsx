@@ -20,7 +20,7 @@ export default async function LoginPage({
           Entrar na sua conta
         </h1>
         <p className="text-sm text-tabaco mt-1">
-          A capivara tem boa memória — ela lembra de você.
+          A capivara tem boa memória. Ela lembra de você.
         </p>
 
         <LoginForm redirectTo={redirect} />
