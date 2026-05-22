@@ -9,6 +9,7 @@ import {
   PLANOS_CPF,
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
+  RESUMO_INCLUI,
   type Plano,
 } from "@/lib/consultas/planos";
 
@@ -26,22 +27,7 @@ const PLANOS_POR_CATEGORIA: Record<CategoriaSlug, Plano[]> = {
   veicular: PLANOS_VEICULAR,
 };
 
-const RESUMO_INCLUI: Record<string, string[]> = {
-  "cpf-espiadinha": ["Dados cadastrais básicos"],
-  "cpf-investigacao": ["+ Endereços, telefones, e-mails", "Parentes e empresas"],
-  "cpf-avancada": ["+ Ultra Completo (400+ bases)", "Score Boa Vista", "Pendências"],
-  "cpf-premium": ["+ Serasa Premium", "Certidão Trabalhista", "QUOD"],
-  "cpf-raio-x": ["+ SPC + SCR BACEN", "Busca por documentos"],
-  "cnpj-espiadinha": ["Razão social, situação, sócios"],
-  "cnpj-socios": ["+ CPF Ultra dos sócios", "Certidão Trabalhista"],
-  "cnpj-premium": ["+ Cred Plus + Serasa dos sócios"],
-  "cnpj-total": ["+ Análise de risco + SCR sócios"],
-  "veicular-espiadinha": ["Placa, marca, modelo, Fipe"],
-  "veicular-completo": ["+ BIN Nacional + Recall"],
-  "veicular-avancado": ["+ Proprietário + Gravame + Roubo/Furto"],
-  "veicular-premium": ["+ Leilão + Cert. Segurança + RENAJUD"],
-  "veicular-total": ["+ Vip Car + CRLV + Foto Leilão"],
-};
+// RESUMO_INCLUI agora vem de @/lib/consultas/planos (fonte unica de verdade)
 
 export async function generateMetadata({
   params,

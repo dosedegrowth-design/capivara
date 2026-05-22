@@ -28,6 +28,13 @@ export type ResultSection =
   | { id: "parentes"; type: "list"; title: string; items: ParenteItem[] }
   | { id: "empresas"; type: "list"; title: string; items: EmpresaVinculadaItem[] }
   | { id: "score"; type: "score"; title: string; bureau: string; valor: number; classe: "ALTO" | "MEDIO" | "BAIXO" | "MUITO_BAIXO"; max: number }
+  | { id: "score_serasa"; type: "score"; title: string; bureau: string; valor: number; classe: "ALTO" | "MEDIO" | "BAIXO" | "MUITO_BAIXO"; max: number }
+  | { id: "cred_plus"; type: "kv"; title: string; data: Record<string, string | null> }
+  | { id: "serasa_premium"; type: "kv"; title: string; data: Record<string, string | null> }
+  | { id: "quod"; type: "kv"; title: string; data: Record<string, string | null> }
+  | { id: "cenprot"; type: "kv"; title: string; data: Record<string, string | null> }
+  | { id: "spc"; type: "kv"; title: string; data: Record<string, string | null> }
+  | { id: "busca_documentos"; type: "kv"; title: string; data: Record<string, string | null> }
   | { id: "dividas"; type: "table"; title: string; items: DividaItem[] }
   | { id: "protestos"; type: "table"; title: string; items: ProtestoItem[] }
   | { id: "cheques"; type: "table"; title: string; items: ChequeItem[] }
@@ -221,23 +228,46 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
     ],
   });
 
-  if (planTier === "cpf-investigacao") return sections;
-
-  // Avançada +: score, dívidas, protestos
+  // Investigação: já inclui Boa Vista básico
   sections.push({
     id: "score",
     type: "score",
-    title: "Score de crédito Boa Vista",
+    title: "Score Boa Vista",
     bureau: "Boa Vista",
     valor: 612,
     max: 1000,
     classe: "MEDIO",
   });
 
+  if (planTier === "cpf-investigacao") return sections;
+
+  // Avançada +: Serasa Básico + Cred Plus + dividas detalhadas + protestos
+  sections.push({
+    id: "score_serasa",
+    type: "score",
+    title: "Score Serasa",
+    bureau: "Serasa",
+    valor: 587,
+    max: 1000,
+    classe: "MEDIO",
+  });
+
+  sections.push({
+    id: "cred_plus",
+    type: "kv",
+    title: "Cred Plus — Análise consolidada",
+    data: {
+      "Classificação de risco": "MÉDIO",
+      "Probabilidade de inadimplência 12m": "18%",
+      "Recomendação": "Aprovar com garantia",
+      "Limite sugerido": "R$ 3.500,00",
+    },
+  });
+
   sections.push({
     id: "dividas",
     type: "table",
-    title: "Pendências financeiras",
+    title: "Pendências financeiras (Serasa + Boa Vista)",
     items: [
       {
         credor: "Banco Capivara S.A.",
@@ -263,7 +293,21 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
 
   if (planTier === "cpf-avancada") return sections;
 
-  // Premium +: serasa, trabalhista, quod, cheques
+  // Premium +: Serasa Premium (relatório detalhado) + trabalhista + QUOD + cheques + Cenprot
+  sections.push({
+    id: "serasa_premium",
+    type: "kv",
+    title: "Serasa Premium — Relatório detalhado",
+    data: {
+      "Score Serasa": "587 (MÉDIO)",
+      "Histórico negativo 5 anos": "2 ocorrências",
+      "Consultas em 90 dias": "4 instituições",
+      "Cadastro positivo": "ATIVO",
+      "Cheques sem fundo": "Nenhum",
+      "Cheques sustados": "Nenhum",
+    },
+  });
+
   sections.push({
     id: "cheques",
     type: "table",
@@ -274,7 +318,7 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
   sections.push({
     id: "trabalhista",
     type: "kv",
-    title: "Certidão Negativa de Débitos Trabalhistas",
+    title: "Certidão Negativa de Débitos Trabalhistas (CNDT)",
     data: {
       Status: "NEGATIVA",
       Emitida: "20/05/2026",
@@ -282,13 +326,47 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
     },
   });
 
+  sections.push({
+    id: "quod",
+    type: "kv",
+    title: "QUOD — Cadastro positivo",
+    data: {
+      "Score QUOD": "640 (MÉDIO)",
+      "Pontuação positiva": "Bom pagador em 8 contratos",
+      "Renda presumida": "R$ 4.800,00 - R$ 6.200,00",
+      "Comprometimento de renda": "32%",
+    },
+  });
+
+  sections.push({
+    id: "cenprot",
+    type: "kv",
+    title: "Cenprot — Protestos nacionais",
+    data: {
+      "Total de protestos": "0",
+      "Cartórios consultados": "Todos os estados",
+    },
+  });
+
   if (planTier === "cpf-premium") return sections;
 
-  // Raio-X +: SPC, SCR BACEN
+  // Raio-X +: SPC, SCR BACEN, busca por documentos
+  sections.push({
+    id: "spc",
+    type: "kv",
+    title: "SPC Brasil — Relatório completo",
+    data: {
+      "Score SPC": "595 (MÉDIO)",
+      "Pendências SPC": "1 registro",
+      "Ações cíveis": "Nenhuma",
+      "Cheques SPC": "Nenhum",
+    },
+  });
+
   sections.push({
     id: "scr_bacen",
     type: "table",
-    title: "Operações SCR BACEN",
+    title: "Operações SCR BACEN (Banco Central)",
     items: [
       {
         instituicao: "Banco do Brasil",
@@ -303,6 +381,18 @@ function generateCPFSections(planTier: string, cpf: string): ResultSection[] {
         vencimento: "2026-06-30",
       },
     ],
+  });
+
+  sections.push({
+    id: "busca_documentos",
+    type: "kv",
+    title: "Busca reversa por documentos",
+    data: {
+      "RG": "12.345.678-9 (SP)",
+      "CNH": "Categoria B, vigente até 2030",
+      "CIN (nova ID)": "Em processo de emissão",
+      "Título de eleitor": "Zona 042, Seção 0123",
+    },
   });
 
   return sections;

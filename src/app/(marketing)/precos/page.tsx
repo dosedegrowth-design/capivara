@@ -12,6 +12,7 @@ import {
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
   PACOTES_MANADA,
+  RESUMO_INCLUI,
   type Plano,
 } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
@@ -22,123 +23,7 @@ export const metadata: Metadata = {
     "Planos para pessoa física (avulsos a partir de R$ 7,90) ou empresarial (pacotes Manada com até 50% de bônus).",
 };
 
-/**
- * Descricoes detalhadas de cada plano — fonte da verdade.
- * Aparecem como bullets no PlanCard.
- */
-const RESUMO_INCLUI: Record<string, string[]> = {
-  // ---- CPF ----
-  "cpf-espiadinha": [
-    "Nome completo e nome da mãe",
-    "Data de nascimento e idade",
-    "Situação cadastral do CPF na Receita",
-    "Confirmação rápida de identidade",
-  ],
-  "cpf-investigacao": [
-    "Tudo da Espiadinha",
-    "Endereços completos (atuais e histórico)",
-    "Telefones cadastrados em bases públicas",
-    "E-mails associados a esse CPF",
-    "Parentes diretos (mãe, pai, irmãos)",
-    "Empresas em que figura como sócio",
-  ],
-  "cpf-avancada": [
-    "Tudo da Investigação",
-    "Ultra Completo (400+ bases unificadas)",
-    "Score de crédito Boa Vista",
-    "Pendências financeiras e dívidas em aberto",
-    "Protestos cartoriais e histórico",
-    "Imóveis e veículos vinculados",
-  ],
-  "cpf-premium": [
-    "Tudo da Avançada",
-    "Score e relatório Serasa Premium",
-    "Cheques sem fundos e sustados",
-    "Certidão Negativa de Débitos Trabalhistas",
-    "Informações QUOD (dívidas e crédito)",
-    "Cenprot (protestos nacionais)",
-  ],
-  "cpf-raio-x": [
-    "Tudo da Premium",
-    "SPC Brasil completo",
-    "SCR BACEN (operações no Banco Central)",
-    "Busca reversa por documentos (RG, CNH)",
-    "Histórico de consultas feitas no CPF",
-    "Análise consolidada multi-bureau",
-  ],
-
-  // ---- CNPJ ----
-  "cnpj-espiadinha": [
-    "Razão social e nome fantasia",
-    "Situação cadastral na Receita Federal",
-    "CNAE principal e secundários",
-    "Quadro de sócios e endereço",
-    "Data de abertura e capital social",
-  ],
-  "cnpj-socios": [
-    "Tudo da Espiadinha",
-    "CPF Ultra Completo dos sócios (até 3)",
-    "Certidão Trabalhista da empresa",
-    "Vínculos empresariais dos sócios",
-    "Endereços e contatos dos sócios",
-  ],
-  "cnpj-premium": [
-    "Tudo do +Sócios",
-    "Cred Plus (análise consolidada de risco)",
-    "Score de crédito empresarial",
-    "Serasa e Boa Vista dos sócios",
-    "Situação tributária e pendências fiscais",
-    "Protestos cartoriais da empresa",
-  ],
-  "cnpj-total": [
-    "Tudo do Premium",
-    "Análise de risco detalhada (fraude, blacklist)",
-    "Protestos atualizados (CNPJ + sócios)",
-    "SCR BACEN dos sócios",
-    "Score consolidado multi-bureau",
-    "Histórico de relacionamento bancário",
-  ],
-
-  // ---- Veicular ----
-  "veicular-espiadinha": [
-    "Marca, modelo, versão e ano",
-    "Cor predominante e combustível",
-    "Chassi e número de motor",
-    "Valor Fipe atualizado",
-    "Município e UF de licenciamento",
-  ],
-  "veicular-completo": [
-    "Tudo da Espiadinha",
-    "BIN Nacional consolidado",
-    "Recall ativo do fabricante",
-    "Categoria e espécie do veículo",
-    "Capacidade e tipo de carroceria",
-  ],
-  "veicular-avancado": [
-    "Tudo do Completo",
-    "BIN Estadual com dados regionais detalhados",
-    "Nome e documento do proprietário atual",
-    "Gravame (alienação fiduciária ativa)",
-    "Histórico nacional de roubo e furto",
-    "Restrições judiciais",
-  ],
-  "veicular-premium": [
-    "Tudo do Avançado",
-    "Histórico de leilão (sinistro, judicial)",
-    "Certificado de Segurança Veicular (CSV)",
-    "RENAJUD (restrições judiciais ativas)",
-    "RENAINF (infrações de trânsito)",
-    "Verificação de adulteração estrutural",
-  ],
-  "veicular-total": [
-    "Tudo do Premium",
-    "Vip Car (relatório completo de concessionária)",
-    "CRLV digital (documento do veículo)",
-    "Fotos do veículo no leilão (se houver)",
-    "Histórico de proprietários anteriores",
-    "Análise técnica completa pré-compra",
-  ],
-};
+// RESUMO_INCLUI agora vem de @/lib/consultas/planos (fonte unica de verdade)
 
 export default function PrecosPage() {
   return (
