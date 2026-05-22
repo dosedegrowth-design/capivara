@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { PlanCard } from "@/components/consulta/plan-card";
+import { PlanCarousel } from "@/components/consulta/plan-carousel";
 import {
   PLANOS_CPF,
   PLANOS_CNPJ,
@@ -87,16 +87,11 @@ export default async function CategoriaPage({
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-5">
-        {planos.map((p) => (
-          <PlanCard
-            key={p.id}
-            plano={p}
-            inclui={RESUMO_INCLUI[p.id] ?? []}
-            href={`/consultar/${cat}/${p.id.split("-").slice(1).join("-")}`}
-          />
-        ))}
-      </div>
+      <PlanCarousel
+        planos={planos}
+        inclui={RESUMO_INCLUI}
+        cardWidth={260}
+      />
     </div>
   );
 }

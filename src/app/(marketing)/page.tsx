@@ -40,25 +40,34 @@ export default function Home() {
 function Hero() {
   return (
     <section className="relative overflow-hidden">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-16 pb-12 md:pt-24 md:pb-20">
-        <div className="grid items-center gap-12 md:grid-cols-2">
-          <div className="space-y-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-12 md:pt-24 md:pb-20">
+        <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
+          {/* Mascote no MOBILE aparece primeiro (centralizado, menor); em desktop fica na direita */}
+          <div className="relative flex items-center justify-center min-h-[200px] sm:min-h-[260px] md:min-h-[340px] md:order-2">
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
+            <HeroMascot
+              width={520}
+              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[280px] sm:max-w-[360px] md:max-w-[520px] h-auto"
+            />
+          </div>
+
+          <div className="space-y-5 md:space-y-6 text-center md:text-left md:order-1">
             <Badge variant="secondary" className="font-mono">
               <span className="text-fur mr-1.5">●</span> Sem mensalidade, sem cadastro complicado
             </Badge>
 
-            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cocoa leading-[1.05]">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-cocoa leading-[1.05]">
               Puxe a capivara antes de fechar negócio.
             </h1>
 
-            <p className="text-lg md:text-xl text-tabaco leading-relaxed max-w-xl">
+            <p className="text-base sm:text-lg md:text-xl text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
               Consulta rápida e completa de histórico de qualquer{" "}
               <strong className="text-cocoa">pessoa</strong>,{" "}
               <strong className="text-cocoa">empresa</strong> ou{" "}
               <strong className="text-cocoa">veículo</strong>. Em segundos, com PDF baixável.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
               <Button asChild variant="accent" size="xl">
                 <Link href="/consultar">
                   Puxar minha primeira capivara
@@ -70,7 +79,7 @@ function Hero() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 pt-4 text-xs font-mono text-tabaco/80">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4 text-xs font-mono text-tabaco/80">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-ok" /> LGPD compliant
               </span>
@@ -81,15 +90,6 @@ function Hero() {
                 <FileText className="size-4 text-info" /> PDF assinado
               </span>
             </div>
-          </div>
-
-          {/* Mascote investigando — SVG inline com animacoes elaboradas */}
-          <div className="relative flex items-center justify-center min-h-[260px] md:min-h-[340px]">
-            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
-            <HeroMascot
-              width={520}
-              className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] max-w-full h-auto"
-            />
           </div>
         </div>
       </div>
@@ -248,7 +248,7 @@ const PASSOS = [
 
 function ComoFunciona() {
   return (
-    <section className="py-20">
+    <section className="py-20 md:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="text-center max-w-2xl mx-auto mb-14">
           <Badge variant="outline" className="mb-3 font-mono">
@@ -257,31 +257,62 @@ function ComoFunciona() {
           <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
             Três passos, sem atrito.
           </h2>
+          <p className="mt-3 text-tabaco">
+            Do clique até o PDF na sua mão, em menos de um minuto.
+          </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {PASSOS.map(({ n, icon: Icon, title, description }, i) => (
-            <div key={n} className="relative">
-              {i < PASSOS.length - 1 && (
-                <div
-                  className="hidden md:block absolute top-8 left-[calc(50%+3rem)] right-[-1.5rem] h-px bg-line"
-                  aria-hidden
-                />
-              )}
-              <div className="relative flex flex-col items-start gap-4">
-                <div className="size-16 rounded-full bg-cocoa text-cream flex items-center justify-center flex-col">
-                  <Icon className="size-6" />
-                </div>
-                <span className="font-mono text-xs tracking-widest text-tabaco/60">
-                  PASSO {n}
-                </span>
-                <h3 className="font-display text-xl font-bold text-cocoa -mt-3">
-                  {title}
-                </h3>
-                <p className="text-sm text-tabaco leading-relaxed">{description}</p>
+        {/* Passos com linha conectora elegante */}
+        <div className="relative grid gap-10 md:grid-cols-3 md:gap-6">
+          {/* Linha tracejada conectando os 3 passos (desktop only) */}
+          <div
+            className="hidden md:block absolute top-10 left-[16.67%] right-[16.67%] h-px"
+            aria-hidden
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(to right, #E6D8BD 0 8px, transparent 8px 16px)",
+            }}
+          />
+
+          {PASSOS.map(({ n, icon: Icon, title, description }) => (
+            <div
+              key={n}
+              className="relative flex flex-col items-center text-center"
+            >
+              {/* Bolha do icone */}
+              <div className="relative z-10 size-20 rounded-full bg-cocoa text-cream flex items-center justify-center shadow-[var(--shadow-card)]">
+                <Icon className="size-8" strokeWidth={1.75} />
               </div>
+
+              {/* Numero pequeno em badge */}
+              <span className="absolute -top-2 -right-2 sm:right-auto sm:left-1/2 sm:translate-x-8 size-7 rounded-full bg-saffron text-cocoa font-display font-bold text-xs flex items-center justify-center shadow-sm">
+                {n}
+              </span>
+
+              <h3 className="mt-5 font-display text-xl font-bold text-cocoa">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm text-tabaco leading-relaxed max-w-xs">
+                {description}
+              </p>
             </div>
           ))}
+        </div>
+
+        {/* CTA + link saiba mais */}
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button asChild variant="primary" size="lg">
+            <Link href="/consultar">
+              Quero puxar agora
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <Link
+            href="/como-funciona"
+            className="text-sm font-mono text-fur hover:underline underline-offset-4"
+          >
+            Ver detalhes técnicos →
+          </Link>
         </div>
       </div>
     </section>

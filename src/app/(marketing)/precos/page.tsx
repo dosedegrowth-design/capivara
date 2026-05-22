@@ -5,7 +5,7 @@ import { Check, ArrowRight, UserRound, Building2, CarFront } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PlanCard } from "@/components/consulta/plan-card";
+import { PlanCarousel } from "@/components/consulta/plan-carousel";
 import {
   PLANOS_CPF,
   PLANOS_CNPJ,
@@ -241,16 +241,8 @@ function CategoriaPlanos({
         </div>
       </div>
 
-      {/* 3 cards por linha em desktop — bem mais respiro */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {planos.map((p) => (
-          <PlanCard
-            key={p.id}
-            plano={p}
-            inclui={RESUMO_INCLUI[p.id] ?? []}
-          />
-        ))}
-      </div>
+      {/* Carrossel horizontal: ~4 cards visiveis em desktop, swipe em mobile */}
+      <PlanCarousel planos={planos} inclui={RESUMO_INCLUI} cardWidth={260} />
     </section>
   );
 }
