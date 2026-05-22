@@ -27,7 +27,7 @@ import { formatBRL } from "@/lib/formatters";
 export const metadata: Metadata = {
   title: "Capivara para empresas · Manada",
   description:
-    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Compre folhas com até 50% de bônus e tenha API, equipe e NF-e.",
+    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Compre créditos com até 50% de bônus e tenha API, equipe e NF-e.",
 };
 
 export default function EmpresasPage() {
@@ -60,7 +60,7 @@ function HeroEmpresas() {
             </h1>
 
             <p className="text-lg text-tabaco leading-relaxed max-w-xl">
-              Compre folhas (créditos) antecipadas e consuma conforme uso. Sem
+              Compre créditos antecipados e consuma conforme uso. Sem
               mensalidade. Multi-usuário, API REST, webhooks e NF-e inclusos.
             </p>
 
@@ -238,7 +238,7 @@ function PacotesResumo() {
             Quanto maior o pacote, maior o bônus.
           </h2>
           <p className="mt-3 text-tabaco">
-            Sem mensalidade. Folhas não vencem em até 12 meses (renova com recarga).
+            Sem mensalidade. Créditos não vencem em até 12 meses (renova com recarga).
           </p>
         </div>
 
@@ -267,7 +267,7 @@ function PacotesResumo() {
                 <span className="font-mono font-bold text-fur">
                   {pacote.folhasTotais}
                 </span>
-                <span className="text-tabaco">folhas</span>
+                <span className="text-tabaco">créditos</span>
               </div>
               <Badge variant="ok" className="text-[10px] mt-2 self-start">
                 +{pacote.bonusPercent}% bônus
@@ -334,7 +334,7 @@ function ComparativoEconomia() {
               </div>
               <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
               <div className="font-display text-2xl font-bold text-fur mt-2">
-                25 folhas
+                25 créditos
               </div>
               <div className="text-xs text-ok mt-1">~R$ 16,70 (-58%)*</div>
             </div>
@@ -347,7 +347,7 @@ function ComparativoEconomia() {
               </div>
               <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
               <div className="font-display text-2xl font-bold text-fur mt-2">
-                129 folhas
+                129 créditos
               </div>
               <div className="text-xs text-ok mt-1">~R$ 86,40 (-57%)*</div>
             </div>
@@ -360,14 +360,14 @@ function ComparativoEconomia() {
               </div>
               <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
               <div className="font-display text-2xl font-bold text-fur mt-2">
-                65 folhas
+                65 créditos
               </div>
               <div className="text-xs text-ok mt-1">~R$ 43,55 (-57%)*</div>
             </div>
           </div>
 
           <p className="text-center mt-8 text-xs text-tabaco/70 font-mono">
-            * Calculado no pacote Reserva Capivara (R$ 0,67/folha).
+            * Calculado no pacote Reserva Capivara (R$ 0,67/crédito).
           </p>
         </div>
       </div>
@@ -388,7 +388,7 @@ function CTAVendas() {
           </h2>
           <p className="mt-3 text-cream/80 max-w-xl mx-auto leading-relaxed">
             Crie sua conta empresarial em 2 minutos. Sem cobrança até você decidir
-            recarregar suas folhas.
+            recarregar seus créditos.
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3 items-center justify-center">

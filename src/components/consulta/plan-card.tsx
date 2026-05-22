@@ -72,7 +72,7 @@ export function PlanCard({
             <span className="font-display text-4xl font-bold text-cocoa">
               {plano.custoFolhasB2B}
             </span>
-            <span className="font-mono text-sm text-tabaco ml-1">folhas</span>
+            <span className="font-mono text-sm text-tabaco ml-1">créditos</span>
           </>
         )}
       </div>

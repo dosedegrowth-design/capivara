@@ -21,83 +21,121 @@ export const metadata: Metadata = {
     "Planos para pessoa física (avulsos a partir de R$ 7,90) ou empresarial (pacotes Manada com até 50% de bônus).",
 };
 
+/**
+ * Descricoes detalhadas de cada plano — fonte da verdade.
+ * Aparecem como bullets no PlanCard.
+ */
 const RESUMO_INCLUI: Record<string, string[]> = {
-  // CPF
-  "cpf-espiadinha": ["Dados cadastrais oficiais", "Confirmação de identidade"],
+  // ---- CPF ----
+  "cpf-espiadinha": [
+    "Nome completo e nome da mãe",
+    "Data de nascimento e idade",
+    "Situação cadastral do CPF na Receita",
+    "Confirmação rápida de identidade",
+  ],
   "cpf-investigacao": [
-    "Cadastro completo",
-    "Endereços e telefones",
-    "E-mails e parentes",
-    "Empresas vinculadas",
+    "Tudo da Espiadinha",
+    "Endereços completos (atuais e histórico)",
+    "Telefones cadastrados em bases públicas",
+    "E-mails associados a esse CPF",
+    "Parentes diretos (mãe, pai, irmãos)",
+    "Empresas em que figura como sócio",
   ],
   "cpf-avancada": [
-    "Ultra Completo (400+ bases)",
-    "Score Boa Vista",
-    "Pendências financeiras",
-    "Protestos e histórico",
+    "Tudo da Investigação",
+    "Ultra Completo — 400+ bases unificadas",
+    "Score de crédito Boa Vista",
+    "Pendências financeiras e dívidas em aberto",
+    "Protestos cartoriais e histórico",
+    "Imóveis e veículos vinculados",
   ],
   "cpf-premium": [
-    "Tudo da Avançada +",
-    "Serasa Premium",
-    "Certidão Trabalhista",
-    "QUOD",
+    "Tudo da Avançada",
+    "Score e relatório Serasa Premium",
+    "Cheques sem fundos e sustados",
+    "Certidão Negativa de Débitos Trabalhistas",
+    "Informações QUOD (dívidas e crédito)",
+    "Cenprot — protestos nacionais",
   ],
   "cpf-raio-x": [
-    "Tudo da Premium +",
-    "SPC Brasil",
-    "SCR BACEN",
-    "Busca reversa por documentos",
+    "Tudo da Premium",
+    "SPC Brasil — dados completos",
+    "SCR BACEN — operações no Banco Central",
+    "Busca reversa por documentos (RG, CNH)",
+    "Histórico de consultas feitas no CPF",
+    "Análise consolidada multi-bureau",
   ],
-  // CNPJ
+
+  // ---- CNPJ ----
   "cnpj-espiadinha": [
-    "Razão social, situação, CNAE",
-    "Sócios e endereço",
+    "Razão social e nome fantasia",
+    "Situação cadastral na Receita Federal",
+    "CNAE principal e secundários",
+    "Quadro de sócios e endereço",
+    "Data de abertura e capital social",
   ],
   "cnpj-socios": [
-    "Tudo da Espiadinha +",
-    "CPF Ultra dos sócios (até 3)",
+    "Tudo da Espiadinha",
+    "CPF Ultra Completo dos sócios (até 3)",
     "Certidão Trabalhista da empresa",
+    "Vínculos empresariais dos sócios",
+    "Endereços e contatos dos sócios",
   ],
   "cnpj-premium": [
-    "Tudo + Sócios +",
-    "Cred Plus",
-    "Serasa dos sócios",
-    "Histórico fiscal",
+    "Tudo do +Sócios",
+    "Cred Plus — análise consolidada de risco",
+    "Score de crédito empresarial",
+    "Serasa e Boa Vista dos sócios",
+    "Situação tributária e pendências fiscais",
+    "Protestos cartoriais da empresa",
   ],
   "cnpj-total": [
-    "Tudo da Premium +",
-    "Análise de risco",
-    "Protestos",
+    "Tudo do Premium",
+    "Análise de risco detalhada (fraude, blacklist)",
+    "Protestos atualizados (CNPJ + sócios)",
     "SCR BACEN dos sócios",
+    "Score consolidado multi-bureau",
+    "Histórico de relacionamento bancário",
   ],
-  // Veicular
+
+  // ---- Veicular ----
   "veicular-espiadinha": [
-    "Placa, marca, modelo, ano, cor",
-    "Chassi e valor Fipe",
+    "Marca, modelo, versão e ano",
+    "Cor predominante e combustível",
+    "Chassi e número de motor",
+    "Valor Fipe atualizado",
+    "Município e UF de licenciamento",
   ],
   "veicular-completo": [
-    "Tudo da Espiadinha +",
-    "BIN Nacional",
-    "Recall ativo",
+    "Tudo da Espiadinha",
+    "BIN Nacional — dados consolidados",
+    "Recall ativo do fabricante",
+    "Categoria e espécie do veículo",
+    "Capacidade e tipo de carroceria",
   ],
   "veicular-avancado": [
-    "Tudo do Completo +",
-    "BIN Estadual",
-    "Proprietário atual",
-    "Gravame e financiamento",
-    "Histórico de roubo/furto",
+    "Tudo do Completo",
+    "BIN Estadual — dados regionais detalhados",
+    "Nome e documento do proprietário atual",
+    "Gravame (alienação fiduciária ativa)",
+    "Histórico nacional de roubo e furto",
+    "Restrições judiciais",
   ],
   "veicular-premium": [
-    "Tudo do Avançado +",
-    "Leilão",
-    "Certificado de Segurança Veicular",
-    "RENAJUD",
+    "Tudo do Avançado",
+    "Histórico de leilão (sinistro, judicial)",
+    "Certificado de Segurança Veicular (CSV)",
+    "RENAJUD — restrições judiciais ativas",
+    "RENAINF — infrações de trânsito",
+    "Verificação de adulteração estrutural",
   ],
   "veicular-total": [
-    "Tudo do Premium +",
-    "Vip Car",
-    "CRLV",
-    "Foto Leilão",
+    "Tudo do Premium",
+    "Vip Car — relatório completo concessionária",
+    "CRLV digital (documento do veículo)",
+    "Fotos do veículo no leilão (se houver)",
+    "Histórico de proprietários anteriores",
+    "Análise técnica completa pré-compra",
   ],
 };
 
@@ -113,21 +151,24 @@ export default function PrecosPage() {
           </TabsList>
         </div>
 
-        <TabsContent value="pf" className="space-y-16">
+        <TabsContent value="pf" className="space-y-20">
           <CategoriaPlanos
             categoria="CPF"
+            descricao="Verifique pessoas — score, dívidas, histórico, vínculos."
             icone={<UserRound className="size-5" />}
             cor="bg-info/15 text-info"
             planos={PLANOS_CPF}
           />
           <CategoriaPlanos
             categoria="CNPJ"
+            descricao="Verifique empresas — situação, sócios, crédito, fiscal."
             icone={<Building2 className="size-5" />}
             cor="bg-sage/20 text-sage"
             planos={PLANOS_CNPJ}
           />
           <CategoriaPlanos
             categoria="Veicular"
+            descricao="Verifique veículos — proprietário, gravame, leilão, recall."
             icone={<CarFront className="size-5" />}
             cor="bg-saffron/25 text-fur"
             planos={PLANOS_VEICULAR}
@@ -156,11 +197,11 @@ function Header() {
           Planos e preços
         </Badge>
         <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cocoa">
-          Sem mensalidade. Você só paga o que puxar.
+          Sem mensalidade. Você só paga o que consultar.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
           5 planos por categoria — do mais leve (R$ 7,90) ao mais completo
-          (R$ 199,90). Empresas têm desconto via folhas (até 58%).
+          (R$ 199,90). Empresas têm desconto via créditos (até 58%).
         </p>
       </div>
     </section>
@@ -173,29 +214,35 @@ function Header() {
 
 function CategoriaPlanos({
   categoria,
+  descricao,
   icone,
   cor,
   planos,
 }: {
   categoria: string;
+  descricao: string;
   icone: React.ReactNode;
   cor: string;
   planos: Plano[];
 }) {
   return (
-    <section className="space-y-6">
-      <div className="flex items-center gap-3">
+    <section className="space-y-8">
+      <div className="flex items-start gap-4 max-w-3xl">
         <span
-          className={`size-10 rounded-md flex items-center justify-center ${cor}`}
+          className={`size-12 rounded-md flex items-center justify-center shrink-0 ${cor}`}
         >
           {icone}
         </span>
-        <h2 className="font-display text-2xl md:text-3xl font-bold text-cocoa">
-          {categoria}
-        </h2>
+        <div>
+          <h2 className="font-display text-3xl font-bold text-cocoa">
+            {categoria}
+          </h2>
+          <p className="text-tabaco mt-1">{descricao}</p>
+        </div>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-5">
+      {/* 3 cards por linha em desktop — bem mais respiro */}
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {planos.map((p) => (
           <PlanCard
             key={p.id}
@@ -221,8 +268,8 @@ function PainelEmpresarial() {
             Pacotes Manada — para empresas que consultam volume.
           </h2>
           <p className="mt-3 text-tabaco">
-            Compre folhas (créditos) antecipadas e consuma conforme uso.
-            Quanto maior o pacote, maior o bônus. Sem mensalidade.
+            Compre créditos antecipados e consuma conforme uso. Quanto maior o
+            pacote, maior o bônus. Sem mensalidade.
           </p>
         </div>
 
@@ -251,7 +298,7 @@ function PainelEmpresarial() {
                 <span className="font-mono font-bold text-fur">
                   {pacote.folhasTotais}
                 </span>
-                <span className="text-tabaco">folhas</span>
+                <span className="text-tabaco">créditos</span>
                 <Badge variant="ok" className="text-[10px] py-0">
                   +{pacote.bonusPercent}% bônus
                 </Badge>
@@ -284,11 +331,11 @@ function PainelEmpresarial() {
 
       <section className="rounded-lg border border-line bg-card p-6 md:p-8">
         <h3 className="font-display text-xl font-bold text-cocoa mb-4">
-          Como cada plano consome folhas
+          Como cada plano consome créditos
         </h3>
         <p className="text-sm text-tabaco mb-6">
           Empresas pagam o mesmo conteúdo dos planos avulsos B2C com até 40%
-          menos. Aqui está a equivalência:
+          menos. Veja a equivalência:
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
@@ -305,7 +352,7 @@ function PainelEmpresarial() {
               Empresa grande? Vamos conversar.
             </h3>
             <p className="text-cream/80 max-w-lg">
-              A partir de 4.500 folhas/mês temos planos sob medida com SLA,
+              A partir de 4.500 créditos/mês temos planos sob medida com SLA,
               account manager e cache estendido (até 7 dias).
             </p>
           </div>
@@ -337,7 +384,7 @@ function ConsumoTabela({
         <thead>
           <tr className="border-b border-line text-tabaco text-xs">
             <th className="text-left font-mono font-medium py-2">Plano</th>
-            <th className="text-right font-mono font-medium py-2">Folhas</th>
+            <th className="text-right font-mono font-medium py-2">Créditos</th>
             <th className="text-right font-mono font-medium py-2">Avulso</th>
           </tr>
         </thead>
