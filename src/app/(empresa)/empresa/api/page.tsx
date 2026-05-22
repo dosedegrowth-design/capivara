@@ -6,6 +6,7 @@ import { ArrowLeft, Book, Code2 } from "lucide-react";
 import { getCurrentProfile, getActiveCompany } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ApiKeysClient, type ApiKeyRow } from "./api-keys-client";
+import { ApiUsageStats, type ApiUsageStats as ApiUsageStatsType } from "./api-usage-stats";
 
 export const metadata: Metadata = {
   title: "API & Integracoes · Capivara",
@@ -26,6 +27,9 @@ export default async function ApiPage() {
     .order("created_at", { ascending: false });
 
   const keys: ApiKeyRow[] = (data ?? []) as ApiKeyRow[];
+
+  // Computa stats de uso via API (source='api')
+  const stats = await loadApiUsageStats(empresa.id);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
@@ -50,7 +54,21 @@ export default async function ApiPage() {
             </p>
           </div>
 
-          <ApiKeysClient keys={keys} />
+          {/* Dashboard de uso da API */}
+          <section>
+            <h2 className="font-display text-xl font-bold text-cocoa mb-3">
+              Uso da API
+            </h2>
+            <ApiUsageStats stats={stats} />
+          </section>
+
+          {/* Gestao de chaves */}
+          <section>
+            <h2 className="font-display text-xl font-bold text-cocoa mb-3">
+              Chaves de API
+            </h2>
+            <ApiKeysClient keys={keys} />
+          </section>
         </div>
 
         {/* Sidebar com quick-start docs */}
@@ -118,4 +136,100 @@ export default async function ApiPage() {
       </div>
     </div>
   );
+}
+
+// =============================================================================
+// Helper: agrega estatisticas de uso da API
+// =============================================================================
+async function loadApiUsageStats(companyId: string): Promise<ApiUsageStatsType> {
+  const supabase = await createClient();
+  const now = new Date();
+  const start7d = new Date(now);
+  start7d.setDate(now.getDate() - 7);
+  const start30d = new Date(now);
+  start30d.setDate(now.getDate() - 30);
+  const start14d = new Date(now);
+  start14d.setDate(now.getDate() - 14);
+  const startToday = new Date(now);
+  startToday.setHours(0, 0, 0, 0);
+
+  // Todas as consultas via API da empresa
+  const { data: apiConsultas } = await supabase
+    .from("consultations")
+    .select("id, status, plan_tier, created_at, folhas_used")
+    .eq("company_id", companyId)
+    .eq("source", "api")
+    .gte("created_at", start30d.toISOString())
+    .order("created_at", { ascending: false });
+
+  const consultas = apiConsultas ?? [];
+
+  const totalCallsToday = consultas.filter((c) => new Date(c.created_at) >= startToday).length;
+  const totalCalls7d = consultas.filter((c) => new Date(c.created_at) >= start7d).length;
+  const totalCalls30d = consultas.length;
+
+  const sucesso7d = consultas.filter(
+    (c) => new Date(c.created_at) >= start7d && c.status === "completed"
+  ).length;
+  const successRate7d = totalCalls7d > 0 ? (sucesso7d / totalCalls7d) * 100 : 100;
+
+  const totalCreditosGastos7d = consultas
+    .filter((c) => new Date(c.created_at) >= start7d)
+    .reduce((acc, c) => acc + (c.folhas_used ?? 0), 0);
+
+  // Calls por dia (ultimos 14 dias)
+  const byDay: Record<string, number> = {};
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    byDay[key] = 0;
+  }
+  for (const c of consultas) {
+    if (new Date(c.created_at) >= start14d) {
+      const key = c.created_at.slice(0, 10);
+      if (key in byDay) byDay[key]++;
+    }
+  }
+  const callsByDay = Object.entries(byDay)
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([day, count]) => ({ day, count }));
+
+  // Top planos via API
+  const planCounts: Record<string, number> = {};
+  for (const c of consultas) {
+    planCounts[c.plan_tier] = (planCounts[c.plan_tier] ?? 0) + 1;
+  }
+  const topPlans = Object.entries(planCounts)
+    .map(([plan_id, count]) => ({ plan_id, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // Webhook delivery stats
+  const { data: webhookData } = await supabase
+    .from("webhook_deliveries")
+    .select("status")
+    .eq("company_id", companyId)
+    .gte("created_at", start30d.toISOString());
+
+  const webhookDeliveries = {
+    delivered: 0,
+    failed: 0,
+    pending: 0,
+    exhausted: 0,
+  };
+  for (const w of webhookData ?? []) {
+    const s = w.status as keyof typeof webhookDeliveries;
+    if (s in webhookDeliveries) webhookDeliveries[s]++;
+  }
+
+  return {
+    totalCalls7d,
+    totalCalls30d,
+    totalCallsToday,
+    callsByDay,
+    successRate7d,
+    totalCreditosGastos7d,
+    topPlans,
+    webhookDeliveries,
+  };
 }

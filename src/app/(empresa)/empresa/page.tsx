@@ -1,5 +1,15 @@
 import Link from "next/link";
-import { Coins, Users, Search, TrendingUp, ArrowRight } from "lucide-react";
+import {
+  Coins,
+  Users,
+  Search,
+  TrendingUp,
+  ArrowRight,
+  Code2,
+  Webhook,
+  Receipt,
+  Activity,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +55,29 @@ export default async function EmpresaDashboard() {
     .eq("company_id", empresa.id)
     .order("created_at", { ascending: false })
     .limit(5);
+
+  // Atividade últimos 14 dias (gráfico)
+  const start14d = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  const { data: atividade } = await supabase
+    .from("consultations")
+    .select("created_at")
+    .eq("company_id", empresa.id)
+    .gte("created_at", start14d.toISOString());
+
+  const byDay: Record<string, number> = {};
+  for (let i = 0; i < 14; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    byDay[d.toISOString().slice(0, 10)] = 0;
+  }
+  for (const c of atividade ?? []) {
+    const key = c.created_at.slice(0, 10);
+    if (key in byDay) byDay[key]++;
+  }
+  const atividadeDias = Object.entries(byDay)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([day, count]) => ({ day, count }));
+  const maxAtividade = Math.max(...atividadeDias.map((d) => d.count), 1);
 
   const nomeCurto = (profile.full_name ?? profile.email).split(" ")[0];
   const saldoBaixo = empresa.folhas_balance < 50;
@@ -131,6 +164,108 @@ export default async function EmpresaDashboard() {
           value={String(totalMembros ?? 1)}
           href="/empresa/equipe"
         />
+      </section>
+
+      {/* Atividade últimos 14 dias */}
+      <section className="rounded-xl border border-line bg-card p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display text-lg font-bold text-cocoa flex items-center gap-2">
+            <Activity className="size-4 text-fur" />
+            Atividade — últimos 14 dias
+          </h2>
+          <span className="text-[10px] font-mono text-tabaco">
+            Total: {atividadeDias.reduce((acc, d) => acc + d.count, 0)} consultas
+          </span>
+        </div>
+        <div className="flex items-end gap-1 h-24">
+          {atividadeDias.map((d) => {
+            const heightPct = (d.count / maxAtividade) * 100;
+            return (
+              <div
+                key={d.day}
+                className="flex-1 flex flex-col items-center gap-1 group"
+                title={`${d.count} consultas em ${d.day}`}
+              >
+                <div className="text-[9px] font-mono text-tabaco/40 group-hover:text-fur transition-colors">
+                  {d.count > 0 ? d.count : ""}
+                </div>
+                <div
+                  className="w-full rounded-t bg-fur/70 hover:bg-fur transition-all"
+                  style={{ height: `${Math.max(heightPct, 2)}%`, minHeight: "2px" }}
+                />
+              </div>
+            );
+          })}
+        </div>
+        <div className="flex justify-between mt-2 text-[9px] font-mono text-tabaco">
+          {atividadeDias
+            .filter((_, i) => i % 3 === 0 || i === atividadeDias.length - 1)
+            .map((d) => (
+              <span key={d.day}>
+                {new Date(d.day + "T12:00:00").toLocaleDateString("pt-BR", {
+                  day: "2-digit",
+                  month: "short",
+                })}
+              </span>
+            ))}
+        </div>
+      </section>
+
+      {/* Quick actions */}
+      <section>
+        <h2 className="font-display text-lg font-bold text-cocoa mb-3">
+          Atalhos
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <QuickAction
+            href="/empresa/nova-consulta"
+            icon={Search}
+            title="Nova consulta"
+            description="Puxar capivara pela equipe"
+          />
+          <QuickAction
+            href="/empresa/creditos"
+            icon={Coins}
+            title="Recarregar"
+            description="Comprar pacote Manada"
+          />
+          <QuickAction
+            href="/empresa/api"
+            icon={Code2}
+            title="API & métricas"
+            description="Gerar chave + ver uso"
+          />
+          <QuickAction
+            href="/empresa/webhooks"
+            icon={Webhook}
+            title="Webhooks"
+            description="Configurar + log de entregas"
+          />
+          <QuickAction
+            href="/empresa/equipe"
+            icon={Users}
+            title="Equipe"
+            description="Convidar + permissões"
+          />
+          <QuickAction
+            href="/empresa/historico"
+            icon={Activity}
+            title="Histórico"
+            description="Tudo que a equipe puxou"
+          />
+          <QuickAction
+            href="/empresa/faturamento"
+            icon={Receipt}
+            title="Faturamento"
+            description="Recibos e NF-e"
+          />
+          <QuickAction
+            href="/configuracoes"
+            icon={Users}
+            title="Minha conta"
+            description="Perfil + LGPD"
+          />
+        </div>
       </section>
 
       {/* Últimas consultas */}
@@ -232,4 +367,29 @@ function KPI({
     </div>
   );
   return href ? <Link href={href}>{content}</Link> : content;
+}
+
+function QuickAction({
+  href,
+  icon: Icon,
+  title,
+  description,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-lg border border-line bg-card p-4 hover:border-fur hover:shadow-md transition-all"
+    >
+      <div className="size-9 rounded-lg bg-fur/15 text-fur flex items-center justify-center mb-2 group-hover:bg-fur group-hover:text-cream transition-colors">
+        <Icon className="size-4" />
+      </div>
+      <p className="font-display font-semibold text-cocoa text-sm">{title}</p>
+      <p className="text-xs text-tabaco mt-0.5">{description}</p>
+    </Link>
+  );
 }
