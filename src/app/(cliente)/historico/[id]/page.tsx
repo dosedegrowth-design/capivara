@@ -5,10 +5,12 @@ import { ArrowLeft, Download, FileText, Sparkles, AlertTriangle } from "lucide-r
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/capivara/mascot";
+import { ResultSections } from "@/components/consulta/result-sections";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { findPlano } from "@/lib/consultas/planos";
 import { formatDateTimeBR } from "@/lib/formatters";
+import type { ResultSection } from "@/lib/consultas/mock-data";
 
 export default async function ResultadoPage({
   params,
@@ -141,6 +143,10 @@ function ResultadoConsolidado({
     );
   }
 
+  // O resultado pode vir no formato novo (sections[]) ou antigo (mock simples)
+  const result = consulta.result_jsonb as { sections?: ResultSection[] };
+  const hasSections = Array.isArray(result.sections) && result.sections.length > 0;
+
   return (
     <div className="space-y-4">
       {consulta.cache_hit && (
@@ -149,20 +155,20 @@ function ResultadoConsolidado({
         </div>
       )}
 
-      <details open className="rounded-lg border border-line bg-card overflow-hidden">
-        <summary className="cursor-pointer p-4 hover:bg-cream/30 transition-colors">
-          <span className="font-display font-semibold text-cocoa">
-            Dados consolidados (JSON bruto · MVP)
-          </span>
-        </summary>
-        <pre className="p-4 text-xs font-mono text-tabaco overflow-x-auto bg-paper-2 border-t border-line">
-          {JSON.stringify(consulta.result_jsonb, null, 2)}
-        </pre>
-      </details>
-
-      <p className="text-xs text-tabaco/70 font-mono text-center pt-4">
-        Visualização rica + PDF estilizado virão nas próximas iterações.
-      </p>
+      {hasSections ? (
+        <ResultSections sections={result.sections!} />
+      ) : (
+        <details className="rounded-lg border border-line bg-card overflow-hidden">
+          <summary className="cursor-pointer p-4 hover:bg-cream/30 transition-colors">
+            <span className="font-display font-semibold text-cocoa">
+              Dados consolidados (formato antigo)
+            </span>
+          </summary>
+          <pre className="p-4 text-xs font-mono text-tabaco overflow-x-auto bg-paper-2 border-t border-line">
+            {JSON.stringify(consulta.result_jsonb, null, 2)}
+          </pre>
+        </details>
+      )}
     </div>
   );
 }

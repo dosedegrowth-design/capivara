@@ -143,6 +143,97 @@ export async function recoverPasswordAction(formData: FormData): Promise<AuthRes
 }
 
 // =========================================================================
+// Criar empresa (onboarding PJ)
+// =========================================================================
+
+export async function criarEmpresaAction(formData: FormData): Promise<AuthResult> {
+  const razaoSocial = String(formData.get("razaoSocial") ?? "").trim();
+  const nomeFantasia = String(formData.get("nomeFantasia") ?? "").trim();
+  const cnpjRaw = normalizeCNPJ(String(formData.get("cnpj") ?? ""));
+  const emailBilling = String(formData.get("emailBilling") ?? "").trim().toLowerCase();
+
+  if (razaoSocial.length < 3) {
+    return { error: "Razao social muito curta." };
+  }
+
+  if (!cnpjRaw || cnpjRaw.length !== 14) {
+    return { error: "CNPJ invalido." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: empresa, error: createErr } = await supabase
+    .from("companies")
+    .insert({
+      name: nomeFantasia || razaoSocial,
+      cnpj: cnpjRaw,
+      razao_social: razaoSocial,
+      owner_id: user.id,
+      email_billing: emailBilling || user.email,
+      plan_tier: "start",
+    })
+    .select()
+    .single();
+
+  if (createErr || !empresa) {
+    if (createErr?.code === "23505") {
+      return { error: "Este CNPJ ja esta cadastrado." };
+    }
+    return { error: "Falha ao criar empresa. Tente novamente." };
+  }
+
+  await supabase.from("company_members").insert({
+    company_id: empresa.id,
+    user_id: user.id,
+    role: "admin",
+    accepted_at: new Date().toISOString(),
+  });
+
+  await supabase
+    .from("profiles")
+    .update({
+      active_company_id: empresa.id,
+      account_type: "pj_admin",
+    })
+    .eq("id", user.id);
+
+  revalidatePath("/", "layout");
+  redirect("/empresa");
+}
+
+// =========================================================================
+// Redefinir senha (depois do click no email de recovery)
+// =========================================================================
+
+export async function resetPasswordAction(formData: FormData): Promise<AuthResult> {
+  const senha = String(formData.get("senha") ?? "");
+  const confirmacao = String(formData.get("confirmacao") ?? "");
+
+  if (senha.length < 8) {
+    return { error: "A senha precisa ter no minimo 8 caracteres." };
+  }
+
+  if (senha !== confirmacao) {
+    return { error: "As senhas nao conferem." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password: senha });
+
+  if (error) {
+    return { error: traduzirErroAuth(error.message) };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/dashboard");
+}
+
+// =========================================================================
 // Helpers
 // =========================================================================
 
