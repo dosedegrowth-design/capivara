@@ -1,0 +1,156 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { cadastroSchema, loginSchema } from "@/lib/validators";
+import { normalizeCPF, normalizeCNPJ } from "@/lib/formatters";
+
+/**
+ * Server Actions de autenticacao.
+ * Todas retornam { error: string | null } quando falham.
+ * Em caso de sucesso, redirecionam.
+ */
+
+export type AuthResult = {
+  error: string | null;
+  fieldErrors?: Record<string, string>;
+};
+
+// =========================================================================
+// Cadastro
+// =========================================================================
+
+export async function signUpAction(formData: FormData): Promise<AuthResult> {
+  const raw = {
+    nomeCompleto: String(formData.get("nomeCompleto") ?? "").trim(),
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
+    cpf: normalizeCPF(String(formData.get("cpf") ?? "")),
+    telefone: String(formData.get("telefone") ?? "").replace(/\D/g, ""),
+    senha: String(formData.get("senha") ?? ""),
+    lgpdAceito: formData.get("lgpdAceito") === "on" || formData.get("lgpdAceito") === "true",
+    tipo: String(formData.get("tipo") ?? "pf"),
+  };
+
+  // Telefone opcional — se vazio, vira undefined pro schema
+  const dataForSchema = {
+    ...raw,
+    telefone: raw.telefone || undefined,
+  };
+
+  const parsed = cadastroSchema.safeParse(dataForSchema);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      fieldErrors[issue.path.join(".")] = issue.message;
+    }
+    return {
+      error: "Verifique os dados informados.",
+      fieldErrors,
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signUp({
+    email: parsed.data.email,
+    password: parsed.data.senha,
+    options: {
+      data: {
+        full_name: parsed.data.nomeCompleto,
+        cpf: parsed.data.cpf,
+        phone: parsed.data.telefone ?? null,
+        account_type: raw.tipo === "empresa" ? "pj_admin" : "pf",
+        lgpd_accepted: true,
+      },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding`,
+    },
+  });
+
+  if (error) {
+    return { error: traduzirErroAuth(error.message) };
+  }
+
+  // Redireciona pro onboarding (cliente PF) ou cadastro de empresa (PJ)
+  redirect(raw.tipo === "empresa" ? "/onboarding/empresa" : "/onboarding");
+}
+
+// =========================================================================
+// Login
+// =========================================================================
+
+export async function signInAction(formData: FormData): Promise<AuthResult> {
+  const raw = {
+    email: String(formData.get("email") ?? "").trim().toLowerCase(),
+    senha: String(formData.get("senha") ?? ""),
+  };
+  const redirectTo = String(formData.get("redirect") ?? "/dashboard");
+
+  const parsed = loginSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      error: "Email ou senha invalidos.",
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.senha,
+  });
+
+  if (error) {
+    return { error: traduzirErroAuth(error.message) };
+  }
+
+  revalidatePath("/", "layout");
+  redirect(redirectTo);
+}
+
+// =========================================================================
+// Logout
+// =========================================================================
+
+export async function signOutAction() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
+// =========================================================================
+// Recuperar senha
+// =========================================================================
+
+export async function recoverPasswordAction(formData: FormData): Promise<AuthResult> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Email invalido." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/recuperar-senha/redefinir`,
+  });
+
+  if (error) {
+    return { error: traduzirErroAuth(error.message) };
+  }
+
+  return { error: null };
+}
+
+// =========================================================================
+// Helpers
+// =========================================================================
+
+function traduzirErroAuth(msg: string): string {
+  if (msg.includes("Invalid login credentials")) return "Email ou senha incorretos.";
+  if (msg.includes("Email not confirmed")) return "Confirme seu email antes de entrar.";
+  if (msg.includes("User already registered")) return "Este email ja esta cadastrado.";
+  if (msg.includes("Password should be")) return "Senha muito curta (minimo 8 caracteres).";
+  if (msg.includes("rate limit")) return "Muitas tentativas. Aguarde 1 minuto.";
+  return msg || "Erro inesperado. Tente novamente.";
+}
