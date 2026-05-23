@@ -43,8 +43,8 @@ export async function GET(
 
   const admin = createAdminClient();
   const selectCols = includeResult
-    ? "id, status, created_at, plan_tier, category, target_value, pdf_url, completed_at, external_reference, result_jsonb, api_total_cost_cents, folhas_used"
-    : "id, status, created_at, plan_tier, category, target_value, pdf_url, completed_at, external_reference, api_total_cost_cents, folhas_used";
+    ? "id, status, created_at, plan_tier, category, target_value, pdf_url, completed_at, external_reference, result_jsonb, api_total_cost_cents, amount_cents, folhas_used"
+    : "id, status, created_at, plan_tier, category, target_value, pdf_url, completed_at, external_reference, api_total_cost_cents, amount_cents, folhas_used";
 
   const { data, error } = await admin
     .from("consultations")
@@ -62,6 +62,7 @@ export async function GET(
       completed_at: string | null;
       external_reference: string | null;
       api_total_cost_cents: number;
+      amount_cents: number;
       folhas_used: number;
       result_jsonb?: unknown;
     }>();
@@ -80,7 +81,11 @@ export async function GET(
     target: data.target_value,
     external_reference: data.external_reference,
     pdf_url: data.pdf_url,
-    folhas_used: data.folhas_used,
+    // amount_cents = valor debitado do saldo da empresa (preco B2B do plano).
+    amount_cents: data.amount_cents,
+    // folhas_used: campo legado, mantido pra retrocompat. Sempre 0 no modelo
+    // atual (saldo em R$ direto, sem creditos).
+    folhas_used: data.folhas_used ?? 0,
     created_at: data.created_at,
     completed_at: data.completed_at,
   };

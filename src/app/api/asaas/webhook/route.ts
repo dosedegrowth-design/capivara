@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logError } from "@/lib/log";
 import type { AsaasWebhookEvent } from "@/lib/asaas/types";
 import { dispatchEvent } from "@/lib/webhooks";
+import { findPacoteManada } from "@/lib/consultas/planos";
 
 /**
  * Webhook Asaas — recebe eventos de pagamento.
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
           // Pega a transaction da recarga
           const { data: tx } = await admin
             .from("transactions")
-            .select("id, folhas_added, status")
+            .select("id, amount_cents, status")
             .eq("asaas_payment_id", payment.id)
             .maybeSingle();
 
@@ -89,12 +90,16 @@ export async function POST(request: NextRequest) {
             })
             .eq("id", tx.id);
 
-          // Adiciona folhas no saldo da empresa (atomic via RPC)
-          const folhas = tx.folhas_added ?? 0;
-          if (folhas > 0) {
-            await admin.rpc("add_credits", {
+          // Lookup do pacote pelo pacoteId no externalReference pra pegar saldoTotal_centavos
+          // (valor pago + bonus). Fallback: usa amount_cents se pacote desconhecido.
+          const pacote = findPacoteManada(pacoteId);
+          const saldoTotalCentavos =
+            pacote?.saldoTotal_centavos ?? tx.amount_cents ?? 0;
+
+          if (saldoTotalCentavos > 0) {
+            await admin.rpc("add_balance_cents", {
               p_company_id: companyId,
-              p_credits: folhas,
+              p_amount_cents: saldoTotalCentavos,
             });
           }
           break;

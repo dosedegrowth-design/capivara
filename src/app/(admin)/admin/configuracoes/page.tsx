@@ -124,7 +124,7 @@ export default async function AdminConfiguracoesPage() {
 
       <section className="rounded-xl border border-line bg-card p-5">
         <h2 className="font-display text-lg font-bold text-cocoa mb-3">
-          Planos B2C ({TODOS_PLANOS.length} planos)
+          Planos ({TODOS_PLANOS.length} planos)
         </h2>
         <p className="text-xs text-tabaco mb-3">
           Edite <code className="font-mono text-fur">src/lib/consultas/planos.ts</code> pra alterar preços.
@@ -136,7 +136,7 @@ export default async function AdminConfiguracoesPage() {
                 <th className="text-left px-3 py-2 text-xs font-mono uppercase tracking-wider text-tabaco">ID</th>
                 <th className="text-left px-3 py-2 text-xs font-mono uppercase tracking-wider text-tabaco">Categoria</th>
                 <th className="text-right px-3 py-2 text-xs font-mono uppercase tracking-wider text-tabaco">B2C</th>
-                <th className="text-right px-3 py-2 text-xs font-mono uppercase tracking-wider text-tabaco">Créditos</th>
+                <th className="text-right px-3 py-2 text-xs font-mono uppercase tracking-wider text-tabaco">B2B</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -150,7 +150,7 @@ export default async function AdminConfiguracoesPage() {
                     {formatBRL(p.precoB2C_centavos)}
                   </td>
                   <td className="px-3 py-2 text-right text-xs font-mono text-fur">
-                    {p.custoFolhasB2B}
+                    {formatBRL(p.precoB2B_centavos)}
                   </td>
                 </tr>
               ))}
@@ -171,7 +171,10 @@ export default async function AdminConfiguracoesPage() {
                 {formatBRL(p.valor_centavos)}
               </p>
               <p className="text-[11px] font-mono text-tabaco mt-1">
-                {p.folhasTotais} cr · +{p.bonusPercent}% bônus
+                +{p.bonusPercent}% bônus
+              </p>
+              <p className="text-[11px] font-mono text-fur mt-0.5">
+                = {formatBRL(p.saldoTotal_centavos)} de saldo
               </p>
             </div>
           ))}

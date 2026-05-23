@@ -2,10 +2,8 @@
 
 import { useState, useTransition } from "react";
 import {
-  Building2,
   Coins,
   Loader2,
-  MoreVertical,
   Pause,
   Play,
   Plus,
@@ -16,15 +14,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ajustarCreditosAction, toggleEmpresaAtivaAction } from "./actions";
-import { formatBRL, formatCNPJ, formatDateTimeBR } from "@/lib/formatters";
+import { ajustarSaldoAction, toggleEmpresaAtivaAction } from "./actions";
+import { formatBRL, formatCNPJ } from "@/lib/formatters";
 
 export interface EmpresaAdminRow {
   id: string;
   name: string;
   razao_social: string | null;
   cnpj: string;
-  folhas_balance: number;
+  balance_cents: number;
   plan_tier: string;
   created_at: string;
   email_billing: string | null;
@@ -114,9 +112,8 @@ export function EmpresasAdminClient({ empresas }: Props) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className="font-mono font-bold text-fur">
-                      {e.folhas_balance}
+                      {formatBRL(e.balance_cents)}
                     </span>
-                    <span className="text-[10px] text-tabaco ml-1">cr</span>
                   </td>
                   <td className="px-4 py-3 text-right hidden sm:table-cell">
                     <p className="text-xs text-cocoa">
@@ -146,7 +143,7 @@ export function EmpresasAdminClient({ empresas }: Props) {
                           setSelected(e);
                           setModalMode("adjust");
                         }}
-                        title="Ajustar créditos"
+                        title="Ajustar saldo"
                       >
                         <Coins className="size-3.5" />
                       </Button>
@@ -207,7 +204,7 @@ function AdjustModal({
   onClose: () => void;
 }) {
   const [pending, startTransition] = useTransition();
-  const [credits, setCredits] = useState("");
+  const [valorReais, setValorReais] = useState("");
   const [motivo, setMotivo] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -216,20 +213,20 @@ function AdjustModal({
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    const n = parseInt(credits, 10);
+    const n = parseFloat(valorReais);
     if (Number.isNaN(n) || n === 0) {
-      setError("Digite um número (positivo ou negativo, não-zero).");
+      setError("Digite um valor em R$ (positivo ou negativo, não-zero).");
       return;
     }
     const fd = new FormData();
     fd.set("companyId", empresa.id);
-    fd.set("credits", String(n));
+    fd.set("valorReais", String(n));
     fd.set("motivo", motivo);
     startTransition(async () => {
-      const res = await ajustarCreditosAction(fd);
+      const res = await ajustarSaldoAction(fd);
       if (res.ok) {
         setSuccess(res.message ?? "OK");
-        setCredits("");
+        setValorReais("");
         setMotivo("");
         setTimeout(onClose, 1500);
       } else setError(res.error);
@@ -237,20 +234,26 @@ function AdjustModal({
   }
 
   return (
-    <Modal title={`Ajustar créditos · ${empresa.name}`} onClose={onClose}>
+    <Modal title={`Ajustar saldo (R$) · ${empresa.name}`} onClose={onClose}>
       <p className="text-sm text-tabaco mb-4">
-        Saldo atual: <strong className="text-fur font-mono">{empresa.folhas_balance} créditos</strong>
+        Saldo atual:{" "}
+        <strong className="text-fur font-mono">
+          {formatBRL(empresa.balance_cents)}
+        </strong>
       </p>
       <form onSubmit={handle} className="space-y-3">
         <div>
-          <Label htmlFor="credits">Quantidade (positivo adiciona, negativo subtrai)</Label>
+          <Label htmlFor="valorReais">
+            Valor em R$ (positivo adiciona, negativo subtrai)
+          </Label>
           <Input
-            id="credits"
+            id="valorReais"
+            name="valorReais"
             type="number"
-            step="1"
-            value={credits}
-            onChange={(e) => setCredits(e.target.value)}
-            placeholder="ex: 100 ou -50"
+            step="0.01"
+            value={valorReais}
+            onChange={(e) => setValorReais(e.target.value)}
+            placeholder="10.00 ou -5.00"
             required
             autoFocus
           />

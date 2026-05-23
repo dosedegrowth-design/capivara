@@ -80,11 +80,11 @@ export default async function EquipePage() {
         <dl className="mt-3 space-y-2 text-xs text-tabaco">
           <div>
             <dt className="text-cocoa font-semibold">Admin</dt>
-            <dd>Tudo: criar consultas, ver histórico, recarregar créditos, gerenciar equipe, gerar API keys, configurar webhooks.</dd>
+            <dd>Tudo: criar consultas, ver histórico, recarregar saldo, gerenciar equipe, gerar API keys, configurar webhooks.</dd>
           </div>
           <div>
             <dt className="text-cocoa font-semibold">Operador</dt>
-            <dd>Cria consultas e vê o histórico da equipe. Não pode mexer em créditos, equipe ou API.</dd>
+            <dd>Cria consultas e vê o histórico da equipe. Não pode mexer em saldo, equipe ou API.</dd>
           </div>
           <div>
             <dt className="text-cocoa font-semibold">Visualizador</dt>

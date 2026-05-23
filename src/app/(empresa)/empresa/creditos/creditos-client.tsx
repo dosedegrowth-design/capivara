@@ -42,8 +42,6 @@ export function CreditosClient({ isAdmin }: Props) {
       {PACOTES_MANADA.map((pacote, i) => {
         const isPopular = i === 1;
         const isMaster = i === PACOTES_MANADA.length - 1;
-        const precoPorCredito =
-          (pacote.valor_centavos / pacote.folhasTotais).toFixed(2);
 
         return (
           <div
@@ -72,19 +70,16 @@ export function CreditosClient({ isAdmin }: Props) {
               </span>
             </div>
 
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-              <span className="font-mono font-bold text-fur">
-                {pacote.folhasTotais}
-              </span>
-              <span className="text-tabaco">créditos</span>
-            </div>
-
             <Badge variant="ok" className="text-[10px] mt-2 self-start">
-              +{pacote.bonusPercent}% bônus
+              +{pacote.bonusPercent}% de bônus
             </Badge>
 
-            <p className="text-[10px] font-mono text-tabaco/70 mt-2">
-              R$ {precoPorCredito} / crédito
+            <p className="text-xs text-tabaco mt-3">
+              Você recebe{" "}
+              <strong className="font-mono text-fur">
+                {formatBRL(pacote.saldoTotal_centavos)}
+              </strong>{" "}
+              de saldo
             </p>
 
             <ul className="mt-5 mb-6 space-y-2 flex-1">

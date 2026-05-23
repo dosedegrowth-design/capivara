@@ -7,7 +7,7 @@ import { Download, Filter, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatDateTimeBR } from "@/lib/formatters";
+import { formatBRL, formatDateTimeBR } from "@/lib/formatters";
 
 export interface ConsultaRow {
   id: string;
@@ -15,7 +15,7 @@ export interface ConsultaRow {
   plan_tier: string;
   target_value: string;
   status: string;
-  folhas_used: number | null;
+  amount_cents: number | null;
   cost_center: string | null;
   created_at: string;
   source: string | null;
@@ -62,7 +62,7 @@ export function HistoricoClient({ consultas }: { consultas: ConsultaRow[] }) {
       "categoria",
       "plano",
       "target",
-      "creditos",
+      "custo_brl",
       "centro_custo",
       "status",
       "fonte",
@@ -74,7 +74,7 @@ export function HistoricoClient({ consultas }: { consultas: ConsultaRow[] }) {
       c.category,
       c.plan_tier,
       c.target_value,
-      String(c.folhas_used ?? 0),
+      ((c.amount_cents ?? 0) / 100).toFixed(2),
       c.cost_center ?? "",
       c.status,
       c.source ?? "web",
@@ -165,7 +165,7 @@ export function HistoricoClient({ consultas }: { consultas: ConsultaRow[] }) {
                 <th className="text-left px-3 py-3 font-display">Usuário</th>
                 <th className="text-left px-3 py-3 font-display">Categoria</th>
                 <th className="text-left px-3 py-3 font-display">Target</th>
-                <th className="text-right px-3 py-3 font-display">Créditos</th>
+                <th className="text-right px-3 py-3 font-display">Custo</th>
                 <th className="text-left px-3 py-3 font-display hidden md:table-cell">Centro</th>
                 <th className="text-left px-3 py-3 font-display">Status</th>
                 <th className="text-left px-3 py-3 font-display hidden sm:table-cell">Fonte</th>
@@ -186,7 +186,7 @@ export function HistoricoClient({ consultas }: { consultas: ConsultaRow[] }) {
                     {c.target_value}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-fur">
-                    {c.folhas_used ?? 0}
+                    {formatBRL(c.amount_cents ?? 0)}
                   </td>
                   <td className="px-3 py-2 text-tabaco text-xs font-mono hidden md:table-cell">
                     {c.cost_center ?? "—"}

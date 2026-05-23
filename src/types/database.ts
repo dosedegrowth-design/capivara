@@ -54,7 +54,10 @@ export interface Company {
   cnpj: string;
   razao_social: string | null;
   owner_id: string;
+  /** @deprecated Use balance_cents. Mantido por compat ate cleanup. */
   folhas_balance: number;
+  /** Saldo B2B em centavos de R$. Cada consulta debita precoB2B_centavos do plano. */
+  balance_cents: number;
   plan_tier: PlanTier;
   fiscal_settings: Record<string, unknown>;
   email_billing: string | null;
@@ -88,6 +91,7 @@ export interface Consultation {
   finality_description: string | null;
   payment_type: PaymentType;
   amount_cents: number;
+  /** @deprecated Use amount_cents. Mantido por compat ate cleanup. */
   folhas_used: number;
   asaas_payment_id: string | null;
   status: ConsultationStatus;
@@ -115,6 +119,7 @@ export interface Transaction {
   reference_id: string | null;
   payment_method: Exclude<PaymentType, "folhas">;
   amount_cents: number;
+  /** @deprecated Use amount_cents. Mantido por compat. Em recargas, amount_cents = valor pago, e a empresa recebe saldoTotal_centavos (= amount_cents + bonus) em balance_cents. */
   folhas_added: number;
   bonus_percentage: number;
   asaas_payment_id: string | null;

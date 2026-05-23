@@ -19,10 +19,11 @@ import { logError } from "@/lib/log";
 import { logConsent } from "@/lib/legal/consent";
 
 /**
- * Server action: cria consulta B2B pagando com creditos (folhas) da empresa.
+ * Server action: cria consulta B2B debitando do saldo em R$ (balance_cents) da empresa.
  *
  * Diferente do iniciarConsultaAction (B2C): nao passa por Asaas,
- * debita direto do saldo da company. Idempotente via external_reference.
+ * debita direto do saldo da company (em centavos). Idempotente via external_reference.
+ * Usa RPC debit_balance_cents pra debito atomico com lock (evita race condition).
  */
 
 export type NovaConsultaB2BResult =
@@ -117,16 +118,18 @@ export async function novaConsultaB2BAction(
 
   const { data: empresa } = await admin
     .from("companies")
-    .select("id, folhas_balance, name")
+    .select("id, balance_cents, name")
     .eq("id", profile.active_company_id)
     .maybeSingle();
 
   if (!empresa) return { ok: false, error: "Empresa nao encontrada." };
 
-  if ((empresa.folhas_balance ?? 0) < plano.custoFolhasB2B) {
+  if ((empresa.balance_cents ?? 0) < plano.precoB2B_centavos) {
+    const saldoReais = ((empresa.balance_cents ?? 0) / 100).toFixed(2);
+    const precoReais = (plano.precoB2B_centavos / 100).toFixed(2);
     return {
       ok: false,
-      error: `Saldo insuficiente: ${empresa.folhas_balance} créditos. Plano custa ${plano.custoFolhasB2B} créditos.`,
+      error: `Saldo insuficiente: R$ ${saldoReais}. Consulta custa R$ ${precoReais}.`,
     };
   }
 
@@ -151,7 +154,33 @@ export async function novaConsultaB2BAction(
     .update(`${plano.id}:${targetNormalized}`)
     .digest("hex");
 
-  // Cria consulta direto como 'paid' (creditos serao debitados em seguida)
+  // 1. Debita saldo PRIMEIRO via RPC atomico (com lock). Se falhar por saldo
+  // insuficiente (corrida com outras consultas), aborta antes de criar a linha.
+  const { data: debitOk, error: debitErr } = await admin.rpc("debit_balance_cents", {
+    p_company_id: empresa.id,
+    p_amount_cents: plano.precoB2B_centavos,
+  });
+
+  if (debitErr) {
+    await logError({
+      context: "novaConsultaB2B.debit",
+      severity: "error",
+      message: "Falha ao debitar saldo B2B",
+      error: debitErr,
+      userId: user.id,
+    });
+    return { ok: false, error: "Falha ao debitar saldo. Tente novamente." };
+  }
+
+  if (!debitOk) {
+    const precoReais = (plano.precoB2B_centavos / 100).toFixed(2);
+    return {
+      ok: false,
+      error: `Saldo insuficiente pra consulta de R$ ${precoReais}. Recarregue em /empresa/creditos.`,
+    };
+  }
+
+  // 2. Cria consulta como 'paid' (saldo ja debitado)
   const { data: consulta, error: insertErr } = await admin
     .from("consultations")
     .insert({
@@ -165,9 +194,8 @@ export async function novaConsultaB2BAction(
       target_hash: targetHash,
       finality: finalidade,
       finality_description: finalidade === "other" ? finalidadeDesc : null,
-      payment_type: "folhas",
-      amount_cents: 0,
-      folhas_used: plano.custoFolhasB2B,
+      payment_type: "folhas", // legado: tipo "saldo da empresa" (nao via Asaas)
+      amount_cents: plano.precoB2B_centavos,
       status: "paid",
       paid_at: new Date().toISOString(),
       external_reference: externalRef,
@@ -179,28 +207,19 @@ export async function novaConsultaB2BAction(
     .single();
 
   if (insertErr || !consulta) {
+    // Rollback: re-credita o saldo
+    await admin.rpc("add_balance_cents", {
+      p_company_id: empresa.id,
+      p_amount_cents: plano.precoB2B_centavos,
+    });
     await logError({
       context: "novaConsultaB2B",
       severity: "error",
-      message: "Falha ao criar consulta B2B",
+      message: "Falha ao criar consulta B2B (saldo restaurado)",
       error: insertErr ?? undefined,
       userId: user.id,
     });
-    return { ok: false, error: "Falha ao criar consulta." };
-  }
-
-  // Debita creditos
-  const { error: debErr } = await admin
-    .from("companies")
-    .update({
-      folhas_balance: (empresa.folhas_balance ?? 0) - plano.custoFolhasB2B,
-    })
-    .eq("id", empresa.id);
-
-  if (debErr) {
-    // Rollback consulta
-    await admin.from("consultations").delete().eq("id", consulta.id);
-    return { ok: false, error: "Falha ao debitar créditos." };
+    return { ok: false, error: "Falha ao criar consulta. Saldo restaurado." };
   }
 
   // Registra aceite do termo de responsabilidade (LGPD, ligado a consulta + empresa)

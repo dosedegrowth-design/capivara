@@ -24,7 +24,7 @@ export default async function FaturamentoPage() {
   const { data: transactions } = await supabase
     .from("transactions")
     .select(
-      "id, amount_cents, folhas_added, bonus_percentage, status, payment_method, asaas_payment_id, invoice_url, invoice_number, boleto_url, created_at, paid_at, due_date"
+      "id, amount_cents, bonus_percentage, status, payment_method, asaas_payment_id, invoice_url, invoice_number, boleto_url, created_at, paid_at, due_date"
     )
     .eq("company_id", empresa.id)
     .eq("type", "recharge")
@@ -33,7 +33,12 @@ export default async function FaturamentoPage() {
 
   const pagas = (transactions ?? []).filter((t) => t.status === "paid");
   const totalPago = pagas.reduce((acc, t) => acc + t.amount_cents, 0);
-  const totalCreditos = pagas.reduce((acc, t) => acc + (t.folhas_added ?? 0), 0);
+  // Saldo total creditado = valor pago + bonus (derivado da bonus_percentage).
+  const totalSaldoCreditado = pagas.reduce(
+    (acc, t) =>
+      acc + Math.round(t.amount_cents * (1 + (t.bonus_percentage ?? 0) / 100)),
+    0
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-6">
@@ -70,12 +75,12 @@ export default async function FaturamentoPage() {
           </div>
           <div className="rounded-lg border border-line bg-card p-4">
             <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
-              Créditos comprados
+              Saldo creditado
             </p>
             <p className="font-display text-2xl font-bold text-fur mt-1">
-              {totalCreditos}
+              {formatBRL(totalSaldoCreditado)}
             </p>
-            <p className="text-[10px] font-mono text-tabaco mt-0.5">acumulado</p>
+            <p className="text-[10px] font-mono text-tabaco mt-0.5">com bônus</p>
           </div>
           <div className="rounded-lg border border-line bg-card p-4">
             <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
@@ -111,8 +116,8 @@ export default async function FaturamentoPage() {
             <thead className="bg-cream/40 text-xs uppercase tracking-wider text-tabaco">
               <tr>
                 <th className="text-left px-4 py-3 font-display">Data</th>
-                <th className="text-right px-4 py-3 font-display">Valor</th>
-                <th className="text-right px-4 py-3 font-display">Créditos</th>
+                <th className="text-right px-4 py-3 font-display">Valor pago</th>
+                <th className="text-right px-4 py-3 font-display">Saldo creditado</th>
                 <th className="text-left px-4 py-3 font-display hidden sm:table-cell">Método</th>
                 <th className="text-left px-4 py-3 font-display">Status</th>
                 <th className="text-left px-4 py-3 font-display hidden md:table-cell">NF-e</th>
@@ -129,10 +134,15 @@ export default async function FaturamentoPage() {
                     {formatBRL(tx.amount_cents)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-fur">
-                    +{tx.folhas_added ?? 0}
+                    +
+                    {formatBRL(
+                      Math.round(
+                        tx.amount_cents * (1 + (tx.bonus_percentage ?? 0) / 100)
+                      )
+                    )}
                     {tx.bonus_percentage ? (
                       <span className="text-[10px] text-saffron ml-1">
-                        ({tx.bonus_percentage}%)
+                        (+{tx.bonus_percentage}%)
                       </span>
                     ) : null}
                   </td>

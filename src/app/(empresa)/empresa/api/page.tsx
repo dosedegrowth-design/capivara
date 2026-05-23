@@ -50,7 +50,8 @@ export default async function ApiPage() {
             </h1>
             <p className="mt-2 text-tabaco">
               Puxe capivaras direto do seu sistema. Sem painel, sem login,
-              cobrado por consulta — você compra um pacote de créditos e cada chamada debita o valor da consulta.
+              cobrado por consulta — você recarrega saldo em R$ e cada chamada
+              debita o preço B2B do plano.
             </p>
           </div>
 
@@ -127,7 +128,7 @@ export default async function ApiPage() {
               </li>
               <li>
                 <Link href="/empresa/creditos" className="text-fur hover:underline">
-                  Como funcionam os créditos
+                  Como funciona o saldo da empresa
                 </Link>
               </li>
             </ul>
@@ -156,7 +157,7 @@ async function loadApiUsageStats(companyId: string): Promise<ApiUsageStatsType> 
   // Todas as consultas via API da empresa
   const { data: apiConsultas } = await supabase
     .from("consultations")
-    .select("id, status, plan_tier, created_at, folhas_used")
+    .select("id, status, plan_tier, created_at, amount_cents")
     .eq("company_id", companyId)
     .eq("source", "api")
     .gte("created_at", start30d.toISOString())
@@ -173,9 +174,9 @@ async function loadApiUsageStats(companyId: string): Promise<ApiUsageStatsType> 
   ).length;
   const successRate7d = totalCalls7d > 0 ? (sucesso7d / totalCalls7d) * 100 : 100;
 
-  const totalCreditosGastos7d = consultas
+  const totalGastoCents7d = consultas
     .filter((c) => new Date(c.created_at) >= start7d)
-    .reduce((acc, c) => acc + (c.folhas_used ?? 0), 0);
+    .reduce((acc, c) => acc + (c.amount_cents ?? 0), 0);
 
   // Calls por dia (ultimos 14 dias)
   const byDay: Record<string, number> = {};
@@ -228,7 +229,7 @@ async function loadApiUsageStats(companyId: string): Promise<ApiUsageStatsType> 
     totalCallsToday,
     callsByDay,
     successRate7d,
-    totalCreditosGastos7d,
+    totalGastoCents7d,
     topPlans,
     webhookDeliveries,
   };

@@ -21,10 +21,14 @@ import { logError } from "@/lib/log";
 /**
  * API publica B2B v1 — Consultations
  *
- * POST /v1/consultations  → cria consulta cobrando em folhas (creditos B2B)
+ * POST /v1/consultations  → cria consulta debitando do saldo R$ da empresa
  * GET  /v1/consultations  → lista consultas da empresa (paginado)
  *
  * Auth: header `Authorization: Bearer cap_live_...` ou `x-api-key`
+ *
+ * Cada plano tem `precoB2B_centavos` (preco B2B em centavos). A consulta
+ * debita esse valor de `companies.balance_cents` via RPC atomico
+ * `debit_balance_cents` (com lock pra evitar race condition).
  *
  * Idempotencia: enviar `external_reference` reutiliza a consulta existente
  * com a mesma referencia (mesma empresa).
@@ -146,10 +150,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Verificar saldo de folhas
+  // Verificar saldo em R$
   const { data: company, error: cErr } = await admin
     .from("companies")
-    .select("id, folhas_balance, plan_tier, name")
+    .select("id, balance_cents, plan_tier, name")
     .eq("id", auth.apiKey.company_id)
     .maybeSingle();
 
@@ -157,10 +161,12 @@ export async function POST(req: NextRequest) {
     return errResponse(404, "company_not_found");
   }
 
-  if ((company.folhas_balance ?? 0) < plano.custoFolhasB2B) {
-    return errResponse(402, "insufficient_credits", {
-      required: plano.custoFolhasB2B,
-      available: company.folhas_balance ?? 0,
+  if ((company.balance_cents ?? 0) < plano.precoB2B_centavos) {
+    return errResponse(402, "insufficient_balance", {
+      required_cents: plano.precoB2B_centavos,
+      available_cents: company.balance_cents ?? 0,
+      required_brl: (plano.precoB2B_centavos / 100).toFixed(2),
+      available_brl: ((company.balance_cents ?? 0) / 100).toFixed(2),
     });
   }
 
@@ -184,7 +190,33 @@ export async function POST(req: NextRequest) {
 
   const effectiveUserId = keyOwner?.created_by ?? ownerCheck?.owner_id ?? userId;
 
-  // Criar consulta + debit transacional
+  // 1. Debita saldo PRIMEIRO via RPC atomico (com lock). Se falhar, aborta antes
+  // de criar a consulta. Evita race condition entre chamadas paralelas da API.
+  const { data: debitOk, error: debitErr } = await admin.rpc("debit_balance_cents", {
+    p_company_id: company.id,
+    p_amount_cents: plano.precoB2B_centavos,
+  });
+
+  if (debitErr) {
+    await logError({
+      context: "api_v1_consultations.debit",
+      severity: "error",
+      message: "Falha ao debitar saldo via API",
+      error: debitErr,
+      metadata: { company_id: company.id, plan_id: plano.id },
+    });
+    return errResponse(500, "debit_failed");
+  }
+
+  if (!debitOk) {
+    // Saldo virou insuficiente entre o check anterior e o debit (race)
+    return errResponse(402, "insufficient_balance", {
+      required_cents: plano.precoB2B_centavos,
+      required_brl: (plano.precoB2B_centavos / 100).toFixed(2),
+    });
+  }
+
+  // 2. Cria consulta como 'paid' (saldo ja debitado)
   const { data: consulta, error: insertErr } = await admin
     .from("consultations")
     .insert({
@@ -198,10 +230,9 @@ export async function POST(req: NextRequest) {
       target_normalized: targetNormalized,
       target_hash: targetHash,
       finality: body.finality ?? FINALITY_DEFAULT_API,
-      payment_type: "folhas",
-      amount_cents: 0,
-      folhas_used: plano.custoFolhasB2B,
-      status: "paid", // B2B ja paga via folhas, vai direto pra fila
+      payment_type: "folhas", // legado: tipo "saldo da empresa" (nao via Asaas)
+      amount_cents: plano.precoB2B_centavos,
+      status: "paid",
       paid_at: new Date().toISOString(),
       external_reference: body.external_reference ?? null,
       callback_url: body.callback_url ?? null,
@@ -213,28 +244,19 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (insertErr || !consulta) {
+    // Rollback: re-credita o saldo
+    await admin.rpc("add_balance_cents", {
+      p_company_id: company.id,
+      p_amount_cents: plano.precoB2B_centavos,
+    });
     await logError({
       context: "api_v1_consultations.create",
       severity: "error",
-      message: "Falha ao criar consulta via API",
+      message: "Falha ao criar consulta via API (saldo restaurado)",
       error: insertErr ?? undefined,
       metadata: { company_id: company.id, plan_id: plano.id },
     });
     return errResponse(500, "create_failed");
-  }
-
-  // Debit folhas
-  const { error: debErr } = await admin
-    .from("companies")
-    .update({
-      folhas_balance: (company.folhas_balance ?? 0) - plano.custoFolhasB2B,
-    })
-    .eq("id", company.id);
-
-  if (debErr) {
-    // Rollback: reverter consulta
-    await admin.from("consultations").delete().eq("id", consulta.id);
-    return errResponse(500, "debit_failed");
   }
 
   // Disparar processamento (fire-and-forget)

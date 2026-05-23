@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentProfile, getActiveCompany } from "@/lib/auth/session";
 import { NovaConsultaB2BForm } from "./nova-consulta-form";
 import { CONSULTATION_RESPONSIBILITY } from "@/lib/legal/documents";
+import { formatBRL } from "@/lib/formatters";
 
 export const metadata = {
   title: "Nova consulta · Empresa · Capivara",
@@ -19,7 +20,7 @@ export default async function NovaConsultaB2BPage() {
   const empresa = await getActiveCompany();
   if (!empresa) redirect("/onboarding/empresa");
 
-  const saldo = empresa.folhas_balance ?? 0;
+  const balanceCents = empresa.balance_cents ?? 0;
 
   return (
     <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8 space-y-6">
@@ -40,7 +41,7 @@ export default async function NovaConsultaB2BPage() {
             Puxar capivara
           </h1>
           <p className="text-tabaco mt-1">
-            Pago com créditos da empresa. Sem passar por pagamento avulso.
+            Debitado do saldo em R$ da empresa. Sem passar por pagamento avulso.
           </p>
         </div>
 
@@ -50,14 +51,14 @@ export default async function NovaConsultaB2BPage() {
             <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
               Saldo
             </p>
-            <p className="font-mono font-bold text-fur">{saldo} créditos</p>
+            <p className="font-mono font-bold text-fur">{formatBRL(balanceCents)}</p>
           </div>
         </div>
       </header>
 
-      {saldo === 0 && (
+      {balanceCents === 0 && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4">
-          <p className="text-sm text-red-700 font-semibold">Sem créditos.</p>
+          <p className="text-sm text-red-700 font-semibold">Sem saldo.</p>
           <p className="text-xs text-red-600 mt-1">
             Recarregue antes de criar uma consulta.
           </p>
@@ -68,7 +69,7 @@ export default async function NovaConsultaB2BPage() {
       )}
 
       <NovaConsultaB2BForm
-        saldoFolhas={saldo}
+        balanceCents={balanceCents}
         responsibilityVersion={CONSULTATION_RESPONSIBILITY.version}
       />
     </div>

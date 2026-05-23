@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/capivara/mascot";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveCompany, getCurrentProfile } from "@/lib/auth/session";
-import { formatDateTimeBR } from "@/lib/formatters";
+import { formatBRL, formatDateTimeBR } from "@/lib/formatters";
 
 export default async function EmpresaDashboard() {
   const profile = await getCurrentProfile();
@@ -34,12 +34,12 @@ export default async function EmpresaDashboard() {
   const trintaDiasAtras = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const { data: consultasMes } = await supabase
     .from("consultations")
-    .select("folhas_used")
+    .select("amount_cents")
     .eq("company_id", empresa.id)
     .gte("created_at", trintaDiasAtras);
 
-  const creditosGastosMes = (consultasMes ?? []).reduce(
-    (s, c) => s + (c.folhas_used ?? 0),
+  const gastoMesCents = (consultasMes ?? []).reduce(
+    (s, c) => s + (c.amount_cents ?? 0),
     0
   );
 
@@ -51,7 +51,7 @@ export default async function EmpresaDashboard() {
   // Últimas consultas
   const { data: ultimas } = await supabase
     .from("consultations")
-    .select("id, category, target_value, status, folhas_used, created_at")
+    .select("id, category, target_value, status, amount_cents, created_at")
     .eq("company_id", empresa.id)
     .order("created_at", { ascending: false })
     .limit(5);
@@ -80,7 +80,8 @@ export default async function EmpresaDashboard() {
   const maxAtividade = Math.max(...atividadeDias.map((d) => d.count), 1);
 
   const nomeCurto = (profile.full_name ?? profile.email).split(" ")[0];
-  const saldoBaixo = empresa.folhas_balance < 50;
+  // Saldo baixo: menos de R$ 50 disponiveis em saldo.
+  const saldoBaixo = (empresa.balance_cents ?? 0) < 5000;
 
   return (
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8 space-y-8">
@@ -102,7 +103,7 @@ export default async function EmpresaDashboard() {
         </Button>
       </header>
 
-      {/* Saldo de créditos em destaque */}
+      {/* Saldo disponivel em destaque */}
       <section
         className={`rounded-2xl p-6 md:p-8 ${
           saldoBaixo
@@ -118,14 +119,14 @@ export default async function EmpresaDashboard() {
               }`}
             >
               <Coins className="size-4" />
-              Saldo de créditos
+              Saldo disponível
             </div>
             <p
               className={`font-display text-5xl font-bold mt-2 ${
                 saldoBaixo ? "text-cocoa" : "text-cream"
               }`}
             >
-              {empresa.folhas_balance}
+              {formatBRL(empresa.balance_cents ?? 0)}
             </p>
             {saldoBaixo && (
               <p className="text-sm text-cocoa mt-2 max-w-md">
@@ -139,7 +140,7 @@ export default async function EmpresaDashboard() {
             size="lg"
           >
             <Link href="/empresa/creditos">
-              {saldoBaixo ? "Recarregar agora" : "Adicionar créditos"}
+              {saldoBaixo ? "Recarregar agora" : "Adicionar saldo"}
               <ArrowRight className="size-4" />
             </Link>
           </Button>
@@ -155,8 +156,8 @@ export default async function EmpresaDashboard() {
         />
         <KPI
           icon={TrendingUp}
-          label="Créditos gastos 30d"
-          value={String(creditosGastosMes)}
+          label="Gasto últimos 30d"
+          value={formatBRL(gastoMesCents)}
         />
         <KPI
           icon={Users}
@@ -226,7 +227,7 @@ export default async function EmpresaDashboard() {
           <QuickAction
             href="/empresa/creditos"
             icon={Coins}
-            title="Recarregar"
+            title="Recarregar saldo"
             description="Comprar pacote Manada"
           />
           <QuickAction
@@ -301,7 +302,7 @@ export default async function EmpresaDashboard() {
                 <tr>
                   <th className="text-left px-4 py-3 font-display">Categoria</th>
                   <th className="text-left px-4 py-3 font-display">Target</th>
-                  <th className="text-right px-4 py-3 font-display">Créditos</th>
+                  <th className="text-right px-4 py-3 font-display">Custo</th>
                   <th className="text-left px-4 py-3 font-display">Status</th>
                   <th className="text-left px-4 py-3 font-display">Quando</th>
                 </tr>
@@ -316,7 +317,7 @@ export default async function EmpresaDashboard() {
                       {c.target_value}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-cocoa">
-                      {c.folhas_used ?? 0}
+                      {formatBRL(c.amount_cents ?? 0)}
                     </td>
                     <td className="px-4 py-3">
                       <Badge

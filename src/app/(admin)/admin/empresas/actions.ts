@@ -31,21 +31,26 @@ async function assertAdmin(): Promise<{ ok: boolean; userId?: string }> {
 }
 
 // =============================================================================
-// Adicionar/subtrair créditos manualmente
+// Adicionar/subtrair saldo (R$) manualmente
 // =============================================================================
-export async function ajustarCreditosAction(formData: FormData): Promise<AdminEmpresaActionResult> {
+export async function ajustarSaldoAction(formData: FormData): Promise<AdminEmpresaActionResult> {
   const guard = await assertAdmin();
   if (!guard.ok) {
     redirect("/dashboard");
   }
 
   const companyId = String(formData.get("companyId") ?? "");
-  const credits = Number(formData.get("credits") ?? 0);
+  // valor em reais (string "10.50" ou "-5.00") -> converte pra centavos
+  const valorReais = Number(formData.get("valorReais") ?? 0);
+  const amountCents = Math.round(valorReais * 100);
   const motivo = String(formData.get("motivo") ?? "").trim();
 
   if (!companyId) return { ok: false, error: "companyId obrigatorio" };
-  if (!Number.isInteger(credits) || credits === 0) {
-    return { ok: false, error: "Quantidade deve ser inteiro nao-zero (positivo pra adicionar, negativo pra subtrair)" };
+  if (!Number.isInteger(amountCents) || amountCents === 0) {
+    return {
+      ok: false,
+      error: "Valor deve ser nao-zero (positivo pra adicionar R$, negativo pra subtrair)",
+    };
   }
   if (motivo.length < 5) {
     return { ok: false, error: "Motivo obrigatorio (minimo 5 chars) pra auditoria" };
@@ -53,62 +58,59 @@ export async function ajustarCreditosAction(formData: FormData): Promise<AdminEm
 
   const admin = createAdminClient();
 
-  // Atomico via RPC se for adicionar, senao update direto
-  if (credits > 0) {
-    const { error: rpcErr } = await admin.rpc("add_credits", {
+  if (amountCents > 0) {
+    // Adicionar: RPC atomico
+    const { error: rpcErr } = await admin.rpc("add_balance_cents", {
       p_company_id: companyId,
-      p_credits: credits,
+      p_amount_cents: amountCents,
     });
     if (rpcErr) return { ok: false, error: rpcErr.message };
   } else {
-    // Subtrair: garantir nao ficar negativo
-    const { data: empresa } = await admin
-      .from("companies")
-      .select("folhas_balance")
-      .eq("id", companyId)
-      .maybeSingle();
-    if (!empresa) return { ok: false, error: "Empresa nao encontrada" };
-
-    const novoSaldo = (empresa.folhas_balance ?? 0) + credits; // credits negativo
-    if (novoSaldo < 0) {
-      return { ok: false, error: `Saldo ficaria negativo (${novoSaldo}). Operacao bloqueada.` };
+    // Subtrair: usar debit_balance_cents que valida saldo
+    const { data: debitOk, error: rpcErr } = await admin.rpc("debit_balance_cents", {
+      p_company_id: companyId,
+      p_amount_cents: Math.abs(amountCents),
+    });
+    if (rpcErr) return { ok: false, error: rpcErr.message };
+    if (!debitOk) {
+      return { ok: false, error: "Saldo ficaria negativo. Operacao bloqueada." };
     }
-
-    const { error: updErr } = await admin
-      .from("companies")
-      .update({ folhas_balance: novoSaldo })
-      .eq("id", companyId);
-    if (updErr) return { ok: false, error: updErr.message };
   }
 
-  // Audita em transactions com tipo recharge (positivo) ou refund (negativo)
+  // Audita em transactions
   await admin.from("transactions").insert({
     user_id: guard.userId,
     company_id: companyId,
-    type: credits > 0 ? "recharge" : "refund",
-    payment_method: "pix", // sem pagamento real - apenas marcador admin
-    amount_cents: 0, // ajuste manual nao tem custo
-    folhas_added: credits > 0 ? credits : 0,
+    type: amountCents > 0 ? "recharge" : "refund",
+    payment_method: "pix",
+    amount_cents: Math.abs(amountCents),
     status: "paid",
     paid_at: new Date().toISOString(),
     asaas_response: {
       _admin_adjustment: true,
       _motivo: motivo,
       _admin_user_id: guard.userId,
-      _credits: credits,
+      _amount_cents_signed: amountCents,
     } as unknown as Record<string, unknown>,
   });
 
   await logError({
-    context: "admin.adjust_credits",
+    context: "admin.adjust_balance",
     severity: "info",
-    message: `Admin ajustou ${credits} creditos da empresa ${companyId}`,
-    metadata: { company_id: companyId, credits, motivo },
+    message: `Admin ajustou ${(amountCents / 100).toFixed(2)} reais da empresa ${companyId}`,
+    metadata: { company_id: companyId, amount_cents: amountCents, motivo },
   });
 
   revalidatePath("/admin/empresas");
-  return { ok: true, message: `${credits > 0 ? "+" : ""}${credits} créditos aplicados.` };
+  const sinal = amountCents > 0 ? "+" : "";
+  return {
+    ok: true,
+    message: `${sinal}R$ ${(amountCents / 100).toFixed(2)} aplicados.`,
+  };
 }
+
+// Backward-compat alias (UI antiga ainda pode importar)
+export const ajustarCreditosAction = ajustarSaldoAction;
 
 // =============================================================================
 // Suspender empresa (impede novas consultas e API calls)

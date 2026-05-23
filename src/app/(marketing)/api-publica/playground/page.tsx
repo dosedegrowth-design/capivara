@@ -48,9 +48,9 @@ export default function PlaygroundPage() {
             <p className="text-tabaco">
               • A chave fica só no seu navegador, não enviamos pra lugar nenhum
               além da API.<br />
-              • Sua empresa precisa ter saldo de créditos suficiente.<br />
+              • Sua empresa precisa ter saldo em R$ suficiente.<br />
               • Use targets reais (CPF/CNPJ/placa válidos).{" "}
-              <strong className="text-cocoa">A consulta vai cobrar créditos da empresa</strong> igual qualquer chamada de produção.<br />
+              <strong className="text-cocoa">A consulta vai debitar do saldo da empresa</strong> igual qualquer chamada de produção.<br />
               • Use{" "}
               <code className="font-mono text-fur">external_reference</code> único pra evitar duplicar.
             </p>

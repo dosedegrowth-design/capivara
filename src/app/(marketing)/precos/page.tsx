@@ -20,7 +20,7 @@ import { formatBRL } from "@/lib/formatters";
 export const metadata: Metadata = {
   title: "Preços · Capivara",
   description:
-    "Planos para pessoa física (avulsos a partir de R$ 7,90) ou empresarial (pacotes Manada com até 50% de bônus).",
+    "Planos para pessoa física (avulsos a partir de R$ 7,90) ou empresarial (saldo em R$ com até 50% de bônus via pacotes Manada).",
 };
 
 // RESUMO_INCLUI agora vem de @/lib/consultas/planos (fonte unica de verdade)
@@ -87,7 +87,7 @@ function Header() {
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
           5 planos por categoria, do mais leve (R$ 7,90) ao mais completo
-          (R$ 199,90). Empresas têm desconto via créditos (até 58%).
+          (R$ 199,90). Empresas pagam preço B2B (~50% off) debitado do saldo.
         </p>
       </div>
     </section>
@@ -146,8 +146,8 @@ function PainelEmpresarial() {
             Pacotes Manada para empresas que consultam volume.
           </h2>
           <p className="mt-3 text-tabaco">
-            Compre créditos antecipados e consuma conforme uso. Quanto maior o
-            pacote, maior o bônus. Sem mensalidade.
+            Recarregue saldo em R$ e consuma conforme uso. Quanto maior o
+            pacote, maior o bônus em saldo. Sem mensalidade.
           </p>
         </div>
 
@@ -156,10 +156,10 @@ function PainelEmpresarial() {
 
       <section className="rounded-lg border border-line bg-card p-6 md:p-8">
         <h3 className="font-display text-xl font-bold text-cocoa mb-4">
-          Como cada plano consome créditos
+          Quanto cada plano debita do saldo
         </h3>
         <p className="text-sm text-tabaco mb-6">
-          Empresas pagam o mesmo conteúdo dos planos avulsos B2C com até 40%
+          Empresas pagam o mesmo conteúdo dos planos avulsos B2C com até 50%
           menos. Veja a equivalência:
         </p>
 
@@ -177,8 +177,8 @@ function PainelEmpresarial() {
               Empresa grande? Vamos conversar.
             </h3>
             <p className="text-cream/80 max-w-lg">
-              A partir de 4.500 créditos/mês temos planos sob medida com SLA,
-              account manager e cache estendido (até 7 dias).
+              A partir de R$ 5.000/mês em consultas temos planos sob medida com
+              SLA, account manager e cache estendido (até 7 dias).
             </p>
           </div>
           <Button asChild variant="accent" size="lg">
@@ -209,7 +209,7 @@ function ConsumoTabela({
         <thead>
           <tr className="border-b border-line text-tabaco text-xs">
             <th className="text-left font-mono font-medium py-2">Plano</th>
-            <th className="text-right font-mono font-medium py-2">Créditos</th>
+            <th className="text-right font-mono font-medium py-2">B2B</th>
             <th className="text-right font-mono font-medium py-2">Avulso</th>
           </tr>
         </thead>
@@ -218,7 +218,7 @@ function ConsumoTabela({
             <tr key={p.id} className="border-b border-line/50 last:border-0">
               <td className="py-2 text-cocoa">{p.nome}</td>
               <td className="py-2 text-right font-mono font-bold text-fur">
-                {p.custoFolhasB2B}
+                {formatBRL(p.precoB2B_centavos)}
               </td>
               <td className="py-2 text-right font-mono text-tabaco">
                 {formatBRL(p.precoB2C_centavos)}

@@ -21,22 +21,16 @@ import {
   PLANOS_CPF,
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
-  precoConsultaCentavos,
   type Plano,
 } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
-
-// Pacote Master (maior, menor preco/consulta) e Start (menor, maior preco/consulta).
-// Usados pra calcular o range "de R$X a R$Y por consulta".
-const PACOTE_MAIOR = PACOTES_MANADA[PACOTES_MANADA.length - 1];
-const PACOTE_MENOR = PACOTES_MANADA[0];
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "API Capivara · Consulta CPF, CNPJ e veicular via REST · Capivara",
   description:
-    "Integre consultas de CPF, CNPJ e veicular direto no seu sistema. API REST com Bearer auth, idempotência, webhooks HMAC e cobrança em folhas (créditos prepagos). Sem mensalidade.",
+    "Integre consultas de CPF, CNPJ e veicular direto no seu sistema. API REST com Bearer auth, idempotência, webhooks HMAC e cobrança por consulta debitando do seu saldo em R$. Sem mensalidade.",
   keywords: [
     "api consulta cpf",
     "api consulta cnpj",
@@ -51,7 +45,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "API Capivara · Integração B2B",
     description:
-      "Puxe capivaras direto do seu sistema. REST + webhooks HMAC + cobrança em folhas.",
+      "Puxe capivaras direto do seu sistema. REST + webhooks HMAC + cobrança debitada do saldo em R$.",
     url: `${SITE}/api-publica`,
     type: "website",
   },
@@ -121,7 +115,7 @@ export default function APILandingPage() {
 
             <div className="space-y-4 md:space-y-6 text-center md:text-left md:order-1">
               <Badge variant="secondary" className="font-mono">
-                <span className="text-fur mr-1.5">●</span> API REST · Cobrança em folhas
+                <span className="text-fur mr-1.5">●</span> API REST · Cobrança por consulta
               </Badge>
 
               <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-cocoa leading-[1.05]">
@@ -263,9 +257,8 @@ x-capivara-event: consultation.completed
               Você paga por consulta. Sem mensalidade.
             </h2>
             <p className="mt-3 text-tabaco">
-              Cada consulta tem um preço fixo em R$. Quanto maior o pacote de
-              créditos que você compra, mais barato fica o R$ por consulta. Veja
-              os preços efetivos em cada faixa abaixo.
+              Cada consulta tem um preço fixo em R$ que é debitado do saldo da
+              empresa. Recarregue com pacotes Manada e ganhe bônus em saldo.
             </p>
           </div>
 
@@ -277,59 +270,54 @@ x-capivara-event: consultation.completed
           </div>
 
           <p className="text-xs font-mono text-tabaco/70 mt-4 text-center">
-            * Coluna <strong className="text-cocoa">"R$/consulta"</strong> mostra o
-            preço efetivo no pacote menor (Start) e no maior (Reserva). Quanto
-            mais consultas você compra, mais barato fica cada uma.
+            * Coluna <strong className="text-cocoa">"Preço B2B"</strong> é o valor
+            debitado do seu saldo a cada consulta via API.
           </p>
 
           {/* Pacotes Manada */}
           <div className="mt-12">
             <h3 className="font-display text-xl font-bold text-cocoa mb-2">
-              Pacotes de créditos (Manada)
+              Pacotes de recarga (Manada)
             </h3>
             <p className="text-tabaco text-sm mb-6">
-              Você compra um pacote uma vez, e usa os créditos quando quiser. Não
-              expiram. Quanto maior o pacote, mais barato fica cada consulta.
+              Você compra um pacote uma vez e o saldo não expira. Quanto maior o
+              pacote, mais bônus em saldo você recebe.
             </p>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {PACOTES_MANADA.map((pacote) => {
-                const refPlano = PLANOS_CPF[1]; // CPF Investigação como referência
-                const refPreco = precoConsultaCentavos(refPlano, pacote);
-                return (
-                  <div
-                    key={pacote.id}
-                    className="rounded-xl border border-line bg-card p-5 flex flex-col"
-                  >
-                    <h4 className="font-display font-bold text-cocoa">{pacote.nome}</h4>
-                    <p className="font-display text-2xl font-bold text-cocoa mt-2">
-                      {formatBRL(pacote.valor_centavos)}
-                    </p>
-                    <p className="text-[11px] font-mono text-tabaco mt-1">
-                      {pacote.folhasTotais} créditos ·{" "}
-                      <span className="text-saffron">+{pacote.bonusPercent}% bônus</span>
-                    </p>
+              {PACOTES_MANADA.map((pacote) => (
+                <div
+                  key={pacote.id}
+                  className="rounded-xl border border-line bg-card p-5 flex flex-col"
+                >
+                  <h4 className="font-display font-bold text-cocoa">{pacote.nome}</h4>
+                  <p className="font-display text-2xl font-bold text-cocoa mt-2">
+                    {formatBRL(pacote.valor_centavos)}
+                  </p>
+                  <p className="text-[11px] font-mono text-saffron mt-1">
+                    +{pacote.bonusPercent}% de bônus em saldo
+                  </p>
 
-                    <div className="mt-3 pt-3 border-t border-line/60">
-                      <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
-                        ref. CPF Investigação
-                      </p>
-                      <p className="font-mono text-sm text-cocoa mt-0.5">
-                        <strong className="text-fur">{formatBRL(refPreco)}</strong>
-                        <span className="text-tabaco/70 text-xs"> /consulta</span>
-                      </p>
-                    </div>
-
-                    <ul className="mt-4 space-y-1 text-xs text-tabaco flex-1">
-                      {pacote.recursos.map((r) => (
-                        <li key={r} className="flex items-start gap-1.5">
-                          <Check className="size-3 text-ok shrink-0 mt-0.5" />
-                          {r}
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="mt-3 pt-3 border-t border-line/60">
+                    <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
+                      Saldo creditado
+                    </p>
+                    <p className="font-mono text-sm text-cocoa mt-0.5">
+                      <strong className="text-fur">
+                        {formatBRL(pacote.saldoTotal_centavos)}
+                      </strong>
+                    </p>
                   </div>
-                );
-              })}
+
+                  <ul className="mt-4 space-y-1 text-xs text-tabaco flex-1">
+                    {pacote.recursos.map((r) => (
+                      <li key={r} className="flex items-start gap-1.5">
+                        <Check className="size-3 text-ok shrink-0 mt-0.5" />
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
             <p className="text-center text-xs font-mono text-tabaco/70 mt-6">
               Volume acima de 10k consultas/mês:{" "}
@@ -356,10 +344,10 @@ x-capivara-event: consultation.completed
 
           <ol className="space-y-4 max-w-2xl">
             {[
-              "Você compra um pacote Manada (créditos prepagos). Pagamento via PIX, boleto ou cartão. NF-e emitida no ato.",
-              "Cada chamada da API debita o valor da consulta consultada (ex: CPF Investigação ~R$ 8,30 a R$ 10,00).",
+              "Você compra um pacote Manada e recebe saldo em R$ (com bônus). Pagamento via PIX, boleto ou cartão. NF-e emitida no ato.",
+              "Cada chamada da API debita o preço B2B do plano consultado direto do saldo (ex: CPF Investigação R$ 9,90).",
               "Cache 24h: mesmo alvo + mesmo plano em 24h não cobra de novo (Manada Plus tem cache estendido pra 7 dias).",
-              "Os créditos não expiram. Use quando precisar — campanha sazonal, picos de demanda, integração nova.",
+              "O saldo não expira. Use quando precisar — campanha sazonal, picos de demanda, integração nova.",
               "Webhook avisa o seu sistema quando a consulta fica pronta. PDF assinado disponível por 7 dias na signed URL.",
             ].map((step, i) => (
               <li key={i} className="flex items-start gap-4">
@@ -422,31 +410,25 @@ function PrecosTable({
           <tr className="border-b border-line/60">
             <th className="text-left px-5 py-3">Plano</th>
             <th className="text-left px-5 py-3 hidden md:table-cell">Descrição</th>
-            <th className="text-right px-5 py-3 whitespace-nowrap">R$ / consulta (API)</th>
+            <th className="text-right px-5 py-3 whitespace-nowrap">Preço B2B (API)</th>
             <th className="text-right px-5 py-3 hidden sm:table-cell whitespace-nowrap">Avulso (B2C)</th>
           </tr>
         </thead>
         <tbody>
-          {planos.map((p) => {
-            const max = precoConsultaCentavos(p, PACOTE_MENOR); // Start - mais caro
-            const min = precoConsultaCentavos(p, PACOTE_MAIOR); // Master - mais barato
-            return (
-              <tr key={p.id} className="border-b border-line/40 last:border-b-0">
-                <td className="px-5 py-3 font-medium text-cocoa">{p.nome}</td>
-                <td className="px-5 py-3 text-tabaco hidden md:table-cell max-w-md">
-                  <span className="line-clamp-1">{p.descricao}</span>
-                </td>
-                <td className="px-5 py-3 text-right font-mono whitespace-nowrap">
-                  <strong className="text-fur">{formatBRL(min)}</strong>
-                  <span className="text-tabaco/70 text-xs"> a </span>
-                  <span className="text-tabaco">{formatBRL(max)}</span>
-                </td>
-                <td className="px-5 py-3 text-right font-mono text-xs text-tabaco hidden sm:table-cell">
-                  {formatBRL(p.precoB2C_centavos)}
-                </td>
-              </tr>
-            );
-          })}
+          {planos.map((p) => (
+            <tr key={p.id} className="border-b border-line/40 last:border-b-0">
+              <td className="px-5 py-3 font-medium text-cocoa">{p.nome}</td>
+              <td className="px-5 py-3 text-tabaco hidden md:table-cell max-w-md">
+                <span className="line-clamp-1">{p.descricao}</span>
+              </td>
+              <td className="px-5 py-3 text-right font-mono whitespace-nowrap">
+                <strong className="text-fur">{formatBRL(p.precoB2B_centavos)}</strong>
+              </td>
+              <td className="px-5 py-3 text-right font-mono text-xs text-tabaco hidden sm:table-cell">
+                {formatBRL(p.precoB2C_centavos)}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

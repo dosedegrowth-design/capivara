@@ -47,15 +47,17 @@ export function ManadaCard({ pacote, destaque, premium }: ManadaCardProps) {
         </span>
       </div>
 
-      <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
-        <span className="font-mono font-bold text-fur">
-          {pacote.folhasTotais}
-        </span>
-        <span className="text-tabaco">créditos</span>
-        <Badge variant="ok" className="text-[10px] py-0">
-          +{pacote.bonusPercent}% bônus
-        </Badge>
-      </div>
+      <Badge variant="ok" className="text-[10px] mt-2 self-start">
+        +{pacote.bonusPercent}% de bônus
+      </Badge>
+
+      <p className="mt-3 text-sm text-tabaco">
+        Você recebe{" "}
+        <strong className="font-mono text-fur">
+          {formatBRL(pacote.saldoTotal_centavos)}
+        </strong>{" "}
+        de saldo
+      </p>
 
       <ul className="mt-5 mb-6 space-y-2 flex-1">
         {pacote.recursos.map((r) => (

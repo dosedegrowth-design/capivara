@@ -4,6 +4,7 @@ import { Building2 } from "lucide-react";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { formatBRL } from "@/lib/formatters";
 import { EmpresasAdminClient, type EmpresaAdminRow } from "./empresas-client";
 
 export const metadata = {
@@ -20,7 +21,7 @@ export default async function AdminEmpresasPage() {
   const { data: empresas } = await admin
     .from("companies")
     .select(`
-      id, name, razao_social, cnpj, folhas_balance, plan_tier, created_at,
+      id, name, razao_social, cnpj, balance_cents, plan_tier, created_at,
       email_billing, fiscal_settings, owner_id,
       owner:profiles!companies_owner_id_fkey(full_name, email)
     `)
@@ -64,7 +65,7 @@ export default async function AdminEmpresasPage() {
       name: e.name,
       razao_social: e.razao_social,
       cnpj: e.cnpj,
-      folhas_balance: e.folhas_balance ?? 0,
+      balance_cents: e.balance_cents ?? 0,
       plan_tier: e.plan_tier,
       created_at: e.created_at,
       email_billing: e.email_billing,
@@ -80,7 +81,7 @@ export default async function AdminEmpresasPage() {
   const total = rows.length;
   const ativas = rows.filter((r) => !r.fiscal_settings?._suspended).length;
   const suspensas = total - ativas;
-  const totalCreditos = rows.reduce((acc, r) => acc + r.folhas_balance, 0);
+  const totalSaldoCents = rows.reduce((acc, r) => acc + r.balance_cents, 0);
 
   return (
     <div className="space-y-6">
@@ -91,16 +92,16 @@ export default async function AdminEmpresasPage() {
         </Badge>
         <h1 className="font-display text-3xl font-bold text-cocoa">Empresas</h1>
         <p className="text-tabaco mt-1">
-          Gestão de empresas B2B. Ajustar créditos manualmente, suspender por
+          Gestão de empresas B2B. Ajustar saldo manualmente, suspender por
           fraude, ver uso agregado.
         </p>
       </header>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Total" value={total} />
-        <Stat label="Ativas" value={ativas} color="ok" />
-        <Stat label="Suspensas" value={suspensas} color="err" />
-        <Stat label="Créditos totais" value={totalCreditos} color="fur" hint="distribuídos" />
+        <Stat label="Total" value={String(total)} />
+        <Stat label="Ativas" value={String(ativas)} color="ok" />
+        <Stat label="Suspensas" value={String(suspensas)} color="err" />
+        <Stat label="Saldo total" value={formatBRL(totalSaldoCents)} color="fur" hint="distribuído" />
       </div>
 
       <EmpresasAdminClient empresas={rows} />
@@ -115,7 +116,7 @@ function Stat({
   color,
 }: {
   label: string;
-  value: number;
+  value: string;
   hint?: string;
   color?: "ok" | "err" | "fur";
 }) {

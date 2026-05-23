@@ -22,13 +22,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
 import { ManadaCarousel } from "@/components/consulta/manada-carousel";
-import { PACOTES_MANADA } from "@/lib/consultas/planos";
+import {
+  PACOTES_MANADA,
+  findPlano,
+  descontoB2BPercent,
+} from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
 
 export const metadata: Metadata = {
   title: "Capivara para empresas · Manada",
   description:
-    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Compre créditos com até 50% de bônus e tenha API, equipe e NF-e.",
+    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Recarregue saldo em R$ com até 50% de bônus e tenha API, equipe e NF-e.",
 };
 
 export default function EmpresasPage() {
@@ -61,7 +65,7 @@ function HeroEmpresas() {
             </h1>
 
             <p className="text-lg text-tabaco leading-relaxed max-w-xl">
-              Compre créditos antecipados e consuma conforme uso. Sem
+              Recarregue saldo em R$ e consuma conforme uso. Sem
               mensalidade. Multi-usuário, API REST, webhooks e NF-e inclusos.
             </p>
 
@@ -239,7 +243,7 @@ function PacotesResumo() {
             Quanto maior o pacote, maior o bônus.
           </h2>
           <p className="mt-3 text-tabaco">
-            Sem mensalidade. Créditos não vencem em até 12 meses (renova com recarga).
+            Sem mensalidade. Saldo não vence em até 12 meses (renova com recarga).
           </p>
         </div>
 
@@ -259,6 +263,16 @@ function PacotesResumo() {
 }
 
 function ComparativoEconomia() {
+  // Planos de referencia (preco B2B vs B2C). Mantem ids alinhados com planos.ts.
+  const samples = [
+    { id: "cpf-avancada", label: "CPF Avançada" },
+    { id: "veicular-total", label: "Veicular Total" },
+    { id: "cnpj-premium", label: "CNPJ Premium" },
+  ];
+  const planos = samples
+    .map((s) => ({ ...s, plano: findPlano(s.id) }))
+    .filter((s) => s.plano);
+
   return (
     <section className="py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
@@ -268,54 +282,32 @@ function ComparativoEconomia() {
               <TrendingDown className="size-3 mr-1.5" /> Economia real
             </Badge>
             <h2 className="font-display text-3xl font-bold text-cocoa">
-              Até 58% mais barato que avulso.
+              Até 50% mais barato que avulso.
             </h2>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-3 text-center">
-            <div>
-              <div className="font-mono text-xs text-tabaco mb-1">
-                CPF Avançada (PF)
-              </div>
-              <div className="font-display text-2xl font-bold text-cocoa line-through opacity-50">
-                R$ 39,90
-              </div>
-              <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
-              <div className="font-display text-2xl font-bold text-fur mt-2">
-                25 créditos
-              </div>
-              <div className="text-xs text-ok mt-1">~R$ 16,70 (-58%)*</div>
-            </div>
-            <div>
-              <div className="font-mono text-xs text-tabaco mb-1">
-                Veicular Total
-              </div>
-              <div className="font-display text-2xl font-bold text-cocoa line-through opacity-50">
-                R$ 199,90
-              </div>
-              <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
-              <div className="font-display text-2xl font-bold text-fur mt-2">
-                129 créditos
-              </div>
-              <div className="text-xs text-ok mt-1">~R$ 86,40 (-57%)*</div>
-            </div>
-            <div>
-              <div className="font-mono text-xs text-tabaco mb-1">
-                CNPJ Premium
-              </div>
-              <div className="font-display text-2xl font-bold text-cocoa line-through opacity-50">
-                R$ 99,90
-              </div>
-              <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
-              <div className="font-display text-2xl font-bold text-fur mt-2">
-                65 créditos
-              </div>
-              <div className="text-xs text-ok mt-1">~R$ 43,55 (-57%)*</div>
-            </div>
+            {planos.map(({ id, label, plano }) => {
+              const desconto = descontoB2BPercent(plano!);
+              return (
+                <div key={id}>
+                  <div className="font-mono text-xs text-tabaco mb-1">{label}</div>
+                  <div className="font-display text-2xl font-bold text-cocoa line-through opacity-50">
+                    {formatBRL(plano!.precoB2C_centavos)}
+                  </div>
+                  <div className="text-xs text-tabaco mt-1">Avulso B2C</div>
+                  <div className="font-display text-2xl font-bold text-fur mt-2">
+                    {formatBRL(plano!.precoB2B_centavos)}
+                  </div>
+                  <div className="text-xs text-ok mt-1">B2B (-{desconto}%)</div>
+                </div>
+              );
+            })}
           </div>
 
           <p className="text-center mt-8 text-xs text-tabaco/70 font-mono">
-            * Calculado no pacote Reserva Capivara (R$ 0,67/crédito).
+            * Preço B2B debitado do saldo da empresa. Bônus de pacote Manada
+            estica ainda mais o saldo (até +50%).
           </p>
         </div>
       </div>
@@ -336,7 +328,7 @@ function CTAVendas() {
           </h2>
           <p className="mt-3 text-cream/80 max-w-xl mx-auto leading-relaxed">
             Crie sua conta empresarial em 2 minutos. Sem cobrança até você decidir
-            recarregar seus créditos.
+            recarregar seu saldo.
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3 items-center justify-center">

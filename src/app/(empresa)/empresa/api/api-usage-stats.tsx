@@ -1,5 +1,6 @@
 import { Activity, AlertCircle, CheckCircle2, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatBRL } from "@/lib/formatters";
 
 export interface ApiUsageStats {
   totalCalls7d: number;
@@ -7,7 +8,7 @@ export interface ApiUsageStats {
   totalCallsToday: number;
   callsByDay: Array<{ day: string; count: number }>;
   successRate7d: number;
-  totalCreditosGastos7d: number;
+  totalGastoCents7d: number;
   topPlans: Array<{ plan_id: string; count: number }>;
   webhookDeliveries: {
     delivered: number;
@@ -73,7 +74,7 @@ export function ApiUsageStats({ stats }: { stats: ApiUsageStats }) {
                 Chamadas por dia (últimos 14 dias)
               </h3>
               <span className="text-[10px] font-mono text-tabaco">
-                {stats.totalCreditosGastos7d} cr gastos em 7d
+                {formatBRL(stats.totalGastoCents7d)} gastos em 7d
               </span>
             </div>
             <div className="space-y-1">

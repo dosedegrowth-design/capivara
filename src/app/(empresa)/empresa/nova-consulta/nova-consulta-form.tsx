@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Loader2, Lock } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import { formatBRL } from "@/lib/formatters";
 import { novaConsultaB2BAction } from "./actions";
 
 interface Props {
-  saldoFolhas: number;
+  balanceCents: number;
   responsibilityVersion: string;
 }
 
@@ -41,7 +41,7 @@ const FINALIDADES = [
   { value: "other", label: "Outra (especificar)" },
 ];
 
-export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Props) {
+export function NovaConsultaB2BForm({ balanceCents, responsibilityVersion }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [categoria, setCategoria] = useState<"cpf" | "cnpj" | "veicular">("cpf");
@@ -51,7 +51,9 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
   const [error, setError] = useState<string | null>(null);
 
   const cat = CATEGORIAS.find((c) => c.id === categoria)!;
-  const podePagar = selectedPlano ? saldoFolhas >= selectedPlano.custoFolhasB2B : false;
+  const podePagar = selectedPlano
+    ? balanceCents >= selectedPlano.precoB2B_centavos
+    : false;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -80,6 +82,24 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Saldo atual */}
+      <div className="rounded-lg border border-line bg-paper-2/40 px-4 py-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
+            Saldo disponível
+          </p>
+          <p className="font-display text-2xl font-bold text-cocoa mt-0.5">
+            {formatBRL(balanceCents)}
+          </p>
+        </div>
+        <Link
+          href="/empresa/creditos"
+          className="text-xs font-mono text-fur hover:underline underline-offset-4"
+        >
+          Recarregar saldo →
+        </Link>
+      </div>
+
       {/* Categoria */}
       <section className="space-y-3">
         <div>
@@ -121,7 +141,7 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
         <div className="space-y-2">
           {cat.planos.map((p) => {
             const isSelected = selectedPlano?.id === p.id;
-            const insuficiente = saldoFolhas < p.custoFolhasB2B;
+            const insuficiente = balanceCents < p.precoB2B_centavos;
             return (
               <button
                 key={p.id}
@@ -149,7 +169,7 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-mono font-bold text-fur">
-                    {p.custoFolhasB2B} cr
+                    {formatBRL(p.precoB2B_centavos)}
                   </p>
                   <p className="text-[10px] text-tabaco font-mono">
                     {formatBRL(p.precoB2C_centavos)} avulso
@@ -247,10 +267,10 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs font-mono uppercase tracking-wider text-tabaco">
-                Esta consulta vai debitar
+                Custa do seu saldo
               </p>
               <p className="font-display text-2xl font-bold text-cocoa mt-1">
-                {selectedPlano.custoFolhasB2B} créditos
+                {formatBRL(selectedPlano.precoB2B_centavos)}
               </p>
             </div>
             <div className="text-right">
@@ -260,7 +280,7 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
                   podePagar ? "text-cocoa" : "text-red-600"
                 }`}
               >
-                {saldoFolhas - selectedPlano.custoFolhasB2B} créditos
+                {formatBRL(balanceCents - selectedPlano.precoB2B_centavos)}
               </p>
             </div>
           </div>
@@ -297,25 +317,34 @@ export function NovaConsultaB2BForm({ saldoFolhas, responsibilityVersion }: Prop
         </div>
       )}
 
-      <Button
-        type="submit"
-        variant="accent"
-        size="lg"
-        className="w-full"
-        disabled={pending || !selectedPlano || !podePagar || !acceptResponsibility}
-      >
-        {pending ? (
-          <>
-            <Loader2 className="size-4 mr-2 animate-spin" />
-            Puxando capivara...
-          </>
-        ) : (
-          <>
-            Puxar capivara agora
+      {selectedPlano && !podePagar ? (
+        <Button asChild variant="accent" size="lg" className="w-full">
+          <Link href="/empresa/creditos">
+            Recarregar saldo
             <ArrowRight className="size-4" />
-          </>
-        )}
-      </Button>
+          </Link>
+        </Button>
+      ) : (
+        <Button
+          type="submit"
+          variant="accent"
+          size="lg"
+          className="w-full"
+          disabled={pending || !selectedPlano || !podePagar || !acceptResponsibility}
+        >
+          {pending ? (
+            <>
+              <Loader2 className="size-4 mr-2 animate-spin" />
+              Puxando capivara...
+            </>
+          ) : (
+            <>
+              Puxar capivara agora
+              <ArrowRight className="size-4" />
+            </>
+          )}
+        </Button>
+      )}
     </form>
   );
 }

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { formatBRL } from "@/lib/formatters";
+import { findPacoteManada } from "@/lib/consultas/planos";
 
 export default async function RecargaAguardandoPage({
   params,
@@ -22,12 +23,25 @@ export default async function RecargaAguardandoPage({
   const { data: tx } = await supabase
     .from("transactions")
     .select(
-      "id, company_id, amount_cents, folhas_added, bonus_percentage, status, payment_method, pix_qrcode, pix_copy_paste, boleto_url, paid_at, created_at"
+      "id, company_id, amount_cents, bonus_percentage, status, payment_method, pix_qrcode, pix_copy_paste, boleto_url, paid_at, created_at, asaas_response"
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!tx) redirect("/empresa/creditos");
+
+  // Recupera o pacote pelo externalReference da resposta do Asaas
+  // (formato `recharge:{empresaId}:{pacoteId}`). Fallback: deriva saldo a
+  // partir do amount + bonus quando nao encontrar.
+  const extRef =
+    (tx.asaas_response as { externalReference?: string | null } | null)
+      ?.externalReference ?? null;
+  const pacoteId = extRef ? extRef.split(":").pop() ?? null : null;
+  const pacote = pacoteId ? findPacoteManada(pacoteId) : undefined;
+
+  const saldoCreditadoCents =
+    pacote?.saldoTotal_centavos ??
+    Math.round(tx.amount_cents * (1 + (tx.bonus_percentage ?? 0) / 100));
 
   // Ja pago? Pula direto
   if (tx.status === "paid") {
@@ -39,7 +53,8 @@ export default async function RecargaAguardandoPage({
             Recarga confirmada!
           </h1>
           <p className="text-tabaco mt-2">
-            <strong className="text-fur">+{tx.folhas_added}</strong> créditos foram adicionados ao saldo da sua empresa.
+            <strong className="text-fur">+{formatBRL(saldoCreditadoCents)}</strong>{" "}
+            foram adicionados ao saldo da sua empresa.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild variant="accent">
@@ -64,7 +79,7 @@ export default async function RecargaAguardandoPage({
         className="inline-flex items-center gap-2 text-sm text-tabaco hover:text-fur transition-colors mb-6"
       >
         <ArrowLeft className="size-4" />
-        Voltar pra créditos
+        Voltar pra saldo
       </Link>
 
       <div className="rounded-2xl border border-saffron/30 bg-saffron/5 p-8">
@@ -74,10 +89,15 @@ export default async function RecargaAguardandoPage({
         </Badge>
 
         <h1 className="font-display text-2xl md:text-3xl font-bold text-cocoa">
-          Recarga de {tx.folhas_added} créditos
+          Aguardando pagamento de {formatBRL(tx.amount_cents)}
         </h1>
         <p className="text-tabaco mt-2">
-          <strong>{formatBRL(tx.amount_cents)}</strong> via{" "}
+          Ao confirmar, <strong>{formatBRL(saldoCreditadoCents)}</strong>{" "}
+          entram no seu saldo
+          {pacote ? ` (pacote ${pacote.nome})` : ""}.
+        </p>
+        <p className="text-tabaco mt-2">
+          Pagamento via{" "}
           <span className="uppercase font-mono">{tx.payment_method}</span>.{" "}
           {tx.payment_method === "pix" ? (
             <>Escaneie o QR Code abaixo ou copie o código PIX.</>

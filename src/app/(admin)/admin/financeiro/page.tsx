@@ -29,7 +29,7 @@ export default async function AdminFinanceiroPage() {
   // Carrega transactions pagas (ja confirmadas)
   const { data: paidTxs } = await admin
     .from("transactions")
-    .select("id, type, amount_cents, status, payment_method, company_id, user_id, paid_at, created_at, folhas_added, asaas_response")
+    .select("id, type, amount_cents, status, payment_method, company_id, user_id, paid_at, created_at, asaas_response")
     .eq("status", "paid")
     .order("paid_at", { ascending: false })
     .limit(500);
@@ -254,11 +254,6 @@ export default async function AdminFinanceiroPage() {
                     <Badge variant="outline" className="text-[10px]">
                       {t.type}
                     </Badge>
-                    {t.folhas_added ? (
-                      <span className="ml-2 text-[10px] text-fur font-mono">
-                        +{t.folhas_added}cr
-                      </span>
-                    ) : null}
                   </td>
                   <td className="px-4 py-2 text-right font-mono text-cocoa">
                     {formatBRL(t.amount_cents)}

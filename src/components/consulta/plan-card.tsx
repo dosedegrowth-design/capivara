@@ -13,7 +13,7 @@ interface PlanCardProps {
   /** URL para iniciar consulta com este plano. */
   href?: string;
   className?: string;
-  /** Quando true, mostra preco em folhas (B2B). Padrao mostra BRL (B2C). */
+  /** Quando true, mostra preco B2B (debitado do saldo da empresa). Padrao B2C avulso. */
   mode?: "b2c" | "b2b";
 }
 
@@ -61,19 +61,13 @@ export function PlanCard({
       </div>
 
       <div className="mb-6 flex items-baseline gap-1">
-        {mode === "b2c" ? (
-          <>
-            <span className="font-display text-4xl font-bold text-cocoa">
-              {formatBRL(plano.precoB2C_centavos)}
-            </span>
-          </>
-        ) : (
-          <>
-            <span className="font-display text-4xl font-bold text-cocoa">
-              {plano.custoFolhasB2B}
-            </span>
-            <span className="font-mono text-sm text-tabaco ml-1">créditos</span>
-          </>
+        <span className="font-display text-4xl font-bold text-cocoa">
+          {formatBRL(
+            mode === "b2c" ? plano.precoB2C_centavos : plano.precoB2B_centavos
+          )}
+        </span>
+        {mode === "b2b" && (
+          <span className="font-mono text-sm text-tabaco ml-1">do saldo</span>
         )}
       </div>
 

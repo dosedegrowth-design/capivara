@@ -19,9 +19,9 @@ import { logError } from "@/lib/log";
  *  4. Cria transaction status='pending' linked com pacote
  *  5. Redireciona pra /empresa/creditos/aguardando/[transactionId]
  *
- * Quando o webhook Asaas confirmar (PAYMENT_CONFIRMED), uma trigger SQL
- * (migration 0009) adiciona as folhas_totais ao folhas_balance da company
- * e marca transaction como paid.
+ * Quando o webhook Asaas confirmar (PAYMENT_CONFIRMED), o handler
+ * (src/app/api/asaas/webhook/route.ts) chama RPC add_balance_cents
+ * pra creditar `pacote.saldoTotal_centavos` em companies.balance_cents.
  */
 export type RecargaResult =
   | { ok: true; transactionId: string }
@@ -103,7 +103,7 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
           : "CREDIT_CARD",
       value: centavosToReal(pacote.valor_centavos),
       dueDate: dueDate(paymentType === "boleto" ? 3 : 1),
-      description: `Capivara · ${pacote.nome} (${pacote.folhasTotais} créditos)`,
+      description: `Capivara · ${pacote.nome} (R$ ${(pacote.saldoTotal_centavos / 100).toFixed(2)} de saldo)`,
       externalReference: `recharge:${empresa.id}:${pacote.id}`,
     });
 
@@ -125,7 +125,6 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
         reference_id: null,
         payment_method: paymentType,
         amount_cents: pacote.valor_centavos,
-        folhas_added: pacote.folhasTotais,
         bonus_percentage: pacote.bonusPercent,
         asaas_payment_id: payment.id,
         asaas_customer_id: asaasCustomerId,

@@ -4,15 +4,8 @@ import { ArrowLeft, ArrowRight, Book, ChevronRight, Webhook } from "lucide-react
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  TODOS_PLANOS,
-  PACOTES_MANADA,
-  precoConsultaCentavos,
-} from "@/lib/consultas/planos";
+import { TODOS_PLANOS } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
-
-const PACOTE_MAIOR = PACOTES_MANADA[PACOTES_MANADA.length - 1];
-const PACOTE_MENOR = PACOTES_MANADA[0];
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
@@ -44,9 +37,14 @@ export default function ApiDocsPage() {
           </h1>
           <p className="mt-3 text-tabaco text-lg">
             Endpoints REST pra consultar CPF, CNPJ e veicular. Auth por Bearer token,
-            <strong className="text-cocoa"> cobrança por consulta</strong> em créditos prepagos
-            (você compra um pacote e cada chamada debita o valor da consulta).
+            <strong className="text-cocoa"> cobrança por consulta</strong> debitada do saldo em R$
+            da empresa (você recarrega via pacotes Manada e cada chamada debita o preço B2B do plano).
           </p>
+          <Callout type="info">
+            <strong>B2B:</strong> saldo em R$ direto. A empresa recebe{" "}
+            <Code>precoB2B</Code> por plano debitado de{" "}
+            <Code>companies.balance_cents</Code> a cada consulta.
+          </Callout>
         </header>
 
         <div className="grid lg:grid-cols-[200px_1fr] gap-8">
@@ -105,8 +103,8 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
             <section id="post-consultations" className="scroll-mt-20">
               <H2>POST /consultations</H2>
               <P>
-                Cria uma consulta nova. Debita o valor da consulta dos créditos da empresa.
-                Retorna <Code>201 Created</Code> com o registro.
+                Cria uma consulta nova. Debita o preço B2B do plano do saldo em R$ da empresa
+                (<Code>companies.balance_cents</Code>). Retorna <Code>201 Created</Code> com o registro.
               </P>
 
               <H3>Request body</H3>
@@ -184,7 +182,7 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
               </CodeBlock>
 
               <P>
-                <Code>status</Code> começa em <Code>paid</Code> (créditos já debitados) e vira{" "}
+                <Code>status</Code> começa em <Code>paid</Code> (saldo já debitado) e vira{" "}
                 <Code>processing</Code> → <Code>completed</Code>. Quando ficar completed, o{" "}
                 <Code>pdf_url</Code> é populado e disparamos o webhook{" "}
                 <Code>consultation.completed</Code>.
@@ -214,7 +212,8 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
   "target": "12345678900",
   "external_reference": "ticket-42",
   "pdf_url": "https://...supabase.co/storage/.../report.pdf?signed=...",
-  "folhas_used": 12,
+  "amount_cents": 990,
+  "folhas_used": 0,
   "created_at": "2026-05-22T15:43:00.000Z",
   "completed_at": "2026-05-22T15:43:08.000Z",
   "result": {
@@ -222,6 +221,12 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
   }
 }`}
               </CodeBlock>
+              <P>
+                <Code>amount_cents</Code> é o preço B2B do plano debitado do saldo
+                (em centavos). O campo legado <Code>folhas_used</Code> continua na
+                resposta apenas pra retrocompatibilidade — sempre <Code>0</Code> no
+                modelo atual.
+              </P>
             </section>
 
             {/* GET list */}
@@ -260,10 +265,10 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                   </tr>
                 </thead>
                 <tbody>
-                  <Row field="paid" type="" desc="Pagamento confirmado (créditos debitados). Vai pra fila de processamento." />
+                  <Row field="paid" type="" desc="Pagamento confirmado (saldo debitado). Vai pra fila de processamento." />
                   <Row field="processing" type="" desc="Edge function rodando. Geralmente <30s." />
                   <Row field="completed" type="" desc="PDF gerado + webhook disparado. pdf_url disponível." />
-                  <Row field="error" type="" desc="Falha em alguma API externa. Créditos devolvidos automaticamente." />
+                  <Row field="error" type="" desc="Falha em alguma API externa. Saldo devolvido automaticamente." />
                 </tbody>
               </Table>
             </section>
@@ -278,8 +283,8 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                 em vez de criar uma nova.
               </P>
               <Callout type="info">
-                Útil pra retry de rede, timeouts e workers concorrentes. Nunca duplica cobrança em
-                folhas.
+                Útil pra retry de rede, timeouts e workers concorrentes. Nunca duplica cobrança no
+                saldo.
               </Callout>
             </section>
 
@@ -314,7 +319,7 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                   <Row field="missing_fields" type="400" desc="plan_id ou target faltando" />
                   <Row field="invalid_target" type="422" desc="CPF/CNPJ/placa inválido (dígito verificador)" />
                   <Row field="plan_not_found" type="404" desc="plan_id não existe" />
-                  <Row field="insufficient_credits" type="402" desc="Empresa sem créditos suficientes" />
+                  <Row field="insufficient_balance" type="402" desc="Empresa sem saldo suficiente em balance_cents" />
                   <Row field="invalid_json" type="400" desc="Body não é JSON válido" />
                 </tbody>
               </Table>
@@ -322,11 +327,12 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
 
             {/* IDs de plano */}
             <section id="plan-ids" className="scroll-mt-20">
-              <H2>IDs de plano e preço por consulta</H2>
+              <H2>IDs de plano e preço B2B</H2>
               <P>
-                Cada chamada da API debita o valor da consulta. O preço efetivo varia
-                pelo pacote de créditos comprado — colunas abaixo mostram o intervalo
-                entre o pacote menor (Start) e o maior (Reserva).
+                Cada chamada da API debita o <Code>precoB2B</Code> do plano
+                consultado direto do saldo da empresa em <Code>balance_cents</Code>.
+                Para reduzir o custo efetivo, escolha pacotes Manada maiores
+                (mais bônus em saldo).
               </P>
               <div className="rounded-lg border border-line bg-card overflow-hidden my-4 overflow-x-auto">
                 <table className="w-full text-sm">
@@ -334,36 +340,28 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                     <tr>
                       <Th>plan_id</Th>
                       <Th>Categoria</Th>
-                      <Th>R$ / consulta</Th>
+                      <Th>Preço B2B (R$)</Th>
                     </tr>
                   </thead>
                   <tbody>
-                    {TODOS_PLANOS.map((p) => {
-                      const min = precoConsultaCentavos(p, PACOTE_MAIOR);
-                      const max = precoConsultaCentavos(p, PACOTE_MENOR);
-                      return (
-                        <tr key={p.id} className="border-t border-line/40">
-                          <td className="px-4 py-2 font-mono text-xs text-fur whitespace-nowrap">
-                            {p.id}
-                          </td>
-                          <td className="px-4 py-2 font-mono text-xs text-tabaco">
-                            {p.categoria}
-                          </td>
-                          <td className="px-4 py-2 text-xs text-cocoa whitespace-nowrap">
-                            <strong className="text-fur font-mono">{formatBRL(min)}</strong>
-                            <span className="text-tabaco/70 font-mono"> a </span>
-                            <span className="font-mono">{formatBRL(max)}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {TODOS_PLANOS.map((p) => (
+                      <tr key={p.id} className="border-t border-line/40">
+                        <td className="px-4 py-2 font-mono text-xs text-fur whitespace-nowrap">
+                          {p.id}
+                        </td>
+                        <td className="px-4 py-2 font-mono text-xs text-tabaco">
+                          {p.categoria}
+                        </td>
+                        <td className="px-4 py-2 text-xs text-cocoa whitespace-nowrap">
+                          <strong className="text-fur font-mono">
+                            {formatBRL(p.precoB2B_centavos)}
+                          </strong>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-xs font-mono text-tabaco/70 leading-relaxed">
-                Min = pacote Reserva (R$ 3.000) · Max = pacote Start (R$ 200). Mais
-                consultas no pacote = menor R$/consulta.
-              </p>
             </section>
 
             {/* Webhooks link */}

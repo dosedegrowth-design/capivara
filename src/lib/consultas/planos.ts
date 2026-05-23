@@ -1,12 +1,15 @@
 /**
  * Catalogo oficial dos planos Capivara — fonte da verdade para frontend, checkout e PDF.
  *
- * Os precos em B2C sao em centavos (BRL).
- * O custo_folhas em B2B representa quantos creditos (folhas) o plano consome.
+ * Modelo de pricing:
+ *  - B2C: cliente avulso paga `precoB2C_centavos` (Pix/boleto/cartao) por consulta.
+ *  - B2B: empresa tem saldo em R$ (`companies.balance_cents`); cada consulta debita
+ *    `precoB2B_centavos` desse saldo. Empresa recarrega via pacotes Manada (paga R$ X,
+ *    ganha bonus % em saldo).
  *
  * Nomes oficiais do brandbook:
  *  B2C: Espiadinha, Investigacao, Avancada, Premium, Raio-X
- *  B2B: pacotes Manada (Start, Pro, Plus, Master, Corporate)
+ *  B2B: pacotes Manada (Start, Pro, Plus, Reserva Capivara)
  */
 
 export type CategoriaConsulta = "cpf" | "cnpj" | "veicular";
@@ -17,8 +20,10 @@ export interface Plano {
   nome: string;
   descricao: string;
   destaque?: "popular" | "premium";
+  /** Preco para cliente PF avulso (Pix/boleto/cartao). */
   precoB2C_centavos: number;
-  custoFolhasB2B: number;
+  /** Preco para empresa (debita de companies.balance_cents). ~50% off do B2C. */
+  precoB2B_centavos: number;
   apisIncluidas: string[];
   custoApiEstimado_centavos: number; // referencia interna
 }
@@ -34,7 +39,7 @@ export const PLANOS_CPF: Plano[] = [
     nome: "Espiadinha",
     descricao: "Confirmar identidade rapida: nome, mae, situacao do CPF.",
     precoB2C_centavos: 990,
-    custoFolhasB2B: 6,
+    precoB2B_centavos: 490,
     apisIncluidas: ["cpf-simples"],
     custoApiEstimado_centavos: 5,
   },
@@ -44,7 +49,7 @@ export const PLANOS_CPF: Plano[] = [
     nome: "Investigação",
     descricao: "Quem e a pessoa: identidade + contatos + vinculos + score basico.",
     precoB2C_centavos: 1990,
-    custoFolhasB2B: 12,
+    precoB2B_centavos: 990,
     apisIncluidas: ["cpf-completo", "boa-vista-essencial"],
     custoApiEstimado_centavos: 309,
   },
@@ -55,7 +60,7 @@ export const PLANOS_CPF: Plano[] = [
     destaque: "popular",
     descricao: "Quem e + saude financeira (Serasa + Boa Vista + dividas + protestos).",
     precoB2C_centavos: 3990,
-    custoFolhasB2B: 25,
+    precoB2B_centavos: 1990,
     apisIncluidas: [
       "cpf-ultra-completo",
       "boa-vista-essencial",
@@ -70,7 +75,7 @@ export const PLANOS_CPF: Plano[] = [
     nome: "Premium",
     descricao: "Avancada + Serasa Premium + Trabalhista + QUOD.",
     precoB2C_centavos: 7990,
-    custoFolhasB2B: 50,
+    precoB2B_centavos: 3990,
     apisIncluidas: [
       "cpf-ultra-completo",
       "boa-vista-essencial",
@@ -88,7 +93,7 @@ export const PLANOS_CPF: Plano[] = [
     destaque: "premium",
     descricao: "Tudo: SPC + SCR BACEN + busca por documentos + analise multi-bureau.",
     precoB2C_centavos: 12990,
-    custoFolhasB2B: 85,
+    precoB2B_centavos: 6490,
     apisIncluidas: [
       "cpf-ultra-completo",
       "boa-vista-essencial",
@@ -115,7 +120,7 @@ export const PLANOS_CNPJ: Plano[] = [
     nome: "Espiadinha",
     descricao: "Razao social, situacao, CNAE, socios, endereco.",
     precoB2C_centavos: 790,
-    custoFolhasB2B: 5,
+    precoB2B_centavos: 390,
     apisIncluidas: ["cnpj-completo"],
     custoApiEstimado_centavos: 4,
   },
@@ -126,7 +131,7 @@ export const PLANOS_CNPJ: Plano[] = [
     destaque: "popular",
     descricao: "Empresa + CPF Ultra de cada socio + Trabalhista + Boa Vista.",
     precoB2C_centavos: 4990,
-    custoFolhasB2B: 32,
+    precoB2B_centavos: 2490,
     apisIncluidas: [
       "cnpj-completo",
       "cpf-ultra-socios",
@@ -141,7 +146,7 @@ export const PLANOS_CNPJ: Plano[] = [
     nome: "Premium",
     descricao: "+ Score empresarial + Serasa Premium dos socios + situacao tributaria.",
     precoB2C_centavos: 9990,
-    custoFolhasB2B: 65,
+    precoB2B_centavos: 4990,
     apisIncluidas: [
       "cnpj-completo",
       "cpf-ultra-socios",
@@ -159,7 +164,7 @@ export const PLANOS_CNPJ: Plano[] = [
     destaque: "premium",
     descricao: "Capivara Total: + SCR BACEN dos socios + SPC + analise de risco completa.",
     precoB2C_centavos: 14990,
-    custoFolhasB2B: 99,
+    precoB2B_centavos: 7490,
     apisIncluidas: [
       "cnpj-completo",
       "cpf-ultra-socios",
@@ -185,7 +190,7 @@ export const PLANOS_VEICULAR: Plano[] = [
     nome: "Espiadinha",
     descricao: "Placa, marca, modelo, ano, cor, chassi e Fipe.",
     precoB2C_centavos: 990,
-    custoFolhasB2B: 6,
+    precoB2B_centavos: 490,
     apisIncluidas: ["placa-basica", "fipe"],
     custoApiEstimado_centavos: 17,
   },
@@ -195,7 +200,7 @@ export const PLANOS_VEICULAR: Plano[] = [
     nome: "Completo",
     descricao: "Espiadinha + BIN Nacional + Recall.",
     precoB2C_centavos: 2990,
-    custoFolhasB2B: 19,
+    precoB2B_centavos: 1490,
     apisIncluidas: ["placa-basica", "fipe", "bin-nacional", "recall"],
     custoApiEstimado_centavos: 497,
   },
@@ -206,7 +211,7 @@ export const PLANOS_VEICULAR: Plano[] = [
     destaque: "popular",
     descricao: "Completo + BIN Estadual + Proprietario + Gravame + Historico Roubo/Furto.",
     precoB2C_centavos: 5990,
-    custoFolhasB2B: 39,
+    precoB2B_centavos: 2990,
     apisIncluidas: [
       "placa-basica",
       "fipe",
@@ -225,7 +230,7 @@ export const PLANOS_VEICULAR: Plano[] = [
     nome: "Premium",
     descricao: "Avancado + Leilao + Certificado Seguranca Veicular + RENAJUD.",
     precoB2C_centavos: 11990,
-    custoFolhasB2B: 75,
+    precoB2B_centavos: 5990,
     apisIncluidas: [
       "placa-basica",
       "fipe",
@@ -247,7 +252,7 @@ export const PLANOS_VEICULAR: Plano[] = [
     destaque: "premium",
     descricao: "Premium + Vip Car + CRLV + Foto Leilao.",
     precoB2C_centavos: 19990,
-    custoFolhasB2B: 129,
+    precoB2B_centavos: 9990,
     apisIncluidas: [
       "placa-basica",
       "fipe",
@@ -282,37 +287,19 @@ export function planosPorCategoria(cat: CategoriaConsulta): Plano[] {
 }
 
 // =========================================================================
-// Preço por consulta (B2B)
-//
-// Internamente, empresas usam um wallet de creditos (folhas). Quando uma
-// API call e feita, debitamos N creditos do saldo, onde N = plano.custoFolhasB2B.
-// O preço POR CONSULTA depende do pacote que a empresa comprou (quanto maior
-// o pacote, menor o R$/credito).
-//
-// As funcoes abaixo convertem creditos -> R$ pra exibir nas tabelas publicas
-// sempre em "R$ por consulta" (que e o que o cliente entende).
+// Helpers de preco
 // =========================================================================
 
-/** R$ por credito (centavos) em cada tier do pacote Manada. */
-export function precoPorCreditoCentavos(pacote: PacoteManada): number {
-  return pacote.valor_centavos / pacote.folhasTotais;
+/** Preco B2B em centavos pra um plano. */
+export function precoB2BCentavos(plano: Plano): number {
+  return plano.precoB2B_centavos;
 }
 
-/** Quanto custa uma consulta de um plano específico, num determinado pacote. */
-export function precoConsultaCentavos(plano: Plano, pacote: PacoteManada): number {
-  return Math.round(precoPorCreditoCentavos(pacote) * plano.custoFolhasB2B);
-}
-
-/**
- * Range de preço por consulta: do pacote mais caro/credito (Start) ao
- * mais barato/credito (Master). Útil pra mostrar "a partir de R$X" + "ate R$Y".
- */
-export function rangePrecoConsultaCentavos(plano: Plano): { min: number; max: number } {
-  const precos = PACOTES_MANADA.map((p) => precoConsultaCentavos(plano, p));
-  return {
-    min: Math.min(...precos),
-    max: Math.max(...precos),
-  };
+/** % de desconto B2B vs B2C (pra exibir economia). */
+export function descontoB2BPercent(plano: Plano): number {
+  return Math.round(
+    ((plano.precoB2C_centavos - plano.precoB2B_centavos) / plano.precoB2C_centavos) * 100
+  );
 }
 
 // =========================================================================
@@ -456,16 +443,21 @@ export function getResumoIncluido(planoId: string): string[] {
 }
 
 // =========================================================================
-// Pacotes Manada (B2B — recarga de folhas)
+// Pacotes Manada (B2B — recarga de saldo em R$)
+//
+// Empresa paga `valor_centavos`, ganha `bonusPercent` em bonus, recebe
+// `saldoTotal_centavos` (valor + bonus) creditado em companies.balance_cents.
 // =========================================================================
 
 export interface PacoteManada {
   id: string;
   nome: string;
+  /** Quanto a empresa paga via Pix/boleto/cartao (em centavos). */
   valor_centavos: number;
-  folhasBase: number;
+  /** % de bonus aplicado em cima do valor pago. */
   bonusPercent: number;
-  folhasTotais: number;
+  /** Saldo total que entra na empresa (valor + bonus, em centavos). */
+  saldoTotal_centavos: number;
   recursos: string[];
 }
 
@@ -474,36 +466,41 @@ export const PACOTES_MANADA: PacoteManada[] = [
     id: "manada-start",
     nome: "Manada Start",
     valor_centavos: 20000,
-    folhasBase: 200,
     bonusPercent: 20,
-    folhasTotais: 240,
+    saldoTotal_centavos: 24000,
     recursos: ["Ate 3 usuarios", "Historico unificado", "NF-e emitida"],
   },
   {
     id: "manada-pro",
     nome: "Manada Pro",
     valor_centavos: 50000,
-    folhasBase: 500,
     bonusPercent: 30,
-    folhasTotais: 650,
+    saldoTotal_centavos: 65000,
     recursos: ["Ate 10 usuarios", "Exportacao CSV/PDF", "API REST", "NF-e"],
   },
   {
     id: "manada-plus",
     nome: "Manada Plus",
     valor_centavos: 100000,
-    folhasBase: 1000,
     bonusPercent: 40,
-    folhasTotais: 1400,
+    saldoTotal_centavos: 140000,
     recursos: ["Ate 25 usuarios", "Webhooks", "Cache estendido 7d", "Suporte prioritario"],
   },
   {
     id: "manada-master",
     nome: "Reserva Capivara",
     valor_centavos: 300000,
-    folhasBase: 3000,
     bonusPercent: 50,
-    folhasTotais: 4500,
+    saldoTotal_centavos: 450000,
     recursos: ["Usuarios ilimitados", "SLA dedicado", "Cache 7d", "Account manager"],
   },
 ];
+
+export function findPacoteManada(id: string): PacoteManada | undefined {
+  return PACOTES_MANADA.find((p) => p.id === id);
+}
+
+/** Valor do bonus em centavos = saldoTotal - valor pago. */
+export function bonusCentavos(pacote: PacoteManada): number {
+  return pacote.saldoTotal_centavos - pacote.valor_centavos;
+}

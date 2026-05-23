@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveCompany, getCurrentProfile } from "@/lib/auth/session";
+import { formatBRL } from "@/lib/formatters";
 import { redirect } from "next/navigation";
 import { HistoricoClient, type ConsultaRow } from "./historico-client";
 
@@ -20,7 +21,7 @@ export default async function EmpresaHistoricoPage() {
   const { data: consultas } = await supabase
     .from("consultations")
     .select(`
-      id, category, plan_tier, target_value, status, folhas_used,
+      id, category, plan_tier, target_value, status, amount_cents,
       cost_center, created_at, source,
       user:profiles!consultations_user_id_fkey(full_name, email)
     `)
@@ -30,8 +31,8 @@ export default async function EmpresaHistoricoPage() {
 
   // Stats
   const totalConsultas = consultas?.length ?? 0;
-  const totalCreditos = (consultas ?? []).reduce(
-    (acc, c) => acc + (c.folhas_used ?? 0),
+  const totalGastoCents = (consultas ?? []).reduce(
+    (acc, c) => acc + (c.amount_cents ?? 0),
     0
   );
   const concluidas = (consultas ?? []).filter((c) => c.status === "completed").length;
@@ -45,7 +46,7 @@ export default async function EmpresaHistoricoPage() {
       plan_tier: c.plan_tier,
       target_value: c.target_value,
       status: c.status,
-      folhas_used: c.folhas_used,
+      amount_cents: c.amount_cents,
       cost_center: c.cost_center,
       created_at: c.created_at,
       source: c.source,
@@ -71,10 +72,10 @@ export default async function EmpresaHistoricoPage() {
       {/* Stats */}
       {totalConsultas > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Total" value={totalConsultas} hint="consultas" />
-          <StatCard label="Concluídas" value={concluidas} hint={`${Math.round((concluidas / totalConsultas) * 100)}%`} accent="ok" />
-          <StatCard label="Créditos gastos" value={totalCreditos} hint="acumulado" accent="fur" />
-          <StatCard label="Via API" value={viaApi} hint={`${Math.round((viaApi / totalConsultas) * 100)}%`} accent="info" />
+          <StatCard label="Total" value={String(totalConsultas)} hint="consultas" />
+          <StatCard label="Concluídas" value={String(concluidas)} hint={`${Math.round((concluidas / totalConsultas) * 100)}%`} accent="ok" />
+          <StatCard label="Total gasto" value={formatBRL(totalGastoCents)} hint="acumulado" accent="fur" />
+          <StatCard label="Via API" value={String(viaApi)} hint={`${Math.round((viaApi / totalConsultas) * 100)}%`} accent="info" />
         </div>
       )}
 
@@ -103,7 +104,7 @@ function StatCard({
   accent,
 }: {
   label: string;
-  value: number;
+  value: string;
   hint: string;
   accent?: "ok" | "fur" | "info";
 }) {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TODOS_PLANOS } from "@/lib/consultas/planos";
+import { formatBRL } from "@/lib/formatters";
 
 const PLANOS_POR_CAT = {
   cpf: TODOS_PLANOS.filter((p) => p.categoria === "cpf"),
@@ -165,7 +166,7 @@ export function PlaygroundClient() {
             >
               {planos.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.nome} ({p.custoFolhasB2B} cr)
+                  {p.nome} ({formatBRL(p.precoB2B_centavos)})
                 </option>
               ))}
             </select>
