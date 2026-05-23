@@ -16,6 +16,9 @@ import { PostScoreCredito } from "./posts/score-credito-explicado";
 import { PostCNPJDueDiligence } from "./posts/cnpj-due-diligence";
 import { PostAPIIntegracao } from "./posts/api-integracao-passo-a-passo";
 import { PostRecallVeicular } from "./posts/recall-veicular-checagem";
+import { PostKYCCompliance } from "./posts/kyc-compliance-empresas";
+import { PostFraudeIdentidade } from "./posts/fraude-identidade-prevencao";
+import { PostConsultarNoivado } from "./posts/consultar-noivo-antes-casamento";
 
 export interface BlogPost {
   slug: string;
@@ -134,6 +137,45 @@ export const BLOG_POSTS: BlogPost[] = [
     readingMinutes: 5,
     body: PostRecallVeicular,
     ogImageEmoji: "🛞",
+  },
+  {
+    slug: "kyc-compliance-empresas-brasil",
+    title: "KYC no Brasil: o que sua empresa precisa fazer",
+    excerpt:
+      "Know Your Customer em fintechs, factorings, imobiliárias e factorings: o que a lei exige e como implementar sem advogado caro.",
+    category: "CPF",
+    tags: ["kyc", "compliance", "coaf", "lavagem", "antifraude"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-23T10:00:00Z",
+    readingMinutes: 8,
+    body: PostKYCCompliance,
+    ogImageEmoji: "🛡️",
+  },
+  {
+    slug: "fraude-identidade-como-detectar",
+    title: "Fraude de identidade: 18 sinais de alerta antes de fechar negócio",
+    excerpt:
+      "Fraude no Brasil subiu 38% em 2025. Veja os sinais em consulta CPF, CNPJ e veicular pra identificar antes de virar prejuízo.",
+    category: "CPF",
+    tags: ["fraude", "antifraude", "identidade", "cpf clonado", "empresa fachada"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-22T10:00:00Z",
+    readingMinutes: 10,
+    body: PostFraudeIdentidade,
+    ogImageEmoji: "🚨",
+  },
+  {
+    slug: "consultar-cpf-antes-casamento",
+    title: "Consultar o CPF do parceiro antes de casar: due diligence afetiva",
+    excerpt:
+      "Casamento brasileiro envolve regime de bens e responsabilidade conjunta. Conhecer o histórico financeiro do parceiro é planejamento.",
+    category: "CPF",
+    tags: ["casamento", "comunhão", "patrimônio", "due diligence pessoal"],
+    author: "Time Capivara",
+    publishedAt: "2026-05-21T10:00:00Z",
+    readingMinutes: 6,
+    body: PostConsultarNoivado,
+    ogImageEmoji: "💍",
   },
 ];
 

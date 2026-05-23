@@ -51,8 +51,11 @@ export function SiteFooter() {
               Empresa
             </h4>
             <ul className="space-y-2 text-sm text-tabaco">
+              <li><Link href="/sobre" className="hover:text-fur transition-colors">Sobre</Link></li>
               <li><Link href="/como-funciona" className="hover:text-fur transition-colors">Como funciona</Link></li>
               <li><Link href="/casos-de-uso" className="hover:text-fur transition-colors">Casos de uso</Link></li>
+              <li><Link href="/comparar" className="hover:text-fur transition-colors">Comparar</Link></li>
+              <li><Link href="/status" className="hover:text-fur transition-colors">Status</Link></li>
               <li><Link href="/contato" className="hover:text-fur transition-colors">Contato</Link></li>
             </ul>
           </div>

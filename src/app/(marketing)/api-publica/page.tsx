@@ -235,7 +235,13 @@ x-capivara-event: consultation.completed
             </div>
           </div>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button asChild variant="accent" size="lg">
+              <Link href="/api-publica/playground">
+                Testar no Playground
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
             <Button asChild variant="secondary" size="lg">
               <Link href="/docs/api">
                 <Book className="size-4 mr-1" />

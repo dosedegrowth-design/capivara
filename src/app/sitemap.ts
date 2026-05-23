@@ -27,6 +27,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/casos-de-uso/rh-contratacao`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/casos-de-uso/revenda-automotiva`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/casos-de-uso/analise-credito`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
+    // Institucional
+    { url: `${BASE_URL}/sobre`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE_URL}/comparar`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE_URL}/status`, lastModified: now, changeFrequency: "always", priority: 0.5 },
+    { url: `${BASE_URL}/api-publica/playground`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     // Documentos legais
     { url: `${BASE_URL}/legal`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/termos`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
