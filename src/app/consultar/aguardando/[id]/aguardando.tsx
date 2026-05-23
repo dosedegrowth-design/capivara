@@ -18,6 +18,10 @@ type Props = {
   pixCopyPaste: string | null;
   boletoUrl: string | null;
   amountCents: number;
+  nomeProduto?: string | null;
+  descricaoProduto?: string | null;
+  bullets?: string[] | null;
+  isAvulso?: boolean;
 };
 
 export function AguardandoPagamento({
@@ -28,6 +32,10 @@ export function AguardandoPagamento({
   pixCopyPaste,
   boletoUrl,
   amountCents,
+  nomeProduto,
+  descricaoProduto,
+  bullets,
+  isAvulso,
 }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState(statusInicial);
@@ -118,6 +126,40 @@ export function AguardandoPagamento({
             ? "Consultando bases. Fique nessa tela, te avisamos quando terminar."
             : `Total: ${formatBRL(amountCents)}`}
         </p>
+
+        {/* Info do produto / plano */}
+        {nomeProduto && !investigando && (
+          <div className="mt-4 rounded-lg border border-line bg-paper-2/40 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-tabaco">
+                  {isAvulso ? "Consulta avulsa" : "Plano contratado"}
+                </p>
+                <p className="font-display font-bold text-cocoa mt-0.5 truncate">
+                  {nomeProduto}
+                </p>
+              </div>
+            </div>
+            {descricaoProduto && (
+              <p className="mt-2 text-xs text-tabaco leading-relaxed">
+                {descricaoProduto}
+              </p>
+            )}
+            {bullets && bullets.length > 0 && (
+              <ul className="mt-3 space-y-1.5">
+                {bullets.map((b) => (
+                  <li
+                    key={b}
+                    className="flex items-start gap-2 text-[11px] text-cocoa/80 leading-snug"
+                  >
+                    <span className="size-1 rounded-full bg-fur mt-1.5 shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         {/* PIX */}
         {paymentType === "pix" && pixQrcode && !investigando && (

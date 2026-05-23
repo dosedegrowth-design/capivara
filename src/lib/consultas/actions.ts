@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { findPlano } from "@/lib/consultas/planos";
+import { findPlano, findProdutoAvulso } from "@/lib/consultas/planos";
 import { normalizeCPF, normalizeCNPJ, normalizePlaca, isValidCPF, isValidCNPJ, isValidPlaca } from "@/lib/formatters";
 import {
   createOrGetCustomer,
@@ -300,6 +300,274 @@ export async function iniciarConsultaAction(
     });
 
     // Marca consulta como erro
+    await admin
+      .from("consultations")
+      .update({ status: "error" })
+      .eq("id", consulta.id);
+
+    return {
+      ok: false,
+      error:
+        "Falha ao processar pagamento. Tente novamente em alguns segundos.",
+    };
+  }
+}
+
+// =========================================================================
+// PRODUTO AVULSO — consulta pontual (uma API APIFULL especifica)
+//
+// Produtos avulsos so existem pras categorias 'veicular' e 'leilao'.
+// Target eh SEMPRE placa. No banco, category fica 'veicular' (schema only
+// aceita cpf|cnpj|veicular); plan_tier identifica o produto (ex:
+// 'veicular-avulso-fipe', 'leilao-avulso-historico').
+// =========================================================================
+
+export async function iniciarConsultaAvulsoAction(
+  formData: FormData
+): Promise<IniciarConsultaResult> {
+  // ---- 1. Parse + validate ----
+  const produtoId = String(formData.get("produtoId") ?? "");
+  const targetRaw = String(formData.get("target") ?? "").trim();
+  const finalidade = String(formData.get("finalidade") ?? "");
+  const finalidadeDesc = String(formData.get("finalidadeDescricao") ?? "").trim();
+  const paymentType = String(formData.get("paymentType") ?? "pix") as
+    | "pix"
+    | "boleto"
+    | "cartao_avista";
+
+  const produto = findProdutoAvulso(produtoId);
+  if (!produto) {
+    return { ok: false, error: "Produto nao encontrado." };
+  }
+
+  // Produto avulso so eh veicular/leilao — target sempre placa
+  const targetNormalized = normalizePlaca(targetRaw);
+  if (!isValidPlaca(targetNormalized)) {
+    return {
+      ok: false,
+      error: "Placa invalida.",
+      fieldErrors: { target: "Conferir digitos." },
+    };
+  }
+
+  if (!finalidade) {
+    return {
+      ok: false,
+      error: "Selecione a finalidade da consulta (LGPD).",
+      fieldErrors: { finalidade: "Obrigatorio" },
+    };
+  }
+
+  if (finalidade === "other" && finalidadeDesc.length < 5) {
+    return {
+      ok: false,
+      error: "Descreva a finalidade.",
+      fieldErrors: { finalidadeDescricao: "Minimo 5 caracteres" },
+    };
+  }
+
+  const acceptResponsibility = formData.get("acceptResponsibility") === "true";
+  if (!acceptResponsibility) {
+    return {
+      ok: false,
+      error: "Você precisa aceitar o termo de responsabilidade pela consulta.",
+    };
+  }
+
+  // ---- 2. Usuario logado ----
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    const sp = new URLSearchParams({
+      redirect: `/consultar/avulso/${produtoId}`,
+      produtoId,
+      target: targetNormalized,
+      finalidade,
+    });
+    redirect(`/cadastro?${sp.toString()}`);
+  }
+
+  // ---- 3. Profile ----
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile || !profile.cpf || !profile.full_name) {
+    return {
+      ok: false,
+      error: "Complete seu cadastro com CPF e nome completo.",
+    };
+  }
+
+  // ---- 4. Headers (IP + UA) ----
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? null;
+  const ua = h.get("user-agent") ?? null;
+
+  // ---- 4.5. Anti-fraude ----
+  const admin = createAdminClient();
+  const { data: fraudCheck } = await admin.rpc("check_fraud_rules", {
+    p_user_id: user.id,
+    p_target_normalized: targetNormalized,
+    p_ip_address: ip,
+  });
+
+  if (fraudCheck === "BLOCK") {
+    return {
+      ok: false,
+      error:
+        "Atividade suspeita detectada. Aguarde algumas horas ou entre em contato com o suporte.",
+    };
+  }
+
+  const targetHash = createHash("sha256")
+    .update(`${produto.id}:${targetNormalized}`)
+    .digest("hex");
+
+  // ---- 5. Inserir consulta (status pending_payment) ----
+  // category fica 'veicular' (schema constraint); plan_tier identifica o avulso
+  const { data: consulta, error: insertError } = await admin
+    .from("consultations")
+    .insert({
+      user_id: user.id,
+      category: "veicular",
+      plan_tier: produto.id,
+      target_value: targetRaw,
+      target_normalized: targetNormalized,
+      target_hash: targetHash,
+      finality: finalidade,
+      finality_description: finalidade === "other" ? finalidadeDesc : null,
+      payment_type: paymentType,
+      amount_cents: produto.precoB2C_centavos,
+      status: "pending_payment",
+      ip_address: ip,
+      user_agent: ua,
+    })
+    .select()
+    .single();
+
+  if (insertError || !consulta) {
+    await logError({
+      context: "iniciarConsultaAvulso",
+      severity: "error",
+      message: "Falha ao criar consulta avulsa",
+      error: insertError ?? undefined,
+      userId: user.id,
+    });
+    return { ok: false, error: "Falha ao criar consulta. Tente novamente." };
+  }
+
+  await logConsent("consultation_responsibility", {
+    userId: user.id,
+    metadata: {
+      consultation_id: consulta.id,
+      target_hash: targetHash,
+      produto_id: produto.id,
+      finality: finalidade,
+      finality_description: finalidade === "other" ? finalidadeDesc : null,
+      context: "consulta_avulsa_b2c",
+    },
+  }).catch(() => {
+    /* logError ja foi chamado internamente */
+  });
+
+  // ---- 6. Customer + cobranca Asaas ----
+  try {
+    let asaasCustomerId = profile.asaas_customer_id;
+    if (!asaasCustomerId) {
+      const customer = await createOrGetCustomer({
+        name: profile.full_name,
+        email: profile.email,
+        cpfCnpj: profile.cpf,
+        mobilePhone: profile.phone ?? undefined,
+        externalReference: profile.id,
+      });
+      asaasCustomerId = customer.id;
+      await admin
+        .from("profiles")
+        .update({ asaas_customer_id: customer.id })
+        .eq("id", profile.id);
+    }
+
+    const payment = await createPayment({
+      customer: asaasCustomerId,
+      billingType:
+        paymentType === "pix"
+          ? "PIX"
+          : paymentType === "boleto"
+          ? "BOLETO"
+          : "CREDIT_CARD",
+      value: centavosToReal(produto.precoB2C_centavos),
+      dueDate: dueDate(paymentType === "boleto" ? 3 : 1),
+      description: `Capivara ${produto.nome} · Avulsa`,
+      externalReference: `consultation:${consulta.id}`,
+    });
+
+    let pixQrcode: string | null = null;
+    let pixCopyPaste: string | null = null;
+    if (paymentType === "pix") {
+      const qr = await getPixQrCode(payment.id);
+      pixQrcode = qr.encodedImage;
+      pixCopyPaste = qr.payload;
+    }
+
+    await admin
+      .from("consultations")
+      .update({ asaas_payment_id: payment.id })
+      .eq("id", consulta.id);
+
+    await admin.from("transactions").insert({
+      user_id: user.id,
+      type: "consultation",
+      reference_id: consulta.id,
+      payment_method: paymentType,
+      amount_cents: produto.precoB2C_centavos,
+      asaas_payment_id: payment.id,
+      asaas_customer_id: asaasCustomerId,
+      asaas_response: payment as unknown as Record<string, unknown>,
+      pix_qrcode: pixQrcode,
+      pix_copy_paste: pixCopyPaste,
+      boleto_url: payment.bankSlipUrl ?? null,
+      status: "pending",
+      due_date: payment.dueDate,
+    });
+
+    // Email de pagamento aguardando (categoria "Veicular" pq schema)
+    const pagAguardando = emailPagamentoAguardando({
+      nome: profile.full_name,
+      categoria: "Veicular",
+      target: targetRaw,
+      valor: formatBRL(produto.precoB2C_centavos),
+      consultationId: consulta.id,
+    });
+    sendEmail({
+      to: profile.email,
+      subject: pagAguardando.subject,
+      html: pagAguardando.html,
+      tags: [
+        { name: "type", value: "payment_pending" },
+        { name: "category", value: "veicular" },
+        { name: "product_type", value: "avulso" },
+        { name: "payment_method", value: paymentType },
+      ],
+    }).catch(() => {
+      /* logError ja chamado dentro do sendEmail */
+    });
+
+    return { ok: true, consultationId: consulta.id };
+  } catch (asaasErr) {
+    await logError({
+      context: "iniciarConsultaAvulso.asaas",
+      severity: "critical",
+      message: "Falha ao criar cobranca Asaas (avulso)",
+      error: asaasErr instanceof Error ? asaasErr : new Error(String(asaasErr)),
+      userId: user.id,
+      consultationId: consulta.id,
+    });
+
     await admin
       .from("consultations")
       .update({ status: "error" })

@@ -10,8 +10,14 @@ import {
   Circle,
 } from "@react-pdf/renderer";
 import type { ConsultaResult, ResultSection } from "@/lib/consultas/mock-data";
-import { findPlano } from "@/lib/consultas/planos";
+import { findPlano, findComboLeilao } from "@/lib/consultas/planos";
 import { CapivaraLogoPDF, CapivaraMonoPDF } from "./capivara-svg";
+import {
+  ApifullSectionBlock,
+  isApifullResult,
+  sortedApiPaths,
+  type ApifullResult,
+} from "./apifull-render";
 
 // ============================================================
 // Paleta Cerrado
@@ -436,7 +442,13 @@ function brl(centavos: number): string {
 
 interface RelatorioPDFProps {
   consultationId: string;
-  result: ConsultaResult;
+  /**
+   * result_jsonb da consulta. Aceita dois formatos:
+   *  - LEGADO (mock-data): { sections: ResultSection[] }
+   *  - NOVO (APIFULL): { sections: Record<string, ApifullSection> }
+   * O componente detecta via shape em runtime.
+   */
+  result: ConsultaResult | ApifullResult;
   targetValue: string;
   generatedAt: string;
   verificationUrl: string;
@@ -449,7 +461,10 @@ export function RelatorioPDF({
   generatedAt,
   verificationUrl,
 }: RelatorioPDFProps) {
-  const plano = findPlano(result.plan_tier);
+  const isApifull = isApifullResult(result);
+  const planTier = result.plan_tier;
+  // findPlano cobre cpf-*, cnpj-*, veicular-*. Pra leilao-*, usa findComboLeilao.
+  const plano = findPlano(planTier) ?? findComboLeilao(planTier);
   const categoriaLabel =
     result.category === "cpf"
       ? "Consulta de CPF"
@@ -465,6 +480,17 @@ export function RelatorioPDF({
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  // Itens do sumario na capa
+  const sumarioItems: Array<{ title: string; key: string }> = isApifull
+    ? sortedApiPaths((result as ApifullResult).sections).map((k) => ({
+        title: (result as ApifullResult).sections[k].nome || k,
+        key: k,
+      }))
+    : (result as ConsultaResult).sections.map((sec, i) => ({
+        title: sec.title,
+        key: `legacy-${i}`,
+      }));
 
   return (
     <Document
@@ -560,8 +586,8 @@ export function RelatorioPDF({
 
           <View style={styles.coverSummaryBox}>
             <Text style={styles.coverSummaryTitle}>O que está neste relatório</Text>
-            {result.sections.map((s, i) => (
-              <View key={i} style={{ flexDirection: "row", paddingVertical: 3 }}>
+            {sumarioItems.map((item, i) => (
+              <View key={item.key} style={{ flexDirection: "row", paddingVertical: 3 }}>
                 <View
                   style={{
                     width: 5,
@@ -572,7 +598,7 @@ export function RelatorioPDF({
                     borderRadius: 2.5,
                   }}
                 />
-                <Text style={{ fontSize: 9, color: c.cocoa, flex: 1 }}>{s.title}</Text>
+                <Text style={{ fontSize: 9, color: c.cocoa, flex: 1 }}>{item.title}</Text>
                 <Text
                   style={{
                     fontSize: 7,
@@ -633,9 +659,17 @@ export function RelatorioPDF({
       {/* PÁGINAS DAS SEÇÕES */}
       <Page size="A4" style={styles.page}>
         <PageHeader consultationId={consultationId} dateStr={dateStr} />
-        {result.sections.map((section, i) => (
-          <SectionBlock key={i} section={section} />
-        ))}
+        {isApifull
+          ? sortedApiPaths((result as ApifullResult).sections).map((apiPath) => (
+              <ApifullSectionBlock
+                key={apiPath}
+                apiPath={apiPath}
+                section={(result as ApifullResult).sections[apiPath]}
+              />
+            ))
+          : (result as ConsultaResult).sections.map((section, i) => (
+              <SectionBlock key={i} section={section} />
+            ))}
         <Footer verificationUrl={verificationUrl} />
       </Page>
     </Document>
