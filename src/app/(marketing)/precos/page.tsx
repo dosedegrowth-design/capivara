@@ -1,70 +1,66 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, ArrowRight, UserRound, Building2, CarFront } from "lucide-react";
+import { ArrowRight, UserRound, Building2, CarFront, Gavel } from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCarousel } from "@/components/consulta/plan-carousel";
-import { ManadaCarousel } from "@/components/consulta/manada-carousel";
 import {
   PLANOS_CPF,
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
-  PACOTES_MANADA,
+  COMBOS_LEILAO,
   RESUMO_INCLUI,
   type Plano,
 } from "@/lib/consultas/planos";
-import { formatBRL } from "@/lib/formatters";
 
 export const metadata: Metadata = {
   title: "Preços · Capivara",
   description:
-    "Planos para pessoa física (avulsos a partir de R$ 7,90) ou empresarial (saldo em R$ com até 50% de bônus via pacotes Manada).",
+    "Planos avulsos para pessoa física a partir de R$ 7,90. Sem mensalidade — você paga só a consulta que fizer.",
 };
-
-// RESUMO_INCLUI agora vem de @/lib/consultas/planos (fonte unica de verdade)
 
 export default function PrecosPage() {
   return (
     <div className="bg-paper">
       <Header />
-      <Tabs defaultValue="pf" className="mx-auto max-w-6xl px-4 sm:px-6 pb-20">
-        <div className="flex justify-center">
-          <TabsList>
-            <TabsTrigger value="pf">Pessoa física</TabsTrigger>
-            <TabsTrigger value="pj">Empresarial</TabsTrigger>
-          </TabsList>
-        </div>
 
-        <TabsContent value="pf" className="space-y-20">
-          <CategoriaPlanos
-            categoria="CPF"
-            descricao="Verifique pessoas: score, dívidas, histórico e vínculos."
-            icone={<UserRound className="size-5" />}
-            cor="bg-info/15 text-info"
-            planos={PLANOS_CPF}
-          />
-          <CategoriaPlanos
-            categoria="CNPJ"
-            descricao="Verifique empresas: situação, sócios, crédito e tributário."
-            icone={<Building2 className="size-5" />}
-            cor="bg-sage/20 text-sage"
-            planos={PLANOS_CNPJ}
-          />
-          <CategoriaPlanos
-            categoria="Veicular"
-            descricao="Verifique veículos: proprietário, gravame, leilão e recall."
-            icone={<CarFront className="size-5" />}
-            cor="bg-saffron/25 text-fur"
-            planos={PLANOS_VEICULAR}
-          />
-        </TabsContent>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pb-20 space-y-20">
+        <CategoriaPlanos
+          categoria="CPF"
+          descricao="Verifique pessoas: score, dívidas, histórico e vínculos."
+          icone={<UserRound className="size-5" />}
+          cor="bg-info/15 text-info"
+          planos={PLANOS_CPF}
+          href="/consultar/cpf"
+        />
+        <CategoriaPlanos
+          categoria="CNPJ"
+          descricao="Verifique empresas: situação, sócios, crédito e tributário."
+          icone={<Building2 className="size-5" />}
+          cor="bg-sage/20 text-sage"
+          planos={PLANOS_CNPJ}
+          href="/consultar/cnpj"
+        />
+        <CategoriaPlanos
+          categoria="Veicular"
+          descricao="Verifique veículos: proprietário, gravame, leilão e recall."
+          icone={<CarFront className="size-5" />}
+          cor="bg-saffron/25 text-fur"
+          planos={PLANOS_VEICULAR}
+          href="/consultar/veicular"
+        />
+        <CategoriaPlanos
+          categoria="Leilão"
+          descricao="Combos específicos pra quem dá lance ou arremata em leilão."
+          icone={<Gavel className="size-5" />}
+          cor="bg-fur/20 text-fur"
+          planos={COMBOS_LEILAO}
+          href="/consultar/leilao"
+        />
 
-        <TabsContent value="pj">
-          <PainelEmpresarial />
-        </TabsContent>
-      </Tabs>
+        <EmpresaCallout />
+      </div>
 
       <ChamadaFinal />
     </div>
@@ -72,7 +68,7 @@ export default function PrecosPage() {
 }
 
 // =========================================================================
-// Header da pagina
+// Header
 // =========================================================================
 
 function Header() {
@@ -86,8 +82,8 @@ function Header() {
           Sem mensalidade. Você só paga o que consultar.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
-          5 planos por categoria, do mais leve (R$ 7,90) ao mais completo
-          (R$ 199,90). Empresas pagam preço B2B (~50% off) debitado do saldo.
+          Planos avulsos do mais leve (R$ 7,90) ao mais completo (R$ 249,90).
+          Pague Pix, boleto ou cartão. Resultado em PDF com QR Code de verificação.
         </p>
       </div>
     </section>
@@ -104,130 +100,93 @@ function CategoriaPlanos({
   icone,
   cor,
   planos,
+  href,
 }: {
   categoria: string;
   descricao: string;
   icone: React.ReactNode;
   cor: string;
   planos: Plano[];
+  href: string;
 }) {
   return (
     <section className="space-y-8">
-      <div className="flex items-start gap-4 max-w-3xl">
-        <span
-          className={`size-12 rounded-md flex items-center justify-center shrink-0 ${cor}`}
-        >
-          {icone}
-        </span>
-        <div>
-          <h2 className="font-display text-3xl font-bold text-cocoa">
-            {categoria}
-          </h2>
-          <p className="text-tabaco mt-1">{descricao}</p>
+      <div className="flex items-start justify-between gap-4 max-w-4xl flex-col sm:flex-row">
+        <div className="flex items-start gap-4">
+          <span
+            className={`size-12 rounded-md flex items-center justify-center shrink-0 ${cor}`}
+          >
+            {icone}
+          </span>
+          <div>
+            <h2 className="font-display text-3xl font-bold text-cocoa">
+              {categoria}
+            </h2>
+            <p className="text-tabaco mt-1">{descricao}</p>
+          </div>
         </div>
+
+        <Button asChild variant="secondary" size="md">
+          <Link href={href}>
+            Ver detalhes
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
       </div>
 
-      {/* Carrossel horizontal: ~4 cards visiveis em desktop, swipe em mobile */}
       <PlanCarousel planos={planos} inclui={RESUMO_INCLUI} cardWidth={300} />
     </section>
   );
 }
 
 // =========================================================================
-// Painel empresarial — pacotes Manada
+// Callout pra B2B (sem expor precos publicamente)
 // =========================================================================
 
-function PainelEmpresarial() {
+function EmpresaCallout() {
   return (
-    <div className="space-y-16">
-      <section className="space-y-6">
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
-            Pacotes Manada para empresas que consultam volume.
-          </h2>
-          <p className="mt-3 text-tabaco">
-            Recarregue saldo em R$ e consuma conforme uso. Quanto maior o
-            pacote, maior o bônus em saldo. Sem mensalidade.
-          </p>
-        </div>
+    <section>
+      <div className="rounded-2xl bg-cocoa text-cream p-8 md:p-10 relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 size-60 bg-saffron/25 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 size-60 bg-fur/25 rounded-full blur-3xl" />
 
-        <ManadaCarousel pacotes={PACOTES_MANADA} />
-      </section>
-
-      <section className="rounded-lg border border-line bg-card p-6 md:p-8">
-        <h3 className="font-display text-xl font-bold text-cocoa mb-4">
-          Quanto cada plano debita do saldo
-        </h3>
-        <p className="text-sm text-tabaco mb-6">
-          Empresas pagam o mesmo conteúdo dos planos avulsos B2C com até 50%
-          menos. Veja a equivalência:
-        </p>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          <ConsumoTabela titulo="CPF" planos={PLANOS_CPF} />
-          <ConsumoTabela titulo="CNPJ" planos={PLANOS_CNPJ} />
-          <ConsumoTabela titulo="Veicular" planos={PLANOS_VEICULAR} />
-        </div>
-      </section>
-
-      <section className="rounded-lg bg-cocoa text-cream p-8 md:p-10">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <h3 className="font-display text-2xl font-bold mb-2">
-              Empresa grande? Vamos conversar.
+            <Badge
+              variant="outline"
+              className="mb-3 font-mono border-cream/30 text-cream"
+            >
+              Para empresas
+            </Badge>
+            <h3 className="font-display text-2xl md:text-3xl font-bold leading-tight">
+              Volume alto? Tem plano empresarial sob medida.
             </h3>
-            <p className="text-cream/80 max-w-lg">
-              A partir de R$ 5.000/mês em consultas temos planos sob medida com
-              SLA, account manager e cache estendido (até 7 dias).
+            <p className="mt-3 text-cream/80 max-w-xl leading-relaxed">
+              Recarga em saldo, preço por consulta sob negociação, API REST,
+              webhooks com HMAC, NF-e e SLA dedicado. Cobertura por categoria
+              ou volume mensal.
             </p>
           </div>
-          <Button asChild variant="accent" size="lg">
-            <Link href="/contato?tipo=enterprise">
-              Falar com vendas
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-    </div>
-  );
-}
 
-function ConsumoTabela({
-  titulo,
-  planos,
-}: {
-  titulo: string;
-  planos: Plano[];
-}) {
-  return (
-    <div>
-      <h4 className="font-display text-base font-semibold text-cocoa mb-3">
-        {titulo}
-      </h4>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-line text-tabaco text-xs">
-            <th className="text-left font-mono font-medium py-2">Plano</th>
-            <th className="text-right font-mono font-medium py-2">B2B</th>
-            <th className="text-right font-mono font-medium py-2">Avulso</th>
-          </tr>
-        </thead>
-        <tbody>
-          {planos.map((p) => (
-            <tr key={p.id} className="border-b border-line/50 last:border-0">
-              <td className="py-2 text-cocoa">{p.nome}</td>
-              <td className="py-2 text-right font-mono font-bold text-fur">
-                {formatBRL(p.precoB2B_centavos)}
-              </td>
-              <td className="py-2 text-right font-mono text-tabaco">
-                {formatBRL(p.precoB2C_centavos)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          <div className="flex flex-col gap-2 shrink-0">
+            <Button asChild variant="accent" size="lg">
+              <Link href="/api-publica">
+                Ver API B2B
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              size="sm"
+              className="text-cream hover:bg-white/10"
+            >
+              <Link href="/contato?tipo=enterprise">Falar com vendas</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

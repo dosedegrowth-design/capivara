@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Building, FileSignature, Truck, Banknote } from "lucide-react";
 
 import { CategoriaLanding } from "@/components/marketing/categoria-landing";
+import { HeroConsultaInput } from "@/components/marketing/hero-consulta-input";
 import { PLANOS_CNPJ } from "@/lib/consultas/planos";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
@@ -35,6 +36,15 @@ export default function CNPJLandingPage() {
   return (
     <>
       <CategoriaLanding
+        hero={
+          <HeroConsultaInput
+            defaultCategoria="cnpj"
+            categorias={["cpf", "cnpj", "placa"]}
+            badge="Consulta CNPJ · pessoa jurídica"
+            h1="Puxe a capivara da empresa antes de assinar contrato."
+            subtitle="Quadro de sócios, situação na Receita, certidões trabalhistas e fiscais, score empresarial. Tudo em PDF assinado, pronto em segundos. Sem mensalidade."
+          />
+        }
         content={{
           categoria: "cnpj",
           h1: "Puxe a capivara da empresa antes de assinar contrato.",

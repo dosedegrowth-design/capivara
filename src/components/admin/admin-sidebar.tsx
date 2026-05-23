@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   ShieldAlert,
+  Package,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ const NAV = [
   { href: "/admin/usuarios", icon: Users, label: "Usuários" },
   { href: "/admin/empresas", icon: Building2, label: "Empresas" },
   { href: "/admin/consultas", icon: Search, label: "Consultas" },
+  { href: "/admin/produtos", icon: Package, label: "Produtos" },
   { href: "/admin/anti-fraude", icon: ShieldAlert, label: "Anti-fraude" },
   { href: "/admin/erros", icon: Bug, label: "Erros & logs" },
   { href: "/admin/financeiro", icon: DollarSign, label: "Financeiro" },

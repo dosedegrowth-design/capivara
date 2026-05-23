@@ -251,8 +251,8 @@ export const PLANOS_VEICULAR: Plano[] = [
     nome: "Total",
     destaque: "premium",
     descricao: "Premium + Vip Car + CRLV + Foto Leilao.",
-    precoB2C_centavos: 19990,
-    precoB2B_centavos: 9990,
+    precoB2C_centavos: 24990,
+    precoB2B_centavos: 12490,
     apisIncluidas: [
       "placa-basica",
       "fipe",
@@ -503,4 +503,386 @@ export function findPacoteManada(id: string): PacoteManada | undefined {
 /** Valor do bonus em centavos = saldoTotal - valor pago. */
 export function bonusCentavos(pacote: PacoteManada): number {
   return pacote.saldoTotal_centavos - pacote.valor_centavos;
+}
+
+// =========================================================================
+// PRODUTOS AVULSOS (consultas pontuais)
+//
+// Diferente de "Plano" (combo), produto avulso entrega UM dado especifico
+// (FIPE, Recall, BIN, Leilao, etc). Vendido em /consultar/veicular e
+// /consultar/leilao. CPF e CNPJ NAO tem avulsos publicos (so combos).
+//
+// Custo da API APIFULL ja eh real (cotado em 23/05/2026, Nivel 1).
+// Margem alvo: >=60% B2C, idealmente >70%.
+// =========================================================================
+
+export type CategoriaProdutoAvulso = "veicular" | "leilao";
+
+export interface ProdutoAvulso {
+  id: string;
+  categoria: CategoriaProdutoAvulso;
+  nome: string;
+  /** Descricao curta pro card (1 frase). */
+  descricao: string;
+  /** O que vem no resultado (3-5 bullets pra card expandido). */
+  bullets: string[];
+  /** Pra quem (1 frase). */
+  publicoAlvo: string;
+  precoB2C_centavos: number;
+  precoB2B_centavos: number;
+  /** APIs APIFULL que esse produto chama. */
+  apisIncluidas: string[];
+  /** Soma dos custos das APIs (Nivel 1 APIFULL, centavos). */
+  custoApiReal_centavos: number;
+  /** Icone Lucide pro card. */
+  icon?: string;
+}
+
+// -------------------------------------------------------------------------
+// Veicular (produtos individuais)
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_VEICULAR_AVULSO: ProdutoAvulso[] = [
+  {
+    id: "veicular-avulso-fipe",
+    categoria: "veicular",
+    nome: "FIPE",
+    descricao: "Valor de mercado atualizado do veiculo (tabela FIPE).",
+    bullets: [
+      "Codigo FIPE",
+      "Valor R$ do mes atual",
+      "Marca, modelo, versao e ano",
+      "Combustivel e tipo de cambio",
+    ],
+    publicoAlvo: "Quem quer saber quanto o carro vale antes de fechar negocio.",
+    precoB2C_centavos: 999,
+    precoB2B_centavos: 499,
+    apisIncluidas: ["fipe", "placa-basica"],
+    custoApiReal_centavos: 21,
+    icon: "Banknote",
+  },
+  {
+    id: "veicular-avulso-recall",
+    categoria: "veicular",
+    nome: "Recall pendente",
+    descricao: "Verifica se o veiculo tem recall ativo do fabricante.",
+    bullets: [
+      "Numero e descricao do recall",
+      "Data de inicio da campanha",
+      "Concessionaria autorizada",
+      "Recalls historicos resolvidos",
+    ],
+    publicoAlvo: "Comprador particular antes de aceitar veiculo usado.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["recall", "placa-basica"],
+    custoApiReal_centavos: 370,
+    icon: "AlertTriangle",
+  },
+  {
+    id: "veicular-avulso-bin-nacional",
+    categoria: "veicular",
+    nome: "BIN Nacional",
+    descricao: "Dados nacionais do veiculo a partir da placa.",
+    bullets: [
+      "Marca, modelo, versao",
+      "Ano fabricacao e modelo",
+      "Cor e tipo de combustivel",
+      "Chassi e numero de motor",
+      "Municipio e UF de licenciamento",
+    ],
+    publicoAlvo: "Confirmacao basica de dados antes de qualquer consulta mais cara.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["bin-nacional", "placa-basica"],
+    custoApiReal_centavos: 310,
+    icon: "FileText",
+  },
+  {
+    id: "veicular-avulso-gravame",
+    categoria: "veicular",
+    nome: "Gravame / Alienacao",
+    descricao: "Verifica se ha financiamento ativo no veiculo.",
+    bullets: [
+      "Existencia de gravame",
+      "Tipo (alienacao fiduciaria, leasing, etc)",
+      "Data de inclusao",
+      "Instituicao financeira credora",
+      "Documento do agente e UF",
+    ],
+    publicoAlvo: "Comprador particular pra ter certeza que o carro nao tem divida.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["gravame", "placa-basica"],
+    custoApiReal_centavos: 230,
+    icon: "Lock",
+  },
+  {
+    id: "veicular-avulso-bin-estadual",
+    categoria: "veicular",
+    nome: "BIN Estadual",
+    descricao: "Dados detalhados do Detran estadual.",
+    bullets: [
+      "Tudo do BIN Nacional",
+      "Categoria, especie e tipo de carroceria",
+      "Capacidade de passageiros e carga",
+      "Restricoes administrativas estaduais",
+      "Status de licenciamento atual",
+    ],
+    publicoAlvo: "Quem precisa de dados oficiais do Detran (lojistas, despachantes).",
+    precoB2C_centavos: 1999,
+    precoB2B_centavos: 1099,
+    apisIncluidas: ["bin-estadual", "placa-basica"],
+    custoApiReal_centavos: 286,
+    icon: "ClipboardList",
+  },
+  {
+    id: "veicular-avulso-roubo-furto-basico",
+    categoria: "veicular",
+    nome: "Historico Roubo/Furto",
+    descricao: "Verifica se o veiculo tem registro ativo de roubo ou furto.",
+    bullets: [
+      "Numero do boletim de ocorrencia",
+      "Local e data do registro",
+      "Status (ativo ou resolvido)",
+      "Se nada consta: confirmacao oficial",
+    ],
+    publicoAlvo: "Comprador particular antes de comprar carro de origem desconhecida.",
+    precoB2C_centavos: 1999,
+    precoB2B_centavos: 1099,
+    apisIncluidas: ["historico-roubo-furto", "placa-basica"],
+    custoApiReal_centavos: 370,
+    icon: "Shield",
+  },
+  {
+    id: "veicular-avulso-proprietario",
+    categoria: "veicular",
+    nome: "Proprietario atual",
+    descricao: "Identifica o proprietario registrado no Detran.",
+    bullets: [
+      "Nome do proprietario atual",
+      "Tipo de documento (CPF/CNPJ)",
+      "UF do registro",
+      "Tempo de propriedade (se disponivel)",
+    ],
+    publicoAlvo: "Quem precisa confirmar quem eh o dono antes de fechar negocio.",
+    precoB2C_centavos: 2499,
+    precoB2B_centavos: 1399,
+    apisIncluidas: ["proprietario-placa", "placa-basica"],
+    custoApiReal_centavos: 352,
+    icon: "UserRound",
+  },
+  {
+    id: "veicular-avulso-csv",
+    categoria: "veicular",
+    nome: "CSV Completo",
+    descricao: "Pacote oficial: CSV + RENAJUD + RENAINF + Recall + BIN + Proprietario.",
+    bullets: [
+      "CSV (Certificado de Seguranca Veicular)",
+      "RENAINF (multas nacionais)",
+      "RENAJUD (restricoes judiciais)",
+      "Recall ativo",
+      "BIN consolidado",
+      "Proprietario atual",
+    ],
+    publicoAlvo: "Comprador que quer um pacote consolidado oficial sem montar varias consultas.",
+    precoB2C_centavos: 4999,
+    precoB2B_centavos: 2799,
+    apisIncluidas: ["certificado-seguranca-veicular", "placa-basica"],
+    custoApiReal_centavos: 460,
+    icon: "FileCheck",
+  },
+  {
+    id: "veicular-avulso-crlv",
+    categoria: "veicular",
+    nome: "CRLV digital",
+    descricao: "Certificado de Registro e Licenciamento Veicular eletronico.",
+    bullets: [
+      "PDF oficial do CRLV digital",
+      "Dados do veiculo licenciado",
+      "Status de licenciamento atual",
+      "QR code de validacao",
+    ],
+    publicoAlvo: "Quem precisa do documento oficial do veiculo emitido pelo Detran.",
+    precoB2C_centavos: 4999,
+    precoB2B_centavos: 2999,
+    apisIncluidas: ["crlv", "placa-basica"],
+    custoApiReal_centavos: 2038,
+    icon: "FileDigit",
+  },
+];
+
+// -------------------------------------------------------------------------
+// Leilao (produtos individuais)
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_LEILAO_AVULSO: ProdutoAvulso[] = [
+  {
+    id: "leilao-avulso-historico",
+    categoria: "leilao",
+    nome: "Historico de Leilao",
+    descricao: "Se o veiculo passou por leilao e qual o motivo.",
+    bullets: [
+      "Se o veiculo tem registro em base de leilao",
+      "Leiloeiro responsavel",
+      "Data do leilao",
+      "Categoria do sinistro (pequena/media/grande monta)",
+      "Status atual (recuperado ou nao)",
+    ],
+    publicoAlvo: "Comprador antes de dar lance ou aceitar carro suspeito.",
+    precoB2C_centavos: 2999,
+    precoB2B_centavos: 1599,
+    apisIncluidas: ["leilao", "placa-basica"],
+    custoApiReal_centavos: 886,
+    icon: "Gavel",
+  },
+  {
+    id: "leilao-avulso-foto",
+    categoria: "leilao",
+    nome: "Foto do Leilao",
+    descricao: "Imagens do veiculo no momento que foi leiloado.",
+    bullets: [
+      "Galeria de fotos do veiculo no leilao",
+      "Identificacao de danos visiveis",
+      "Comparacao com estado atual",
+      "Pra avaliar reforma posterior",
+    ],
+    publicoAlvo: "Lojista que quer ver o que comprou ou comprador suspeitando reforma.",
+    precoB2C_centavos: 3999,
+    precoB2B_centavos: 2199,
+    apisIncluidas: ["foto-leilao", "placa-basica"],
+    custoApiReal_centavos: 1210,
+    icon: "Camera",
+  },
+  {
+    id: "leilao-avulso-roubo-premium",
+    categoria: "leilao",
+    nome: "Historico Roubo/Furto Premium",
+    descricao: "Versao premium com base policial nacional completa.",
+    bullets: [
+      "Numero do BO e descricao detalhada",
+      "Local, data e UF do registro",
+      "Status atualizado (ativo, resolvido)",
+      "Historico de movimentacoes",
+      "Bases policiais nacionais cruzadas",
+    ],
+    publicoAlvo: "Lojista de leilao ou comprador profissional que precisa ter certeza.",
+    precoB2C_centavos: 2999,
+    precoB2B_centavos: 1599,
+    apisIncluidas: ["historico-roubo-furto-premium", "placa-basica"],
+    custoApiReal_centavos: 946,
+    icon: "Shield",
+  },
+  {
+    id: "leilao-avulso-vip-car",
+    categoria: "leilao",
+    nome: "Vip Car (analise tecnica)",
+    descricao: "Pacote tecnico: BIN Estadual + Gravame + Roubo/Furto + Precificador.",
+    bullets: [
+      "BIN Estadual com dados detalhados Detran",
+      "Verificacao de gravame e alienacao",
+      "Historico de roubo e furto consolidado",
+      "Precificador com analise de valor de mercado",
+    ],
+    publicoAlvo: "Comprador profissional de leilao ou lojista que quer 1 relatorio tecnico forte.",
+    precoB2C_centavos: 8999,
+    precoB2B_centavos: 4999,
+    apisIncluidas: ["vip-car", "placa-basica"],
+    custoApiReal_centavos: 3130,
+    icon: "Star",
+  },
+];
+
+// -------------------------------------------------------------------------
+// Combos LEILAO (planos especificos pra /consultar/leilao)
+// -------------------------------------------------------------------------
+
+export const COMBOS_LEILAO: Plano[] = [
+  {
+    id: "leilao-pre-lance",
+    categoria: "veicular", // banco eh "veicular" — sub-tipo "leilao" via apisIncluidas
+    nome: "Pre-Lance",
+    descricao: "Antes de dar lance: vale comprar esse carro? historico + sinistro.",
+    precoB2C_centavos: 7990,
+    precoB2B_centavos: 4490,
+    apisIncluidas: [
+      "placa-basica",
+      "fipe",
+      "leilao",
+      "foto-leilao",
+      "historico-roubo-furto",
+    ],
+    custoApiEstimado_centavos: 2797,
+  },
+  {
+    id: "leilao-pos-compra",
+    categoria: "veicular",
+    nome: "Pos-Compra",
+    descricao: "Acabou de arrematar: regularizacao completa pra circular.",
+    precoB2C_centavos: 8990,
+    precoB2B_centavos: 4990,
+    apisIncluidas: [
+      "placa-basica",
+      "certificado-seguranca-veicular", // CSV+RENAJUD+RENAINF+Recall+BIN+Prop
+      "crlv",
+      "gravame",
+    ],
+    custoApiEstimado_centavos: 2708,
+  },
+  {
+    id: "leilao-auctioneer",
+    categoria: "veicular",
+    nome: "Auctioneer Total",
+    destaque: "premium",
+    descricao: "Pre-Lance + Pos-Compra + Vip Car tecnico. Pra revendedor profissional.",
+    precoB2C_centavos: 19990,
+    precoB2B_centavos: 11990,
+    apisIncluidas: [
+      "placa-basica",
+      "fipe",
+      "leilao",
+      "foto-leilao",
+      "historico-roubo-furto-premium",
+      "certificado-seguranca-veicular",
+      "crlv",
+      "gravame",
+      "vip-car",
+    ],
+    custoApiEstimado_centavos: 7943,
+  },
+];
+
+// -------------------------------------------------------------------------
+// Helpers
+// -------------------------------------------------------------------------
+
+export const TODOS_PRODUTOS_AVULSO: ProdutoAvulso[] = [
+  ...PRODUTOS_VEICULAR_AVULSO,
+  ...PRODUTOS_LEILAO_AVULSO,
+];
+
+export function findProdutoAvulso(id: string): ProdutoAvulso | undefined {
+  return TODOS_PRODUTOS_AVULSO.find((p) => p.id === id);
+}
+
+export function produtosAvulsosPorCategoria(cat: CategoriaProdutoAvulso): ProdutoAvulso[] {
+  return TODOS_PRODUTOS_AVULSO.filter((p) => p.categoria === cat);
+}
+
+export function findComboLeilao(id: string): Plano | undefined {
+  return COMBOS_LEILAO.find((p) => p.id === id);
+}
+
+/** Margem em % do produto avulso (B2C). */
+export function margemB2CPercent(prod: ProdutoAvulso): number {
+  return Math.round(
+    ((prod.precoB2C_centavos - prod.custoApiReal_centavos) / prod.precoB2C_centavos) * 100
+  );
+}
+
+/** Margem em % do produto avulso (B2B). */
+export function margemB2BPercent(prod: ProdutoAvulso): number {
+  return Math.round(
+    ((prod.precoB2B_centavos - prod.custoApiReal_centavos) / prod.precoB2B_centavos) * 100
+  );
 }

@@ -35,64 +35,81 @@ export interface CategoriaLandingContent {
   planoMaisBarato: Plano;
 }
 
-export function CategoriaLanding({ content }: { content: CategoriaLandingContent }) {
+interface CategoriaLandingProps {
+  content: CategoriaLandingContent;
+  /** Substitui a hero padrao (com mascote) por um React node custom. */
+  hero?: React.ReactNode;
+  /** Conteudo extra renderizado depois da secao de planos (ex: cross-sell). */
+  extraSection?: React.ReactNode;
+  /** Substitui a secao de planos default (PlanCarousel). */
+  planosOverride?: React.ReactNode;
+}
+
+export function CategoriaLanding({
+  content,
+  hero,
+  extraSection,
+  planosOverride,
+}: CategoriaLandingProps) {
   return (
     <div className="bg-paper">
       {/* ---------------------------- HERO ---------------------------- */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-12 md:pt-16 md:pb-20">
-          <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
-            {/* Mascote contextualizado por categoria */}
-            <div className="relative flex items-center justify-center min-h-[180px] md:min-h-[340px] md:order-2">
-              <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
-              <CategoriaHeroMascot
-                category={content.categoria}
-                width={560}
-                className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[260px] sm:max-w-[380px] md:max-w-[480px] h-auto"
-              />
-            </div>
-
-            {/* Texto */}
-            <div className="space-y-4 md:space-y-6 text-center md:text-left md:order-1">
-              <Badge variant="secondary" className="font-mono">
-                <span className="text-fur mr-1.5">●</span> {content.badgeText}
-              </Badge>
-
-              <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-cocoa leading-[1.05]">
-                {content.h1}
-              </h1>
-
-              <p className="text-base sm:text-lg text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
-                {content.subheadline}
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
-                <Button asChild variant="accent" size="xl">
-                  <Link href={`#planos`}>
-                    Ver planos a partir de {formatBRL(content.planoMaisBarato.precoB2C_centavos)}
-                    <ArrowRight className="size-5" />
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary" size="xl">
-                  <Link href="/como-funciona">Como funciona</Link>
-                </Button>
+      {hero ?? (
+        <section className="relative overflow-hidden">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-12 md:pt-16 md:pb-20">
+            <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
+              {/* Mascote contextualizado por categoria */}
+              <div className="relative flex items-center justify-center min-h-[180px] md:min-h-[340px] md:order-2">
+                <div className="absolute inset-0 -z-10 bg-gradient-to-br from-saffron/15 via-transparent to-fur/10 blur-3xl" />
+                <CategoriaHeroMascot
+                  category={content.categoria}
+                  width={560}
+                  className="drop-shadow-[0_25px_45px_rgba(31,22,17,0.18)] w-full max-w-[260px] sm:max-w-[380px] md:max-w-[480px] h-auto"
+                />
               </div>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco/80">
-                <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="size-4 text-ok" /> LGPD compliant
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Zap className="size-4 text-saffron" /> Resultado em segundos
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <FileText className="size-4 text-info" /> PDF assinado
-                </span>
+              {/* Texto */}
+              <div className="space-y-4 md:space-y-6 text-center md:text-left md:order-1">
+                <Badge variant="secondary" className="font-mono">
+                  <span className="text-fur mr-1.5">●</span> {content.badgeText}
+                </Badge>
+
+                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-cocoa leading-[1.05]">
+                  {content.h1}
+                </h1>
+
+                <p className="text-base sm:text-lg text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
+                  {content.subheadline}
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start">
+                  <Button asChild variant="accent" size="xl">
+                    <Link href={`#planos`}>
+                      Ver planos a partir de {formatBRL(content.planoMaisBarato.precoB2C_centavos)}
+                      <ArrowRight className="size-5" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" size="xl">
+                    <Link href="/como-funciona">Como funciona</Link>
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco/80">
+                  <span className="flex items-center gap-1.5">
+                    <ShieldCheck className="size-4 text-ok" /> LGPD compliant
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Zap className="size-4 text-saffron" /> Resultado em segundos
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <FileText className="size-4 text-info" /> PDF assinado
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ---------------------------- USE CASES ---------------------------- */}
       <section className="bg-paper-2 py-16 md:py-20 border-y border-line">
@@ -184,9 +201,13 @@ export function CategoriaLanding({ content }: { content: CategoriaLandingContent
             </p>
           </div>
 
-          <PlanCarousel planos={content.planos} inclui={RESUMO_INCLUI} cardWidth={300} />
+          {planosOverride ?? (
+            <PlanCarousel planos={content.planos} inclui={RESUMO_INCLUI} cardWidth={300} />
+          )}
         </div>
       </section>
+
+      {extraSection}
 
       {/* ---------------------------- FAQ ---------------------------- */}
       <section className="py-16 md:py-20">
