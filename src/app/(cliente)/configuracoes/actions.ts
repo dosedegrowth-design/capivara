@@ -152,7 +152,7 @@ export async function exportarDadosAction(): Promise<
         about: "Capivara · Exportação LGPD (Art. 18, V — portabilidade)",
         retention:
           "Os dados das consultas ficam por 90 dias antes de anonimização automática.",
-        contact: "lgpd@capivara.app",
+        contact: "lgpd@suacapivara.com.br",
       },
     };
 

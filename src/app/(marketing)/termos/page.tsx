@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LegalDocumentView } from "@/components/legal/legal-document-view";
 import { TERMS_OF_USE, hashDocument } from "@/lib/legal/documents";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Termos de Uso · Capivara",

@@ -4,7 +4,7 @@ import { Building, FileSignature, Truck, Banknote } from "lucide-react";
 import { CategoriaLanding } from "@/components/marketing/categoria-landing";
 import { PLANOS_CNPJ } from "@/lib/consultas/planos";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Consulta de CNPJ online · Sócios, certidões e situação fiscal · Capivara",

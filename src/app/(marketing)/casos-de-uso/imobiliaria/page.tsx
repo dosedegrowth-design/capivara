@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Home, Shield, Zap } from "lucide-react";
 import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Consulta de CPF pra imobiliária e aluguel · Capivara",

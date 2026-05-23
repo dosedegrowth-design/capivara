@@ -16,7 +16,7 @@ const C = {
   ok: "#5E7C4F",
 };
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 function shell(content: string, preheader?: string): string {
   return `<!DOCTYPE html>
@@ -45,7 +45,7 @@ function shell(content: string, preheader?: string): string {
         </td></tr>
         <!-- Footer -->
         <tr><td style="background:${C.cream};padding:20px 32px;text-align:center;font-size:11px;color:${C.tabaco};">
-          <p style="margin:0 0 8px 0;">Capivara — Dose de Growth · <a href="${BASE}" style="color:${C.fur};text-decoration:none;">capivara.app</a></p>
+          <p style="margin:0 0 8px 0;">Capivara — Dose de Growth · <a href="${BASE}" style="color:${C.fur};text-decoration:none;">suacapivara.com.br</a></p>
           <p style="margin:0;font-size:10px;opacity:0.7;">
             <a href="${BASE}/lgpd" style="color:${C.tabaco};text-decoration:none;">Privacidade</a> ·
             <a href="${BASE}/contato" style="color:${C.tabaco};text-decoration:none;">Suporte</a>
@@ -92,7 +92,7 @@ export function emailBoasVindas(params: { nome: string }): { subject: string; ht
     </ul>
     ${button(`${BASE}/consultar`, "Puxar minha primeira capivara", "saffron")}
     <p style="font-size:12px;color:${C.tabaco};margin-top:24px;">
-      Qualquer dúvida, responde esse email ou fala com a gente em <a href="${BASE}/contato" style="color:${C.fur};">capivara.app/contato</a>.
+      Qualquer dúvida, responde esse email ou fala com a gente em <a href="${BASE}/contato" style="color:${C.fur};">suacapivara.com.br/contato</a>.
     </p>
     `,
     "Sua conta na Capivara está pronta. Bora puxar?"

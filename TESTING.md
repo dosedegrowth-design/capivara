@@ -24,11 +24,11 @@ Senha padrão pra todas as contas: **`Capivara2026!`**
 
 | Painel | Email | Onde acessa |
 |---|---|---|
-| Admin | `admin@capivara.app` | https://capivara-green.vercel.app/admin |
-| Cliente B2C | `cliente@capivara.app` | https://capivara-green.vercel.app/dashboard |
-| Empresa B2B | `empresa@capivara.app` | https://capivara-green.vercel.app/empresa |
+| Admin | `admin@capivara.app` | https://suacapivara.com.br/admin |
+| Cliente B2C | `cliente@capivara.app` | https://suacapivara.com.br/dashboard |
+| Empresa B2B | `empresa@capivara.app` | https://suacapivara.com.br/empresa |
 
-Login em: https://capivara-green.vercel.app/login
+Login em: https://suacapivara.com.br/login
 
 ---
 
@@ -160,20 +160,20 @@ Pra remover tudo:
 ```sql
 -- Remove dados de teste (CUIDADO: rode só em sandbox/dev)
 DELETE FROM capivara.consultations WHERE user_id IN (
-  SELECT id FROM auth.users WHERE email LIKE '%@capivara.app'
+  SELECT id FROM auth.users WHERE email LIKE '%@suacapivara.com.br'
 );
 DELETE FROM capivara.transactions WHERE user_id IN (
-  SELECT id FROM auth.users WHERE email LIKE '%@capivara.app'
+  SELECT id FROM auth.users WHERE email LIKE '%@suacapivara.com.br'
 );
 DELETE FROM capivara.consent_logs WHERE user_id IN (
-  SELECT id FROM auth.users WHERE email LIKE '%@capivara.app'
+  SELECT id FROM auth.users WHERE email LIKE '%@suacapivara.com.br'
 );
 DELETE FROM capivara.company_members WHERE user_id IN (
-  SELECT id FROM auth.users WHERE email LIKE '%@capivara.app'
+  SELECT id FROM auth.users WHERE email LIKE '%@suacapivara.com.br'
 );
 DELETE FROM capivara.companies WHERE cnpj = '12345678000190';
 DELETE FROM capivara.profiles WHERE id IN (
-  SELECT id FROM auth.users WHERE email LIKE '%@capivara.app'
+  SELECT id FROM auth.users WHERE email LIKE '%@suacapivara.com.br'
 );
 -- Auth users precisam ser deletados via dashboard ou supabase.auth.admin.deleteUser
 ```

@@ -44,7 +44,7 @@ export interface LegalDocument {
 // =============================================================================
 export const TERMS_OF_USE: LegalDocument = {
   type: "terms_of_use",
-  version: "1.1.0",
+  version: "1.2.0",
   title: "Termos de Uso da Capivara",
   effectiveDate: "2026-05-22",
   shortLabel: "Li e aceito os Termos de Uso",
@@ -214,8 +214,8 @@ Fica eleito o foro da Comarca de São Paulo - SP para dirimir qualquer questão 
 
 ## 11. Contato
 
-- LGPD / Encarregado de Dados (DPO): lgpd@capivara.app
-- Suporte: contato@capivara.app
+- LGPD / Encarregado de Dados (DPO): lgpd@suacapivara.com.br
+- Suporte: contato@suacapivara.com.br
 - Endereço corporativo: a ser informado quando a empresa estiver oficialmente constituída
 
 ---
@@ -229,7 +229,7 @@ Fica eleito o foro da Comarca de São Paulo - SP para dirimir qualquer questão 
 // =============================================================================
 export const PRIVACY_POLICY: LegalDocument = {
   type: "privacy_policy",
-  version: "1.1.0",
+  version: "1.2.0",
   title: "Política de Privacidade da Capivara",
   effectiveDate: "2026-05-22",
   shortLabel: "Li e aceito a Política de Privacidade",
@@ -252,7 +252,7 @@ Conforme LGPD Art. 41, designamos um Encarregado responsável por:
 - Executar demais atribuições determinadas pela controladora
 
 **Contato do Encarregado:**
-- Email: **lgpd@capivara.app**
+- Email: **lgpd@suacapivara.com.br**
 - Tempo de resposta: até 15 dias úteis (LGPD Art. 19)
 
 ### 1.2. Identificação da operadora
@@ -349,7 +349,7 @@ Você pode, a qualquer momento:
 - **Saber com quem compartilhamos** (Art. 18 VII)
 - **Revogar consentimento** (Art. 18 IX)
 
-Para exercer esses direitos: lgpd@capivara.app ou diretamente em /configuracoes.
+Para exercer esses direitos: lgpd@suacapivara.com.br ou diretamente em /configuracoes.
 
 ## 7. Segurança
 
@@ -371,13 +371,13 @@ Caso ocorra incidente de segurança envolvendo dados pessoais que possa causar r
 4. **Notificar os titulares afetados** quando o risco for relevante
 5. **Aplicar medidas corretivas** pra evitar reincidência
 
-Canal de comunicação de incidentes (interno ou externo): **lgpd@capivara.app**
+Canal de comunicação de incidentes (interno ou externo): **lgpd@suacapivara.com.br**
 
 Se você suspeitar que sua conta ou seus dados foram comprometidos, contate-nos imediatamente.
 
 ### 7.3. Adequação dos operadores (Art. 39)
 
-Nossos operadores (Supabase, Vercel, Asaas, Resend) têm contratos com cláusulas de proteção de dados (DPA) alinhadas à LGPD. Para clientes empresariais que precisem de DPA específico (subprocessador), entre em contato pelo lgpd@capivara.app.
+Nossos operadores (Supabase, Vercel, Asaas, Resend) têm contratos com cláusulas de proteção de dados (DPA) alinhadas à LGPD. Para clientes empresariais que precisem de DPA específico (subprocessador), entre em contato pelo lgpd@suacapivara.com.br.
 
 ## 8. Cookies
 
@@ -392,7 +392,7 @@ Detalhes completos: /cookies
 
 ## 9. Crianças e adolescentes
 
-A Capivara é restrita a maiores de 18 anos. Não coletamos dados de menores intencionalmente. Se descobrir que coletamos dados de alguém menor de 18, contate-nos imediatamente em lgpd@capivara.app para remoção.
+A Capivara é restrita a maiores de 18 anos. Não coletamos dados de menores intencionalmente. Se descobrir que coletamos dados de alguém menor de 18, contate-nos imediatamente em lgpd@suacapivara.com.br para remoção.
 
 ## 10. Transferência internacional
 
@@ -406,8 +406,8 @@ Esta Política pode ser atualizada. Mudanças relevantes serão comunicadas por 
 
 ## 12. Contato
 
-- DPO / Encarregado: lgpd@capivara.app
-- Suporte: contato@capivara.app
+- DPO / Encarregado: lgpd@suacapivara.com.br
+- Suporte: contato@suacapivara.com.br
 
 ---
 
@@ -420,7 +420,7 @@ Esta Política pode ser atualizada. Mudanças relevantes serão comunicadas por 
 // =============================================================================
 export const CONSULTATION_RESPONSIBILITY: LegalDocument = {
   type: "consultation_responsibility",
-  version: "1.1.0",
+  version: "1.2.0",
   title: "Termo de Responsabilidade por Consulta",
   effectiveDate: "2026-05-22",
   shortLabel:
@@ -534,7 +534,7 @@ Ao aceitar este Termo, autorizo o registro dos seguintes dados em log auditável
 // =============================================================================
 export const COMPANY_TERMS: LegalDocument = {
   type: "company_terms",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Termos de Uso Empresarial (B2B) — Capivara",
   effectiveDate: "2026-05-22",
   shortLabel:
@@ -671,7 +671,7 @@ Mudanças serão comunicadas com 30 dias de antecedência ao email de faturament
 // =============================================================================
 export const API_TERMS: LegalDocument = {
   type: "api_terms",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Termos de Uso da API Capivara",
   effectiveDate: "2026-05-22",
   shortLabel:
@@ -786,7 +786,7 @@ Esse log fica por 5 anos.
 // =============================================================================
 export const COOKIE_POLICY: LegalDocument = {
   type: "cookie_policy",
-  version: "1.0.0",
+  version: "1.1.0",
   title: "Política de Cookies da Capivara",
   effectiveDate: "2026-05-22",
   shortLabel: "Aceito a política de cookies essenciais",
@@ -842,7 +842,7 @@ Caso a Capivara adicione cookies não-essenciais no futuro (ex: pra A/B testing 
 
 ## Contato
 
-Dúvidas: lgpd@capivara.app
+Dúvidas: lgpd@suacapivara.com.br
 `,
 };
 

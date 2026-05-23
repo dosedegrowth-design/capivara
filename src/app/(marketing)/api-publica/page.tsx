@@ -31,7 +31,7 @@ import { formatBRL } from "@/lib/formatters";
 const PACOTE_MAIOR = PACOTES_MANADA[PACOTES_MANADA.length - 1];
 const PACOTE_MENOR = PACOTES_MANADA[0];
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "API Capivara · Consulta CPF, CNPJ e veicular via REST · Capivara",
@@ -207,7 +207,7 @@ export default function APILandingPage() {
             <div className="rounded-xl border border-line bg-cocoa text-cream p-5 font-mono text-xs md:text-sm leading-relaxed overflow-x-auto">
               <p className="text-saffron mb-2">{`// 1. Criar consulta CPF`}</p>
               <pre className="whitespace-pre">{`curl -X POST \\
-  https://capivara.app/api/v1/consultations \\
+  https://suacapivara.com.br/api/v1/consultations \\
   -H "Authorization: Bearer cap_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{

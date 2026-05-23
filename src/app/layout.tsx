@@ -27,7 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br"
   ),
   title: {
     default: "Capivara · Puxe a capivara antes de fechar negócio",
@@ -105,7 +105,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Capivara",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br",
     logo: "/icon.svg",
     description:
       "Consulta de histórico de pessoas, empresas e veículos. CPF, CNPJ e Veicular.",
@@ -116,7 +116,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Capivara",
-    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app",
+    url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br",
     inLanguage: "pt-BR",
   };
 

@@ -27,8 +27,8 @@ const CANAIS = [
     icon: Mail,
     title: "E-mail",
     description: "Resposta em até 1 dia útil.",
-    action: "ola@capivara.app",
-    href: "mailto:ola@capivara.app",
+    action: "ola@suacapivara.com.br",
+    href: "mailto:ola@suacapivara.com.br",
   },
   {
     icon: Phone,

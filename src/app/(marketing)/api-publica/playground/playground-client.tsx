@@ -55,7 +55,7 @@ export function PlaygroundClient() {
   function buildCurl() {
     const payload = JSON.stringify(buildPayload(), null, 2);
     const key = apiKey || "<sua-chave>";
-    return `curl -X POST https://capivara.app/api/v1/consultations \\
+    return `curl -X POST https://suacapivara.com.br/api/v1/consultations \\
   -H "Authorization: Bearer ${key}" \\
   -H "Content-Type: application/json" \\
   -d '${payload.replace(/'/g, "'\\''")}'`;

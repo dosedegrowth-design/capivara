@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Status do sistema · Capivara",
@@ -237,7 +237,7 @@ export default async function StatusPage() {
             </Link>
             <span className="text-tabaco">·</span>
             <a
-              href="mailto:lgpd@capivara.app"
+              href="mailto:lgpd@suacapivara.com.br"
               className="text-fur hover:underline inline-flex items-center gap-1"
             >
               DPO <ExternalLink className="size-3" />

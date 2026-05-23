@@ -683,7 +683,7 @@ function Footer({ verificationUrl }: { verificationUrl: string }) {
         <View style={styles.footerLeft}>
           <CapivaraMonoPDF width={14} color={c.tabaco} />
           <Text style={styles.footerText}>
-            capivara.app · Verificar: {verificationUrl}
+            suacapivara.com.br · Verificar: {verificationUrl}
           </Text>
         </View>
         <Text

@@ -106,7 +106,7 @@ export default async function AdminLgpdPage() {
           Encarregado de Proteção de Dados (DPO)
         </h2>
         <p className="text-sm text-cocoa mt-2">
-          Email: <code className="font-mono text-fur">lgpd@capivara.app</code>
+          Email: <code className="font-mono text-fur">lgpd@suacapivara.com.br</code>
         </p>
         <p className="text-xs text-tabaco mt-2 leading-relaxed">
           Solicitações de titulares (Art. 18 LGPD) chegam por email. SLA de
@@ -142,7 +142,7 @@ export default async function AdminLgpdPage() {
           </li>
         </ol>
         <p className="text-xs text-tabaco font-mono mt-3 pt-3 border-t border-line/60">
-          Canal interno: lgpd@capivara.app · Detalhes em /privacidade
+          Canal interno: lgpd@suacapivara.com.br · Detalhes em /privacidade
         </p>
       </div>
 

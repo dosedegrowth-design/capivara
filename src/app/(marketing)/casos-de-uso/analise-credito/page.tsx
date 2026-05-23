@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CreditCard, ShieldAlert, TrendingDown } from "lucide-react";
 import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Análise de crédito CPF e CNPJ pra venda a prazo · Capivara",

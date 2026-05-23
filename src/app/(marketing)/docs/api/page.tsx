@@ -14,7 +14,7 @@ import { formatBRL } from "@/lib/formatters";
 const PACOTE_MAIOR = PACOTES_MANADA[PACOTES_MANADA.length - 1];
 const PACOTE_MENOR = PACOTES_MANADA[0];
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
   title: "Documentação da API · Capivara",
@@ -94,7 +94,7 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
             {/* Base URL */}
             <section id="base-url" className="scroll-mt-20">
               <H2>Base URL</H2>
-              <CodeBlock>{`https://capivara.app/api/v1`}</CodeBlock>
+              <CodeBlock>{`https://suacapivara.com.br/api/v1`}</CodeBlock>
               <P>
                 Toda resposta é <Code>application/json; charset=utf-8</Code>. Os timestamps são ISO
                 8601 em UTC.
@@ -157,7 +157,7 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
 
               <H3>Exemplo</H3>
               <CodeBlock>
-                {`curl -X POST https://capivara.app/api/v1/consultations \\
+                {`curl -X POST https://suacapivara.com.br/api/v1/consultations \\
   -H "Authorization: Bearer cap_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -196,11 +196,11 @@ x-api-key: cap_live_a1b2c3d4e5f6g7h8...`}
               <H2>GET /consultations/:id</H2>
               <P>Retorna o status atual e o PDF (quando pronto).</P>
               <CodeBlock>
-                {`curl https://capivara.app/api/v1/consultations/a1b2c3d4-... \\
+                {`curl https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-... \\
   -H "Authorization: Bearer cap_live_..."
 
 # Pra incluir o JSON estruturado do resultado:
-curl 'https://capivara.app/api/v1/consultations/a1b2c3d4-...?include=result' \\
+curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=result' \\
   -H "Authorization: Bearer cap_live_..."`}
               </CodeBlock>
 
@@ -244,7 +244,7 @@ curl 'https://capivara.app/api/v1/consultations/a1b2c3d4-...?include=result' \\
                 </tbody>
               </Table>
               <CodeBlock>
-                {`curl 'https://capivara.app/api/v1/consultations?status=completed&limit=50' \\
+                {`curl 'https://suacapivara.com.br/api/v1/consultations?status=completed&limit=50' \\
   -H "Authorization: Bearer cap_live_..."`}
               </CodeBlock>
             </section>

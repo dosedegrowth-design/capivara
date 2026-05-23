@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // 2. Renderizar PDF (Buffer)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
     const verificationUrl = `${siteUrl}/verificar/${consulta.id}`;
 
     const buffer = await renderToBuffer(

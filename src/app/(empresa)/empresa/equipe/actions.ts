@@ -254,7 +254,7 @@ function emailConviteHtml(params: {
     cream: "#F4EAD8",
     paper: "#FBF6EC",
   };
-  const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+  const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
   const ctaHref = params.hasAccount ? `${BASE}/empresa` : `${BASE}/cadastro?tipo=empresa`;
   const ctaLabel = params.hasAccount ? "Acessar a empresa" : "Criar conta agora";
 

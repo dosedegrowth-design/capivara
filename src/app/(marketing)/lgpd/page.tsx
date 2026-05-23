@@ -330,10 +330,10 @@ function DPO() {
                 <div className="flex items-center gap-2 text-sm">
                   <span className="font-mono text-tabaco/70">E-mail:</span>
                   <a
-                    href="mailto:dpo@capivara.app"
+                    href="mailto:dpo@suacapivara.com.br"
                     className="font-mono text-fur hover:underline underline-offset-4"
                   >
-                    dpo@capivara.app
+                    dpo@suacapivara.com.br
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
@@ -344,7 +344,7 @@ function DPO() {
 
               <div className="mt-6 flex gap-3">
                 <Button asChild variant="primary" size="sm">
-                  <a href="mailto:dpo@capivara.app?subject=Solicita%C3%A7%C3%A3o%20LGPD">
+                  <a href="mailto:dpo@suacapivara.com.br?subject=Solicita%C3%A7%C3%A3o%20LGPD">
                     Enviar e-mail ao DPO
                   </a>
                 </Button>

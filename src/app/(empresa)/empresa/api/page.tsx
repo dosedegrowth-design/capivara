@@ -99,7 +99,7 @@ export default async function ApiPage() {
           <div className="rounded-lg border border-line bg-cocoa text-cream p-5 font-mono text-[11px] leading-relaxed overflow-x-auto">
             <p className="text-saffron mb-2">{`// Criar consulta CPF`}</p>
             <pre className="whitespace-pre-wrap">{`curl -X POST \\
-  https://capivara.app/api/v1/consultations \\
+  https://suacapivara.com.br/api/v1/consultations \\
   -H "Authorization: Bearer cap_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{

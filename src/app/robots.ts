@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://capivara-green.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export default function robots(): MetadataRoute.Robots {
   return {

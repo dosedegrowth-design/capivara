@@ -48,7 +48,7 @@ async function main() {
           result,
           targetValue: targetFormatted,
           generatedAt: new Date().toISOString(),
-          verificationUrl: `https://capivara-green.vercel.app/verificar/${consultationId}`,
+          verificationUrl: `https://suacapivara.com.br/verificar/${consultationId}`,
         }),
         filepath
       );

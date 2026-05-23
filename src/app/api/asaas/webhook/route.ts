@@ -8,7 +8,7 @@ import { dispatchEvent } from "@/lib/webhooks";
  * Webhook Asaas — recebe eventos de pagamento.
  *
  * Configurar no painel Asaas com URL:
- *   https://capivara-green.vercel.app/api/asaas/webhook
+ *   https://suacapivara.com.br/api/asaas/webhook
  *
  * Header esperado: `asaas-access-token` = ASAAS_WEBHOOK_SECRET
  *

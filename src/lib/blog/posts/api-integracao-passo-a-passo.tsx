@@ -21,7 +21,7 @@ export function PostAPIIntegracao() {
       </p>
 
       <h2>Exemplo de chamada</h2>
-      <pre><code>{`curl -X POST https://capivara.app/api/v1/consultations \\
+      <pre><code>{`curl -X POST https://suacapivara.com.br/api/v1/consultations \\
   -H "Authorization: Bearer cap_live_..." \\
   -H "Content-Type: application/json" \\
   -d '{

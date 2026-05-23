@@ -18,7 +18,7 @@ function getResend(): Resend | null {
   return _resend;
 }
 
-const FROM_DEFAULT = process.env.RESEND_FROM_EMAIL ?? "Capivara <ola@capivara.app>";
+const FROM_DEFAULT = process.env.RESEND_FROM_EMAIL ?? "Capivara <ola@suacapivara.com.br>";
 
 export interface SendEmailParams {
   to: string | string[];
