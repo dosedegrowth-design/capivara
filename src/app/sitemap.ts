@@ -1,8 +1,30 @@
 import type { MetadataRoute } from "next";
 import { BLOG_POSTS } from "@/lib/blog/posts";
+import {
+  PLANOS_CPF,
+  PLANOS_CNPJ,
+  PLANOS_VEICULAR,
+  COMBOS_LEILAO,
+  PRODUTOS_VEICULAR_AVULSO,
+  PRODUTOS_LEILAO_AVULSO,
+} from "@/lib/consultas/planos";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
+
+/**
+ * Converte o id do plano (`cpf-espiadinha`) na URL real
+ * (`/consultar/cpf/espiadinha`). A rota usa o sufixo apos o
+ * primeiro hifen — ver src/app/consultar/[categoria]/[plano]/page.tsx.
+ */
+function planoUrlSuffix(id: string): { categoria: string; slug: string } | null {
+  const idx = id.indexOf("-");
+  if (idx === -1) return null;
+  return {
+    categoria: id.slice(0, idx),
+    slug: id.slice(idx + 1),
+  };
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -19,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/consultar/cpf`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE_URL}/consultar/cnpj`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE_URL}/consultar/veicular`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
+    { url: `${BASE_URL}/consultar/leilao`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/api-publica`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/docs/api`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/docs/webhooks`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },
@@ -42,6 +65,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/api-termos`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
   ];
 
+  // Combos: /consultar/{categoria}/{slug-suffix}
+  // CPF, CNPJ, Veicular + COMBOS_LEILAO (leilao-* → /consultar/leilao/*)
+  const planoCombos = [
+    ...PLANOS_CPF,
+    ...PLANOS_CNPJ,
+    ...PLANOS_VEICULAR,
+    ...COMBOS_LEILAO,
+  ];
+
+  const planoRoutes: MetadataRoute.Sitemap = planoCombos
+    .map((p) => planoUrlSuffix(p.id))
+    .filter((x): x is { categoria: string; slug: string } => x !== null)
+    .map((s) => ({
+      url: `${BASE_URL}/consultar/${s.categoria}/${s.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+
+  // Avulsos: /consultar/avulso/{produto.id}
+  const avulsoRoutes: MetadataRoute.Sitemap = [
+    ...PRODUTOS_VEICULAR_AVULSO,
+    ...PRODUTOS_LEILAO_AVULSO,
+  ].map((p) => ({
+    url: `${BASE_URL}/consultar/avulso/${p.id}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.65,
+  }));
+
   const blogRoutes: MetadataRoute.Sitemap = BLOG_POSTS.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.publishedAt),
@@ -49,5 +102,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...blogRoutes];
+  return [...staticRoutes, ...planoRoutes, ...avulsoRoutes, ...blogRoutes];
 }

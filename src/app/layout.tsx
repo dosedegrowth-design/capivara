@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CookieBanner } from "@/components/legal/cookie-banner";
+import { Plausible } from "@/components/analytics/plausible";
 
 // Tipografia oficial Capivara · Cerrado v1.0
 const bricolage = Bricolage_Grotesque({
@@ -136,6 +137,7 @@ export default function RootLayout({
         />
         {children}
         <CookieBanner />
+        <Plausible />
       </body>
     </html>
   );

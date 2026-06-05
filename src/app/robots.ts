@@ -14,6 +14,8 @@ export default function robots(): MetadataRoute.Robots {
           "/dashboard/",
           "/empresa/",
           "/admin/",
+          "/cliente/",
+          "/verificar/",
           "/consultar/aguardando/",
           "/historico/",
           "/onboarding",

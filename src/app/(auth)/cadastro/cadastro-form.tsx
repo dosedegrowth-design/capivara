@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCPF } from "@/lib/formatters";
 import { signUpAction } from "@/lib/auth/actions";
+import { track } from "@/lib/analytics";
 
 export function CadastroForm({
   tipoInicial,
@@ -36,6 +37,10 @@ export function CadastroForm({
     if (result.error) {
       setErro(result.error);
       if (result.fieldErrors) setFieldErrors(result.fieldErrors);
+    } else {
+      // signUpAction sucesso geralmente faz redirect server-side;
+      // disparamos antes do redirect resolver pra capturar a conversao.
+      track("signup_completo", { tipo });
     }
   }
 

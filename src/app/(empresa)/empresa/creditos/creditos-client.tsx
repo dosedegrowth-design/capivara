@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PACOTES_MANADA, type PacoteManada } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
+import { track } from "@/lib/analytics";
 import { iniciarRecargaAction } from "./actions";
 
 interface Props {
@@ -23,6 +24,10 @@ export function CreditosClient({ isAdmin }: Props) {
   function comprar(pacote: PacoteManada) {
     if (!isAdmin) return;
     setLoadingId(pacote.id);
+    track("recarga_iniciada", {
+      pacote_id: pacote.id,
+      valor: pacote.valor_centavos,
+    });
     startTransition(async () => {
       const fd = new FormData();
       fd.set("pacoteId", pacote.id);

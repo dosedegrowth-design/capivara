@@ -23,6 +23,7 @@ import {
   type IniciarConsultaResult,
 } from "@/lib/consultas/actions";
 import type { Plano } from "@/lib/consultas/planos";
+import { track } from "@/lib/analytics";
 
 const FINALIDADES_CPF = [
   { id: "credit_analysis", label: "Análise de crédito" },
@@ -118,6 +119,12 @@ export function ConsultaForm({
       setErro("Você precisa aceitar o termo de responsabilidade.");
       return;
     }
+
+    track("consulta_iniciada", {
+      categoria: plano.categoria,
+      plano_id: plano.id,
+      payment_type: paymentType,
+    });
 
     startTransition(async () => {
       const result: IniciarConsultaResult = await iniciarConsultaAction(formData);

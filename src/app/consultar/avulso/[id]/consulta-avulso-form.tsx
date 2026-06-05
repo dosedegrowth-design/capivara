@@ -15,6 +15,7 @@ import {
   type IniciarConsultaResult,
 } from "@/lib/consultas/actions";
 import type { ProdutoAvulso } from "@/lib/consultas/planos";
+import { track } from "@/lib/analytics";
 
 const FINALIDADES_VEICULAR = [
   { id: "pre_purchase", label: "Antes de comprar" },
@@ -72,6 +73,12 @@ export function ConsultaAvulsoForm({
       setErro("Você precisa aceitar o termo de responsabilidade.");
       return;
     }
+
+    track("consulta_iniciada_avulso", {
+      categoria: produto.categoria,
+      produto_id: produto.id,
+      payment_type: paymentType,
+    });
 
     startTransition(async () => {
       const result: IniciarConsultaResult = await iniciarConsultaAvulsoAction(formData);

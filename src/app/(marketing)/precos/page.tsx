@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   title: "Preços · Capivara",
   description:
     "Planos avulsos para pessoa física a partir de R$ 7,90. Sem mensalidade — você paga só a consulta que fizer.",
+  alternates: { canonical: "/precos" },
 };
 
 export default function PrecosPage() {

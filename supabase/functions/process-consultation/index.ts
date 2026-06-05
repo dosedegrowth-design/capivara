@@ -1,3 +1,4 @@
+// VERSAO LOCAL — re-deploy via MCP deploy_edge_function depois de editar.
 // =========================================================================
 // Capivara · Edge Function process-consultation (v2 — APIFULL real)
 //
@@ -37,43 +38,45 @@ interface ApiFullEndpoint {
   categoria: string;
   paramType: "placa" | "cpf" | "cnpj";
   custoCentavos: number;
+  /** TTL do cache (horas). Sincronizado com src/lib/apifull/mapping.ts. */
+  cacheTTLHours: number;
 }
 
 const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
   // Veicular
-  { internal: "placa-basica", path: "placa-basica", nome: "Placa Super Basica", categoria: "veicular", paramType: "placa", custoCentavos: 8 },
-  { internal: "placa-basica-propria", path: "agregados-propria", nome: "Placa Basica (propria)", categoria: "veicular", paramType: "placa", custoCentavos: 10 },
-  { internal: "fipe", path: "fipe", nome: "Tabela FIPE", categoria: "veicular", paramType: "placa", custoCentavos: 11 },
-  { internal: "bin-nacional", path: "ic-bin-nacional", nome: "BIN Nacional", categoria: "veicular", paramType: "placa", custoCentavos: 300 },
-  { internal: "bin-estadual", path: "ic-bin-estadual", nome: "BIN Estadual", categoria: "veicular", paramType: "placa", custoCentavos: 276 },
-  { internal: "recall", path: "ic-recall", nome: "Recall pendente", categoria: "veicular", paramType: "placa", custoCentavos: 360 },
-  { internal: "gravame", path: "gravame", nome: "Gravame / Alienacao", categoria: "veicular", paramType: "placa", custoCentavos: 220 },
-  { internal: "proprietario-placa", path: "ic-proprietario-atual", nome: "Proprietario atual", categoria: "veicular", paramType: "placa", custoCentavos: 342 },
-  { internal: "historico-roubo-furto", path: "ic-historico-roubo-furto", nome: "Historico Roubo/Furto", categoria: "veicular", paramType: "placa", custoCentavos: 360 },
-  { internal: "historico-roubo-furto-premium", path: "roubo-furto", nome: "Historico Roubo/Furto Premium", categoria: "leilao", paramType: "placa", custoCentavos: 936 },
-  { internal: "leilao", path: "leilao", nome: "Historico de Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 876 },
-  { internal: "foto-leilao", path: "ic-foto-leilao", nome: "Foto do Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 1200 },
-  { internal: "certificado-seguranca-veicular", path: "csv-renainf-renajud-recall-bin-proprietario", nome: "CSV Completo", categoria: "veicular", paramType: "placa", custoCentavos: 450 },
-  { internal: "crlv", path: "crlv", nome: "CRLV digital", categoria: "veicular", paramType: "placa", custoCentavos: 2028 },
-  { internal: "vip-car", path: "ic-vipcar", nome: "Vip Car (analise tecnica)", categoria: "leilao", paramType: "placa", custoCentavos: 3120 },
+  { internal: "placa-basica", path: "placa-basica", nome: "Placa Super Basica", categoria: "veicular", paramType: "placa", custoCentavos: 8, cacheTTLHours: 168 },
+  { internal: "placa-basica-propria", path: "agregados-propria", nome: "Placa Basica (propria)", categoria: "veicular", paramType: "placa", custoCentavos: 10, cacheTTLHours: 168 },
+  { internal: "fipe", path: "fipe", nome: "Tabela FIPE", categoria: "veicular", paramType: "placa", custoCentavos: 11, cacheTTLHours: 720 },
+  { internal: "bin-nacional", path: "ic-bin-nacional", nome: "BIN Nacional", categoria: "veicular", paramType: "placa", custoCentavos: 300, cacheTTLHours: 168 },
+  { internal: "bin-estadual", path: "ic-bin-estadual", nome: "BIN Estadual", categoria: "veicular", paramType: "placa", custoCentavos: 276, cacheTTLHours: 168 },
+  { internal: "recall", path: "ic-recall", nome: "Recall pendente", categoria: "veicular", paramType: "placa", custoCentavos: 360, cacheTTLHours: 24 },
+  { internal: "gravame", path: "gravame", nome: "Gravame / Alienacao", categoria: "veicular", paramType: "placa", custoCentavos: 220, cacheTTLHours: 6 },
+  { internal: "proprietario-placa", path: "ic-proprietario-atual", nome: "Proprietario atual", categoria: "veicular", paramType: "placa", custoCentavos: 342, cacheTTLHours: 6 },
+  { internal: "historico-roubo-furto", path: "ic-historico-roubo-furto", nome: "Historico Roubo/Furto", categoria: "veicular", paramType: "placa", custoCentavos: 360, cacheTTLHours: 24 },
+  { internal: "historico-roubo-furto-premium", path: "roubo-furto", nome: "Historico Roubo/Furto Premium", categoria: "leilao", paramType: "placa", custoCentavos: 936, cacheTTLHours: 24 },
+  { internal: "leilao", path: "leilao", nome: "Historico de Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 876, cacheTTLHours: 24 },
+  { internal: "foto-leilao", path: "ic-foto-leilao", nome: "Foto do Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 1200, cacheTTLHours: 720 },
+  { internal: "certificado-seguranca-veicular", path: "csv-renainf-renajud-recall-bin-proprietario", nome: "CSV Completo", categoria: "veicular", paramType: "placa", custoCentavos: 450, cacheTTLHours: 12 },
+  { internal: "crlv", path: "crlv", nome: "CRLV digital", categoria: "veicular", paramType: "placa", custoCentavos: 2028, cacheTTLHours: 168 },
+  { internal: "vip-car", path: "ic-vipcar", nome: "Vip Car (analise tecnica)", categoria: "leilao", paramType: "placa", custoCentavos: 3120, cacheTTLHours: 24 },
   // Pessoa
-  { internal: "cpf-simples", path: "pf-dadosbasicos", nome: "CPF Simples", categoria: "pessoa", paramType: "cpf", custoCentavos: 10 },
-  { internal: "cpf-completo", path: "ic-cpf-completo", nome: "CPF Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 60 },
-  { internal: "cpf-ultra-completo", path: "cpf-ultra", nome: "CPF Ultra Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 117 },
-  { internal: "cpf-ultra-socios", path: "cpf-ultra", nome: "CPF Ultra dos socios", categoria: "pessoa", paramType: "cpf", custoCentavos: 117 },
+  { internal: "cpf-simples", path: "pf-dadosbasicos", nome: "CPF Simples", categoria: "pessoa", paramType: "cpf", custoCentavos: 10, cacheTTLHours: 168 },
+  { internal: "cpf-completo", path: "ic-cpf-completo", nome: "CPF Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 60, cacheTTLHours: 168 },
+  { internal: "cpf-ultra-completo", path: "cpf-ultra", nome: "CPF Ultra Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 117, cacheTTLHours: 168 },
+  { internal: "cpf-ultra-socios", path: "cpf-ultra", nome: "CPF Ultra dos socios", categoria: "pessoa", paramType: "cpf", custoCentavos: 117, cacheTTLHours: 168 },
   // Empresa
-  { internal: "cnpj-completo", path: "cnpj", nome: "CNPJ Completo", categoria: "empresa", paramType: "cnpj", custoCentavos: 6 },
-  // Credito
-  { internal: "boa-vista-essencial", path: "scpc-boavista", nome: "Boa Vista Essencial", categoria: "credito", paramType: "cpf", custoCentavos: 323 },
-  { internal: "serasa-basico", path: "serasa-basica", nome: "Serasa Basico", categoria: "credito", paramType: "cpf", custoCentavos: 540 },
-  { internal: "serasa-premium", path: "serasa-premium", nome: "Serasa Premium", categoria: "credito", paramType: "cpf", custoCentavos: 696 },
-  { internal: "spc-brasil", path: "spc-brasil", nome: "SPC Brasil", categoria: "credito", paramType: "cpf", custoCentavos: 863 },
-  { internal: "scr-bacen", path: "ic-bacen", nome: "SCR BACEN", categoria: "credito", paramType: "cpf", custoCentavos: 936 },
-  { internal: "scr-bacen-socios", path: "ic-bacen", nome: "SCR BACEN dos socios", categoria: "credito", paramType: "cpf", custoCentavos: 936 },
-  { internal: "quod", path: "ic-quod", nome: "QUOD", categoria: "credito", paramType: "cpf", custoCentavos: 478 },
-  { internal: "cred-completa-plus", path: "e-boavista", nome: "Cred Completa Plus", categoria: "credito", paramType: "cpf", custoCentavos: 249 },
+  { internal: "cnpj-completo", path: "cnpj", nome: "CNPJ Completo", categoria: "empresa", paramType: "cnpj", custoCentavos: 6, cacheTTLHours: 168 },
+  // Credito (score muda → TTL curto)
+  { internal: "boa-vista-essencial", path: "scpc-boavista", nome: "Boa Vista Essencial", categoria: "credito", paramType: "cpf", custoCentavos: 323, cacheTTLHours: 4 },
+  { internal: "serasa-basico", path: "serasa-basica", nome: "Serasa Basico", categoria: "credito", paramType: "cpf", custoCentavos: 540, cacheTTLHours: 4 },
+  { internal: "serasa-premium", path: "serasa-premium", nome: "Serasa Premium", categoria: "credito", paramType: "cpf", custoCentavos: 696, cacheTTLHours: 4 },
+  { internal: "spc-brasil", path: "spc-brasil", nome: "SPC Brasil", categoria: "credito", paramType: "cpf", custoCentavos: 863, cacheTTLHours: 4 },
+  { internal: "scr-bacen", path: "ic-bacen", nome: "SCR BACEN", categoria: "credito", paramType: "cpf", custoCentavos: 936, cacheTTLHours: 4 },
+  { internal: "scr-bacen-socios", path: "ic-bacen", nome: "SCR BACEN dos socios", categoria: "credito", paramType: "cpf", custoCentavos: 936, cacheTTLHours: 4 },
+  { internal: "quod", path: "ic-quod", nome: "QUOD", categoria: "credito", paramType: "cpf", custoCentavos: 478, cacheTTLHours: 4 },
+  { internal: "cred-completa-plus", path: "e-boavista", nome: "Cred Completa Plus", categoria: "credito", paramType: "cpf", custoCentavos: 249, cacheTTLHours: 4 },
   // Juridico
-  { internal: "cnd-trabalhista", path: "ic-cndt", nome: "CNDT", categoria: "juridico", paramType: "cpf", custoCentavos: 720 },
+  { internal: "cnd-trabalhista", path: "ic-cndt", nome: "CNDT", categoria: "juridico", paramType: "cpf", custoCentavos: 720, cacheTTLHours: 24 },
 ];
 
 function findEndpoint(internal: string): ApiFullEndpoint | undefined {
@@ -316,7 +319,9 @@ Deno.serve(async (req: Request) => {
 
       // Salva cache se sucesso ou not_found
       if (apiResult.ok && (apiResult.status === "sucesso" || apiResult.status === "not_found")) {
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24h
+        // TTL especifico por endpoint — dado volatil (gravame, credito)
+        // expira rapido; dado estavel (FIPE, BIN) vive ate 30 dias.
+        const expiresAt = new Date(Date.now() + ep.cacheTTLHours * 60 * 60 * 1000).toISOString();
         await supabase
           .from("api_cache")
           .upsert({
