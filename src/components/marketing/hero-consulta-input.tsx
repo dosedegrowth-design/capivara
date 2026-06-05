@@ -123,8 +123,8 @@ export function HeroConsultaInput({
         )}
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-14 md:pt-16 md:pb-20">
-        <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-10 md:pt-12 md:pb-14">
+        <div className="grid items-center gap-6 md:gap-10 md:grid-cols-2">
           {/* -------- ESQUERDA: copy -------- */}
           <div className="space-y-4 md:space-y-6">
             {badge && (

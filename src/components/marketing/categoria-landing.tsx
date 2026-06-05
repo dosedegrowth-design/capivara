@@ -111,6 +111,29 @@ export function CategoriaLanding({
         </section>
       )}
 
+      {/* ---------------------------- PLANOS (logo abaixo da hero) ---------------------------- */}
+      <section id="planos" className="py-12 md:py-16 scroll-mt-20">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="max-w-2xl mb-8">
+            <Badge variant="outline" className="mb-3 font-mono">
+              Escolha o plano
+            </Badge>
+            <h2 className="font-display text-2xl md:text-4xl font-bold text-cocoa leading-tight">
+              Sem mensalidade. Você paga só a consulta que fizer.
+            </h2>
+            <p className="mt-3 text-tabaco">
+              Pague PIX (cai na hora), boleto ou cartão. Resultado em PDF com QR Code de verificação.
+            </p>
+          </div>
+
+          {planosOverride ?? (
+            <PlanCarousel planos={content.planos} inclui={RESUMO_INCLUI} cardWidth={300} />
+          )}
+        </div>
+      </section>
+
+      {extraSection}
+
       {/* ---------------------------- USE CASES ---------------------------- */}
       <section className="bg-paper-2 py-16 md:py-20 border-y border-line">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -140,7 +163,7 @@ export function CategoriaLanding({
         </div>
       </section>
 
-      {/* ---------------------------- O QUE TEM ---------------------------- */}
+      {/* ---------------------------- O QUE TEM EM CADA NIVEL ---------------------------- */}
       <section className="py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="max-w-2xl mb-10">
@@ -148,7 +171,7 @@ export function CategoriaLanding({
               O que vem em cada nível
             </Badge>
             <h2 className="font-display text-2xl md:text-4xl font-bold text-cocoa leading-tight">
-              Do leve ao Raio-X completo
+              Comparativo detalhado
             </h2>
             <p className="mt-3 text-tabaco">
               Cada plano acumula com o anterior — quanto mais fundo, mais fontes consultadas.
@@ -185,29 +208,6 @@ export function CategoriaLanding({
           </div>
         </div>
       </section>
-
-      {/* ---------------------------- PLANOS ---------------------------- */}
-      <section id="planos" className="bg-paper-2 py-16 md:py-20 border-y border-line scroll-mt-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="max-w-2xl mb-8">
-            <Badge variant="outline" className="mb-3 font-mono">
-              Escolha o plano
-            </Badge>
-            <h2 className="font-display text-2xl md:text-4xl font-bold text-cocoa leading-tight">
-              Sem mensalidade. Você paga só a consulta que fizer.
-            </h2>
-            <p className="mt-3 text-tabaco">
-              Pague PIX (cai na hora), boleto ou cartão. Resultado em PDF com QR Code de verificação.
-            </p>
-          </div>
-
-          {planosOverride ?? (
-            <PlanCarousel planos={content.planos} inclui={RESUMO_INCLUI} cardWidth={300} />
-          )}
-        </div>
-      </section>
-
-      {extraSection}
 
       {/* ---------------------------- FAQ ---------------------------- */}
       <section className="py-16 md:py-20">
