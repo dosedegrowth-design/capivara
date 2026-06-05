@@ -348,7 +348,8 @@ Deno.serve(async (req: Request) => {
   const sections: Record<string, unknown> = {};
   const callsLog: unknown[] = [];
   let custoTotal = 0;
-  let temFalha = false;
+  let successCount = 0;
+  const apisQueFalharam: string[] = [];
 
   for (const r of callResults) {
     sections[r.internal] = {
@@ -366,10 +367,21 @@ Deno.serve(async (req: Request) => {
       error: r.errorMessage,
     });
     custoTotal += r.costCents;
-    if (r.status !== "sucesso" && r.status !== "cached" && r.status !== "not_found") {
-      temFalha = true;
+
+    // Sucesso util = veio dado de resposta (cached ou fresh).
+    // not_found NAO conta como sucesso (placa nao existe na base).
+    if (r.status === "sucesso" || r.status === "cached") {
+      successCount++;
+    } else {
+      apisQueFalharam.push(r.path);
     }
   }
+
+  const totalApis = callResults.length;
+  // Falha total = 0 sucessos. Pode ser por API down, rate limit, ou
+  // simplesmente porque o alvo nao tem registro em nenhuma das bases.
+  // Em ambos os casos, o cliente nao teve valor entregue -> refund.
+  const refundElegivel = totalApis > 0 && successCount === 0;
 
   const resultJsonb = {
     _generated_at: new Date().toISOString(),
@@ -377,13 +389,17 @@ Deno.serve(async (req: Request) => {
     plan_tier: consulta.plan_tier,
     target: target,
     sections,
+    ...(refundElegivel
+      ? { _empty_result: true, _failed_apis: apisQueFalharam }
+      : {}),
   };
 
   // ---- 6. UPDATE consulta ----
+  // Mesmo quando refundElegivel: marca completed (refund cuidara do status final).
   const { error: updateErr } = await supabase
     .from("consultations")
     .update({
-      status: temFalha ? "completed" : "completed", // sempre completed; falhas individuais nao param consulta
+      status: "completed",
       result_jsonb: resultJsonb,
       api_calls_log: callsLog,
       api_total_cost_cents: custoTotal,
@@ -396,9 +412,44 @@ Deno.serve(async (req: Request) => {
     return resp(500, { error: "Falha ao salvar resultado" });
   }
 
-  // ---- 7. Dispara render PDF (fire-and-forget) ----
   // @ts-expect-error - deno
-  const siteUrl = Deno.env.get("NEXT_PUBLIC_SITE_URL") ?? "https://capivara-green.vercel.app";
+  const siteUrl = Deno.env.get("NEXT_PUBLIC_SITE_URL") ?? "https://suacapivara.com.br";
+
+  // ---- 7a. Refund automatico quando nenhuma API trouxe dado ----
+  if (refundElegivel) {
+    console.warn(
+      `[process-consultation] consulta ${consulta.id} sem dados — disparando refund automatico`
+    );
+    // Fire-and-forget. O route /api/consultations/refund cuida de:
+    //  - dispatch webhook consultation.failed
+    //  - refund Asaas OU re-credit balance_cents
+    //  - dispatch webhook consultation.refunded
+    //  - mudar status pra 'refunded'
+    fetch(`${siteUrl}/api/consultations/refund`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-key": serviceKey,
+      },
+      body: JSON.stringify({
+        consultationId: consulta.id,
+        reason: "no_data_found",
+        failedApis: apisQueFalharam,
+      }),
+    }).catch((e: unknown) => {
+      console.error("[process-consultation] refund auto falhou:", e);
+    });
+
+    return resp(200, {
+      ok: true,
+      consultationId: consulta.id,
+      refund_triggered: true,
+      reason: "no_data_found",
+      failed_apis: apisQueFalharam,
+    });
+  }
+
+  // ---- 7b. Sucesso parcial ou total: dispara render PDF (fire-and-forget) ----
   fetch(`${siteUrl}/api/pdf/render`, {
     method: "POST",
     headers: {
@@ -414,8 +465,9 @@ Deno.serve(async (req: Request) => {
     ok: true,
     consultationId: consulta.id,
     apis_chamadas: apis.length,
+    success_count: successCount,
     cache_hits: callResults.filter((r) => r.status === "cached").length,
-    falhas: callResults.filter((r) => r.status !== "sucesso" && r.status !== "cached" && r.status !== "not_found").length,
+    falhas: apisQueFalharam.length,
     custo_cents: custoTotal,
     duration_ms: Math.max(...callResults.map((r) => r.durationMs)),
   });

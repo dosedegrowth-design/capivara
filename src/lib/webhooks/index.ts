@@ -18,6 +18,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export type WebhookEvent =
   | "consultation.completed"
   | "consultation.failed"
+  | "consultation.refunded"
   | "payment.confirmed";
 
 export interface WebhookPayload<T = unknown> {

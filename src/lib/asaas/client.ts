@@ -102,6 +102,29 @@ export async function cancelPayment(id: string): Promise<AsaasPayment> {
   return asaasFetch<AsaasPayment>(`/payments/${id}`, { method: "DELETE" });
 }
 
+/**
+ * Reembolso total ou parcial de um pagamento confirmado.
+ * Doc: https://docs.asaas.com/reference/estornar-cobranca
+ *
+ * @param paymentId  ID Asaas do pagamento
+ * @param valueBrl   Valor em BRL (decimal) — se omitido, Asaas estorna 100%
+ * @param description Motivo do estorno
+ */
+export async function refundPayment(
+  paymentId: string,
+  valueBrl?: number,
+  description?: string
+): Promise<AsaasPayment> {
+  const body: Record<string, unknown> = {};
+  if (typeof valueBrl === "number") body.value = valueBrl;
+  if (description) body.description = description;
+
+  return asaasFetch<AsaasPayment>(`/payments/${paymentId}/refund`, {
+    method: "POST",
+    json: body,
+  });
+}
+
 // =========================================================================
 // Helpers
 // =========================================================================

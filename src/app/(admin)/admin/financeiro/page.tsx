@@ -1,6 +1,14 @@
 import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, TrendingUp, TrendingDown, Receipt } from "lucide-react";
+import {
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Receipt,
+  Cable,
+  Building2,
+  Activity,
+} from "lucide-react";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/session";
@@ -99,6 +107,133 @@ export default async function AdminFinanceiroPage() {
     ? ((totalMonth - totalPrevMonth) / totalPrevMonth) * 100
     : 0;
 
+  // =========================================================================
+  // CUSTO APIFULL — agregacao por mes atual + ultimos 30 dias + top APIs
+  // =========================================================================
+  //
+  // Le todas as consultas concluidas no mes atual + 30 dias. Soma
+  // api_total_cost_cents (custo real APIFULL Nivel 1, em centavos).
+  // O detalhamento por API vem do JSONB api_calls_log[].
+
+  const { data: consultasMes } = await admin
+    .from("consultations")
+    .select(
+      "id, company_id, amount_cents, api_total_cost_cents, api_calls_log, completed_at, status"
+    )
+    .gte("completed_at", startMonth.toISOString())
+    .in("status", ["completed", "refunded"])
+    .order("completed_at", { ascending: false })
+    .limit(2000);
+
+  const consMes = consultasMes ?? [];
+
+  // Soma custos APIFULL do mes atual
+  const apiCostMonth = consMes.reduce(
+    (acc, c) => acc + (c.api_total_cost_cents ?? 0),
+    0
+  );
+
+  // Receita confirmada via Asaas no mes (so transacoes paid)
+  const receitaAsaasMes = txs
+    .filter(
+      (t) =>
+        t.paid_at &&
+        new Date(t.paid_at) >= startMonth &&
+        (t.payment_method === "pix" ||
+          t.payment_method === "boleto" ||
+          t.payment_method === "cartao_avista") &&
+        t.type !== "refund"
+    )
+    .reduce((acc, t) => acc + (t.amount_cents ?? 0), 0);
+
+  // Taxa Asaas ~ 2.99% (Pix da Asaas custa 1.99% + R$ 0.49 OU plano flat
+  // 2.99% pra cartao). Aproximacao conservadora pra margem operacional.
+  const asaasFeeMonth = Math.round(receitaAsaasMes * 0.0299);
+
+  const margemOperacionalMes = receitaAsaasMes - apiCostMonth - asaasFeeMonth;
+  const margemPctMes =
+    receitaAsaasMes > 0 ? (margemOperacionalMes / receitaAsaasMes) * 100 : 0;
+
+  // Top APIs (mes atual) — expande api_calls_log[]
+  interface ApiCallLog {
+    api: string;
+    status?: string;
+    cost_cents?: number;
+    duration_ms?: number;
+  }
+  const apiAgg: Record<string, { count: number; cost: number }> = {};
+  for (const c of consMes) {
+    const log = (c.api_calls_log as ApiCallLog[] | null) ?? [];
+    if (!Array.isArray(log)) continue;
+    for (const call of log) {
+      if (!call?.api) continue;
+      const cur = apiAgg[call.api] ?? { count: 0, cost: 0 };
+      cur.count++;
+      cur.cost += call.cost_cents ?? 0;
+      apiAgg[call.api] = cur;
+    }
+  }
+  const topApis = Object.entries(apiAgg)
+    .sort((a, b) => b[1].cost - a[1].cost)
+    .slice(0, 10);
+
+  // Top empresas (mes atual) — soma amount_cents por company_id
+  const empresaAgg: Record<
+    string,
+    { count: number; receita: number; custo: number }
+  > = {};
+  for (const c of consMes) {
+    if (!c.company_id) continue;
+    const cur = empresaAgg[c.company_id] ?? { count: 0, receita: 0, custo: 0 };
+    cur.count++;
+    cur.receita += c.amount_cents ?? 0;
+    cur.custo += c.api_total_cost_cents ?? 0;
+    empresaAgg[c.company_id] = cur;
+  }
+
+  // Resolve nomes das top empresas
+  const topEmpresaIds = Object.entries(empresaAgg)
+    .sort((a, b) => b[1].receita - a[1].receita)
+    .slice(0, 10)
+    .map(([id]) => id);
+
+  const { data: empresasMap } =
+    topEmpresaIds.length > 0
+      ? await admin
+          .from("companies")
+          .select("id, name")
+          .in("id", topEmpresaIds)
+      : { data: [] };
+
+  const empresaNomes = new Map(
+    (empresasMap ?? []).map((e: { id: string; name: string }) => [e.id, e.name])
+  );
+  const topEmpresas = topEmpresaIds.map((id) => ({
+    id,
+    nome: empresaNomes.get(id) ?? id.slice(0, 8),
+    ...empresaAgg[id],
+  }));
+
+  // Gasto APIFULL por dia (ultimos 30 dias)
+  const { data: consultas30d } = await admin
+    .from("consultations")
+    .select("id, api_total_cost_cents, completed_at")
+    .gte("completed_at", start30d.toISOString())
+    .not("api_total_cost_cents", "is", null)
+    .order("completed_at", { ascending: false })
+    .limit(5000);
+
+  const apiCostByDay: Record<string, number> = {};
+  for (const c of consultas30d ?? []) {
+    if (!c.completed_at) continue;
+    const day = (c.completed_at as string).slice(0, 10);
+    apiCostByDay[day] = (apiCostByDay[day] ?? 0) + (c.api_total_cost_cents ?? 0);
+  }
+  const sortedApiCostDays = Object.entries(apiCostByDay).sort((a, b) =>
+    b[0].localeCompare(a[0])
+  );
+  const maxApiCostDay = Math.max(...Object.values(apiCostByDay), 1);
+
   return (
     <div className="space-y-6">
       <header>
@@ -156,6 +291,172 @@ export default async function AdminFinanceiroPage() {
           </div>
         </div>
       </div>
+
+      {/* ============================================================
+          APIFULL — Custo real + margem operacional
+          ============================================================ */}
+      <div className="rounded-xl border border-line bg-card p-5">
+        <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+          <div>
+            <h2 className="font-display text-lg font-bold text-cocoa flex items-center gap-2">
+              <Cable className="size-4 text-info" />
+              APIFULL · mês atual
+            </h2>
+            <p className="text-xs text-tabaco mt-0.5">
+              Custo real cotado em centavos (Nível 1 APIFULL).
+            </p>
+          </div>
+          <Badge variant="outline" className="text-[10px]">
+            {consMes.length} consultas
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <Stat
+            label="Receita Asaas"
+            value={formatBRL(receitaAsaasMes)}
+            color="fur"
+            hint="paid (pix/boleto/cartão)"
+          />
+          <Stat
+            label="Gasto APIFULL"
+            value={formatBRL(apiCostMonth)}
+            color="info"
+            hint="custo real cotado"
+          />
+          <Stat
+            label="Taxa Asaas"
+            value={formatBRL(asaasFeeMonth)}
+            hint="≈ 2,99% receita"
+          />
+          <Stat
+            label="Margem operacional"
+            value={formatBRL(margemOperacionalMes)}
+            color={margemOperacionalMes >= 0 ? "fur" : "warn"}
+            hint={`${margemPctMes >= 0 ? "+" : ""}${margemPctMes.toFixed(1)}%`}
+          />
+        </div>
+      </div>
+
+      {/* Gasto APIFULL nos ultimos 30 dias */}
+      {sortedApiCostDays.length > 0 && (
+        <div className="rounded-xl border border-line bg-card p-5">
+          <h2 className="font-display text-lg font-bold text-cocoa mb-4 flex items-center gap-2">
+            <Activity className="size-4 text-info" />
+            Gasto APIFULL · últimos 30 dias
+          </h2>
+          <div className="space-y-1">
+            {sortedApiCostDays.slice(0, 15).map(([day, value]) => {
+              const widthPct = (value / maxApiCostDay) * 100;
+              return (
+                <div key={day} className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-tabaco w-20 shrink-0">
+                    {new Date(day + "T12:00:00").toLocaleDateString("pt-BR", {
+                      day: "2-digit",
+                      month: "short",
+                    })}
+                  </span>
+                  <div className="flex-1 h-5 rounded bg-paper-2 overflow-hidden relative">
+                    <div
+                      className="h-full bg-gradient-to-r from-info to-cocoa"
+                      style={{ width: `${widthPct}%` }}
+                    />
+                    <span className="absolute inset-0 flex items-center px-2 text-[10px] font-mono text-cocoa">
+                      {formatBRL(value)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Top APIs do mes */}
+      {topApis.length > 0 && (
+        <div className="rounded-xl border border-line bg-card overflow-hidden">
+          <div className="p-4 border-b border-line">
+            <h2 className="font-display text-lg font-bold text-cocoa flex items-center gap-2">
+              <Cable className="size-4 text-info" />
+              Top 10 APIs mais consumidas · mês atual
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-2/60 text-xs font-mono uppercase tracking-wider text-tabaco">
+                <tr>
+                  <th className="text-left px-4 py-3">API</th>
+                  <th className="text-right px-4 py-3">Chamadas</th>
+                  <th className="text-right px-4 py-3">Custo total</th>
+                  <th className="text-right px-4 py-3 hidden md:table-cell">
+                    Custo médio
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {topApis.map(([api, agg]) => (
+                  <tr key={api}>
+                    <td className="px-4 py-2 text-xs font-mono text-cocoa">
+                      {api}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-tabaco">
+                      {agg.count}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-cocoa font-medium">
+                      {formatBRL(agg.cost)}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-tabaco hidden md:table-cell">
+                      {formatBRL(Math.round(agg.cost / Math.max(agg.count, 1)))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Top empresas do mes */}
+      {topEmpresas.length > 0 && (
+        <div className="rounded-xl border border-line bg-card overflow-hidden">
+          <div className="p-4 border-b border-line">
+            <h2 className="font-display text-lg font-bold text-cocoa flex items-center gap-2">
+              <Building2 className="size-4 text-fur" />
+              Top 10 empresas · mês atual
+            </h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-2/60 text-xs font-mono uppercase tracking-wider text-tabaco">
+                <tr>
+                  <th className="text-left px-4 py-3">Empresa</th>
+                  <th className="text-right px-4 py-3">Consultas</th>
+                  <th className="text-right px-4 py-3">Gasto APIFULL</th>
+                  <th className="text-right px-4 py-3 hidden md:table-cell">
+                    Receita
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {topEmpresas.map((e) => (
+                  <tr key={e.id}>
+                    <td className="px-4 py-2 text-xs text-cocoa">{e.nome}</td>
+                    <td className="px-4 py-2 text-right font-mono text-tabaco">
+                      {e.count}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-info">
+                      {formatBRL(e.custo)}
+                    </td>
+                    <td className="px-4 py-2 text-right font-mono text-cocoa font-medium hidden md:table-cell">
+                      {formatBRL(e.receita)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Breakdown por tipo */}
       <div className="grid md:grid-cols-3 gap-3">
