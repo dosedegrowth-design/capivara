@@ -71,9 +71,16 @@ export default async function AdminFinanceiroPage() {
   const rechargeB2B = txs
     .filter((t) => t.type === "recharge")
     .reduce((acc, t) => acc + (t.amount_cents ?? 0), 0);
-  const refunds = txs
-    .filter((t) => t.type === "refund")
-    .reduce((acc, t) => acc + (t.amount_cents ?? 0), 0);
+  // Refunds gravam status='refunded' (nao 'paid'), entao a lista `txs` acima
+  // (filtro status='paid') nunca os inclui. Query separada.
+  const { data: refundTxs } = await admin
+    .from("transactions")
+    .select("id, amount_cents, paid_at")
+    .eq("type", "refund")
+    .eq("status", "refunded")
+    .order("paid_at", { ascending: false })
+    .limit(500);
+  const refunds = (refundTxs ?? []).reduce((acc, t) => acc + (t.amount_cents ?? 0), 0);
 
   // Por metodo
   const byMethod: Record<string, number> = {};

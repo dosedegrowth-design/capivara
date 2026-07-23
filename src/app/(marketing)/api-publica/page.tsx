@@ -91,7 +91,7 @@ const FEATURES = [
 ];
 
 export default function APILandingPage() {
-  // Tabela de preços por plano (custo em folhas + ref em R$ — pra B2C)
+  // Tabela de preços por plano (R$ B2B debitado do saldo + ref em R$ B2C)
   const planosCpf = PLANOS_CPF;
   const planosCnpj = PLANOS_CNPJ;
   const planosVeic = PLANOS_VEICULAR;
@@ -344,7 +344,7 @@ x-capivara-event: consultation.completed
 
           <ol className="space-y-4 max-w-2xl">
             {[
-              "Você compra um pacote Manada e recebe saldo em R$ (com bônus). Pagamento via PIX, boleto ou cartão. NF-e emitida no ato.",
+              "Você compra um pacote Manada e recebe saldo em R$ (com bônus). Pagamento via PIX, boleto ou cartão à vista, com recibo baixável.",
               "Cada chamada da API debita o preço B2B do plano consultado direto do saldo (ex: CPF Investigação R$ 9,90).",
               "Cache 24h: mesmo alvo + mesmo plano em 24h não cobra de novo (Manada Plus tem cache estendido pra 7 dias).",
               "O saldo não expira. Use quando precisar — campanha sazonal, picos de demanda, integração nova.",

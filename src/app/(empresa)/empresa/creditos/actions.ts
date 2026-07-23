@@ -92,7 +92,47 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
         .eq("id", empresa.id);
     }
 
-    // 2. Cria payment Asaas
+    // FIX race (auditoria 2026-07-23): INSERT transaction ANTES de chamar Asaas.
+    // Antes: createPayment → 20+ linhas → INSERT. Webhook Asaas podia chegar na
+    // janela e nao achar a transaction (asaas_payment_id nao gravado) →
+    // add_balance_cents nao rodava → empresa pagava e nao recebia saldo.
+    //
+    // Agora: cria tx pending sem asaas_payment_id, chama Asaas, UPDATE com IDs.
+    // Se Asaas falhar apos INSERT, tx fica visivel no admin (asaas_payment_id NULL)
+    // pra investigacao. Se webhook chegar antes do UPDATE, ele acha tx pelo
+    // externalReference (que agora inclui tx.id).
+
+    // 2. Cria transaction em status='pending' (SEM asaas_payment_id ainda)
+    const { data: tx, error: txErr } = await admin
+      .from("transactions")
+      .insert({
+        user_id: user.id,
+        company_id: empresa.id,
+        type: "recharge",
+        reference_id: null,
+        payment_method: paymentType,
+        amount_cents: pacote.valor_centavos,
+        bonus_percentage: pacote.bonusPercent,
+        asaas_payment_id: null,
+        asaas_customer_id: asaasCustomerId,
+        status: "pending",
+        due_date: null,
+      })
+      .select("id")
+      .single();
+
+    if (txErr || !tx) {
+      await logError({
+        context: "recarga.transaction",
+        severity: "error",
+        message: "Falha ao criar transaction de recarga",
+        error: txErr ?? undefined,
+        userId: user.id,
+      });
+      return { ok: false, error: "Falha ao registrar cobranca." };
+    }
+
+    // 3. Cria payment Asaas com externalReference incluindo tx.id
     const payment = await createPayment({
       customer: asaasCustomerId,
       billingType:
@@ -115,39 +155,18 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
       pixCopyPaste = qr.payload;
     }
 
-    // 3. Cria transaction
-    const { data: tx, error: txErr } = await admin
+    // 4. UPDATE tx com asaas_payment_id + response + qr + due_date
+    await admin
       .from("transactions")
-      .insert({
-        user_id: user.id,
-        company_id: empresa.id,
-        type: "recharge",
-        reference_id: null,
-        payment_method: paymentType,
-        amount_cents: pacote.valor_centavos,
-        bonus_percentage: pacote.bonusPercent,
+      .update({
         asaas_payment_id: payment.id,
-        asaas_customer_id: asaasCustomerId,
         asaas_response: payment as unknown as Record<string, unknown>,
         pix_qrcode: pixQrcode,
         pix_copy_paste: pixCopyPaste,
         boleto_url: payment.bankSlipUrl ?? null,
-        status: "pending",
         due_date: payment.dueDate,
       })
-      .select("id")
-      .single();
-
-    if (txErr || !tx) {
-      await logError({
-        context: "recarga.transaction",
-        severity: "error",
-        message: "Falha ao criar transaction de recarga",
-        error: txErr ?? undefined,
-        userId: user.id,
-      });
-      return { ok: false, error: "Falha ao registrar cobranca." };
-    }
+      .eq("id", tx.id);
 
     revalidatePath("/empresa/creditos");
     return { ok: true, transactionId: tx.id };

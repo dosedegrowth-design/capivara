@@ -2,7 +2,7 @@
 
 > Runbook do dia-a-dia. Como rotacionar tokens, rodar smoke tests, ver
 > custo APIFULL ao vivo, lidar com incidentes.
-> **Última atualização:** 2026-06-04
+> **Última atualização:** 2026-07-23 (pós-auditoria)
 
 ---
 
@@ -63,25 +63,32 @@ e disparar a function manualmente.
 ### 1. Criar consulta sintética (Supabase SQL Editor)
 
 ```sql
+-- Requer um user_id valido (consultations.user_id e' NOT NULL).
+-- Pegar seu proprio: SELECT id FROM capivara.profiles WHERE email='seu@email' LIMIT 1;
+
 INSERT INTO capivara.consultations (
   id,
+  user_id,
   category,
   plan_tier,
-  target_raw,
+  target_value,
   target_normalized,
   target_hash,
   payment_type,
+  amount_cents,
   status,
   api_calls_log,
   created_at
 ) VALUES (
   gen_random_uuid(),
+  '<SEU_USER_ID>',
   'veicular',
   'veicular-avulso-fipe',
   'BRA-2E19',
   'BRA2E19',
-  encode(digest('BRA2E19', 'sha256'), 'hex'),
+  encode(digest('BRA2E19', 'sha256'), 'hex'),  -- Nota: target_hash = sha256(target_normalized) puro (v3, sem plan_id)
   'pix',
+  0,
   'paid',
   '["fipe","placa-basica"]'::jsonb,
   NOW()
@@ -123,7 +130,7 @@ não cadastrada) — tenta outra placa real.
 ## Como ver custo APIFULL ao vivo
 
 - **Dashboard interno:** `/admin/financeiro`
-  - **Receita bruta** — soma de `paid_amount_cents` em consultas `completed`
+  - **Receita bruta** — soma de `amount_cents` em consultas `completed`
   - **Custo APIFULL** — soma de `api_total_cost_cents`
   - **Margem** — receita − custo
   - **Cache hit rate** — % de chamadas servidas do `api_cache`
@@ -134,7 +141,7 @@ não cadastrada) — tenta outra placa real.
     DATE_TRUNC('day', created_at) AS dia,
     COUNT(*) AS consultas,
     SUM(api_total_cost_cents) / 100.0 AS custo_brl,
-    SUM(paid_amount_cents) / 100.0 AS receita_brl
+    SUM(amount_cents) / 100.0 AS receita_brl
   FROM capivara.consultations
   WHERE status = 'completed'
     AND created_at > NOW() - INTERVAL '30 days'

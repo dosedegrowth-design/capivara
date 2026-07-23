@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mascot } from "@/components/capivara/mascot";
+import { cnpjFormatado } from "@/lib/config";
 
 export function SiteFooter() {
   return (
@@ -104,9 +105,11 @@ export function SiteFooter() {
               Dose de Growth
             </a>
           </p>
-          <p className="text-xs font-mono text-tabaco/60">
-            CNPJ XX.XXX.XXX/0001-XX
-          </p>
+          {cnpjFormatado() ? (
+            <p className="text-xs font-mono text-tabaco/60">
+              CNPJ {cnpjFormatado()}
+            </p>
+          ) : null}
         </div>
       </div>
     </footer>

@@ -492,11 +492,14 @@ export function RelatorioPDF({
         key: `legacy-${i}`,
       }));
 
+  // Metadata do PDF: SEM PII (CPF/CNPJ/placa aparecem no title/subject
+  // sao extraiveis via `pdfinfo`. Usar so identificador curto da consulta.)
+  const shortId = consultationId ? consultationId.slice(-8).toUpperCase() : "";
   return (
     <Document
       author="Capivara"
-      title={`Relatório ${categoriaLabel} · ${targetValue}`}
-      subject={`Consulta ${result.plan_tier}`}
+      title={`Relatório Capivara #${shortId}`}
+      subject={`Relatório de consulta ${categoriaLabel}`}
     >
       {/* CAPA */}
       <Page size="A4" style={styles.coverPage}>

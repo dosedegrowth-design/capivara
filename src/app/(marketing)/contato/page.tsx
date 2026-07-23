@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Mail, MessageCircle, Phone, MapPin } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
+import { CAPIVARA_CONFIG, identificacaoControladora } from "@/lib/config";
+import { ContatoForm } from "./contato-form";
 
 export const metadata: Metadata = {
   title: "Contato · Capivara",
@@ -16,27 +14,35 @@ export const metadata: Metadata = {
 };
 
 const CANAIS = [
-  {
-    icon: MessageCircle,
-    title: "WhatsApp",
-    description: "Resposta em horário comercial (seg-sex, 9h às 18h).",
-    action: "Abrir conversa",
-    href: "https://wa.me/5500000000000",
-  },
+  ...(CAPIVARA_CONFIG.wa
+    ? [
+        {
+          icon: MessageCircle,
+          title: "WhatsApp",
+          description: "Resposta em horário comercial (seg-sex, 9h às 18h).",
+          action: "Abrir conversa",
+          href: CAPIVARA_CONFIG.wa,
+        },
+      ]
+    : []),
   {
     icon: Mail,
     title: "E-mail",
     description: "Resposta em até 1 dia útil.",
-    action: "ola@suacapivara.com.br",
-    href: "mailto:ola@suacapivara.com.br",
+    action: CAPIVARA_CONFIG.email,
+    href: `mailto:${CAPIVARA_CONFIG.email}`,
   },
-  {
-    icon: Phone,
-    title: "Telefone (vendas PJ)",
-    description: "Apenas para empresas com volume > 5.000 consultas/mês.",
-    action: "(11) 0000-0000",
-    href: "tel:+551100000000",
-  },
+  ...(CAPIVARA_CONFIG.tel
+    ? [
+        {
+          icon: Phone,
+          title: "Telefone (vendas PJ)",
+          description: "Apenas para empresas com volume > 5.000 consultas/mês.",
+          action: CAPIVARA_CONFIG.tel,
+          href: `tel:${CAPIVARA_CONFIG.tel.replace(/\D/g, "")}`,
+        },
+      ]
+    : []),
 ];
 
 export default function ContatoPage() {
@@ -132,59 +138,7 @@ function ConteudoPrincipal() {
               Responderemos no e-mail informado.
             </p>
 
-            <form className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="nome">Nome</Label>
-                <Input id="nome" name="nome" placeholder="Seu nome completo" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="voce@email.com"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="assunto">Assunto</Label>
-                <Input
-                  id="assunto"
-                  name="assunto"
-                  placeholder="Dúvida sobre planos, suporte, parceria…"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mensagem">Mensagem</Label>
-                <Textarea
-                  id="mensagem"
-                  name="mensagem"
-                  rows={5}
-                  placeholder="Como podemos ajudar?"
-                  required
-                />
-              </div>
-
-              <Button type="submit" variant="primary" size="lg" className="w-full">
-                Enviar mensagem
-              </Button>
-
-              <p className="text-xs text-tabaco/70 font-mono text-center pt-2">
-                Ao enviar, você concorda com nossos{" "}
-                <Link
-                  href="/lgpd"
-                  className="text-fur underline-offset-4 hover:underline"
-                >
-                  termos de privacidade
-                </Link>
-                .
-              </p>
-            </form>
+            <ContatoForm />
           </div>
         </div>
       </div>
@@ -201,7 +155,7 @@ function Localizacao() {
           São Paulo · Brasil
         </div>
         <p className="text-xs text-tabaco/70 font-mono mt-2">
-          Operado pela Dose de Growth Marketing LTDA · CNPJ XX.XXX.XXX/0001-XX
+          Operado pela {identificacaoControladora()}
         </p>
       </div>
     </section>

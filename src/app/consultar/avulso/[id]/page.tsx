@@ -17,7 +17,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const p = findProdutoAvulso(id);
-  return { title: `${p?.nome ?? "Consulta avulsa"} · Capivara` };
+  return {
+    title: `${p?.nome ?? "Consulta avulsa"} · Capivara`,
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function ProdutoAvulsoPage({

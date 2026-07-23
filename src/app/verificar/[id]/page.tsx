@@ -59,7 +59,19 @@ export default async function VerificarPage({
     .eq("id", id)
     .maybeSingle();
 
-  if (!consulta || consulta.status !== "completed") {
+  if (!consulta) {
+    return <NotFoundShell />;
+  }
+
+  if (consulta.status === "refunded") {
+    return (
+      <Shell>
+        <RefundedCard consulta={consulta as ConsultaInfo} />
+      </Shell>
+    );
+  }
+
+  if (consulta.status !== "completed") {
     return <NotFoundShell />;
   }
 
@@ -67,6 +79,30 @@ export default async function VerificarPage({
     <Shell>
       <AuthenticCard consulta={consulta as ConsultaInfo} />
     </Shell>
+  );
+}
+
+// =========================================================================
+// Card — reembolsado (PDF vazado / verificacao apos refund)
+// =========================================================================
+
+function RefundedCard({ consulta }: { consulta: ConsultaInfo }) {
+  const idCurto = consulta.id.slice(-8).toUpperCase();
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50/50 shadow-[var(--shadow-card)] overflow-hidden">
+      <div className="p-8 text-center border-b border-red-200/60">
+        <Mascot pose="atencao" size={88} animate={false} />
+        <h1 className="mt-4 font-display text-2xl font-bold text-red-900">
+          Documento cancelado / reembolsado
+        </h1>
+        <p className="mt-2 text-sm text-red-800 max-w-md mx-auto">
+          Este PDF perdeu a validade — a consulta foi reembolsada. Não usar como comprovação.
+        </p>
+      </div>
+      <div className="p-6 text-xs font-mono text-red-800/80 text-center">
+        ID: {idCurto}
+      </div>
+    </div>
   );
 }
 
@@ -81,7 +117,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <header className="border-b border-line/60 bg-paper/70 backdrop-blur">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 h-14 flex items-center justify-between">
           <Link
-            href="https://suacapivara.com.br"
+            href="/"
             className="flex items-center gap-2 group"
           >
             <Mascot pose="padrao" size={28} animate={false} />
@@ -90,7 +126,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
           <Link
-            href="https://suacapivara.com.br"
+            href="/"
             className="text-xs font-mono text-tabaco hover:text-cocoa transition-colors flex items-center gap-1"
           >
             Saiba mais
@@ -253,7 +289,7 @@ function AuthenticCard({ consulta }: { consulta: ConsultaInfo }) {
           Quer puxar sua propria capivara?
         </p>
         <Button asChild variant="accent" size="md">
-          <Link href="https://suacapivara.com.br/consultar">
+          <Link href="/consultar">
             Comecar agora
             <ArrowRight className="size-4" />
           </Link>
@@ -298,7 +334,7 @@ function NotFoundShell() {
         </div>
 
         <Button asChild variant="primary" size="lg" className="mt-6">
-          <Link href="https://suacapivara.com.br">
+          <Link href="/">
             Voltar pra suacapivara.com.br
             <ArrowRight className="size-4" />
           </Link>

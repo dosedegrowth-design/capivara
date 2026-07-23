@@ -258,7 +258,7 @@ export default async function EmpresaDashboard() {
             href="/empresa/faturamento"
             icon={Receipt}
             title="Faturamento"
-            description="Recibos e NF-e"
+            description="Recibos e boletos"
           />
           <QuickAction
             href="/configuracoes"

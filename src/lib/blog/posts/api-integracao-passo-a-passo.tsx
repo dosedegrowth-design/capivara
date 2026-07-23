@@ -112,7 +112,7 @@ function verifyCapivara(rawBody, sigHeader, secret) {
         <li><strong>Trate webhook como source of truth</strong>, não polling em /v1/consultations/:id</li>
         <li><strong>Responda 200 OK ao webhook em até 15s</strong>, processe pesado em background</li>
         <li><strong>Reaja a 429</strong> (rate limit) com backoff exponencial</li>
-        <li><strong>Monitore folhas</strong> — recarga automática quando saldo &lt; 100</li>
+        <li><strong>Monitore saldo</strong> — recarga automática quando saldo em R$ &lt; limite definido</li>
       </ul>
 
       <h2>Rate limits</h2>

@@ -8,6 +8,7 @@ import { sendEmail } from "@/lib/email/client";
 import { emailConsultaPronta } from "@/lib/email/templates";
 import { findPlano } from "@/lib/consultas/planos";
 import { dispatchEvent } from "@/lib/webhooks";
+import { isInternalKeyValid } from "@/lib/auth/internal";
 
 /**
  * POST /api/pdf/render
@@ -34,12 +35,13 @@ interface RenderRequest {
 }
 
 const BUCKET = "capivara-relatorios-pdf";
-const SIGNED_URL_DAYS = 7;
+// URL assinada curta — usada apenas no email de confirmacao. Consultas
+// posteriores geram signed URL sob demanda em /historico/[id] com guard user_id.
+const SIGNED_URL_EMAIL_DAYS = 3;
 
 export async function POST(req: NextRequest) {
-  // Validar chave interna
-  const key = req.headers.get("x-internal-key");
-  if (!key || key !== process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  // Timing-safe compare via isInternalKeyValid (INTERNAL_WEBHOOK_SECRET dedicado)
+  if (!isInternalKeyValid(req.headers.get("x-internal-key"))) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -109,10 +111,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "upload failed" }, { status: 500 });
     }
 
-    // 4. Signed URL
+    // 4. Signed URL curta pra email (3 dias). Consultas posteriores em
+    //    /historico/[id] geram signed URL sob demanda com guard user_id.
     const { data: signed, error: signErr } = await admin.storage
       .from(BUCKET)
-      .createSignedUrl(path, SIGNED_URL_DAYS * 24 * 60 * 60);
+      .createSignedUrl(path, SIGNED_URL_EMAIL_DAYS * 24 * 60 * 60);
 
     if (signErr || !signed) {
       await logError({
@@ -125,10 +128,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "sign failed" }, { status: 500 });
     }
 
-    // 5. Atualizar consulta
+    // 5. Atualizar consulta — guarda o PATH (bucket + user_id + id.pdf).
+    //    Signed URL sob demanda em /historico/[id] com guard.
     await admin
       .from("consultations")
-      .update({ pdf_url: signed.signedUrl })
+      .update({ pdf_url: path })
       .eq("id", consulta.id);
 
     // 6. Email "consulta pronta" (fire-and-forget; idempotente via flag)

@@ -164,7 +164,7 @@ function EmpresaCallout() {
             </h3>
             <p className="mt-3 text-cream/80 max-w-xl leading-relaxed">
               Recarga em saldo, preço por consulta sob negociação, API REST,
-              webhooks com HMAC, NF-e e SLA dedicado. Cobertura por categoria
+              webhooks com HMAC e SLA dedicado. Cobertura por categoria
               ou volume mensal.
             </p>
           </div>

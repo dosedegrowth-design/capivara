@@ -1,30 +1,49 @@
 // VERSAO LOCAL — re-deploy via MCP deploy_edge_function depois de editar.
 // =========================================================================
-// Capivara · Edge Function process-consultation (v2 — APIFULL real)
+// Capivara · Edge Function process-consultation (v3 — hardening 2026-07-23)
 //
 // Disparada pelo webhook Asaas apos confirmacao de pagamento, ou
 // direto pelo painel B2B/avulso quando consulta cria status='paid'.
 //
 // Fluxo:
 //   1. Recebe { consultationId }
-//   2. Carrega a consulta no Supabase
+//   2. Carrega a consulta no Supabase (guard status='paid')
 //   3. Marca status='processing'
-//   4. Identifica APIs do plano: combo (PLANOS_*) ou avulso (PRODUTOS_*_AVULSO)
-//   5. Pra cada API: cache hit OU chama APIFULL OU 404 -> consolida em result_jsonb
-//   6. Dispara /api/pdf/render (fire-and-forget) que gera PDF + email
-//   7. UPDATE consultations(status='completed', result_jsonb, api_total_cost_cents)
+//   4. Identifica APIs do plano
+//   5. Pra cada API: cache hit OU reserva+APIFULL+upsert (race-safe)
+//   6. Consolida result_jsonb
+//   7. Refund (total ou parcial) OU PDF render — AWAITED antes do return
+//   8. UPDATE consultations
 //
 // Idempotencia: se status != 'paid', retorna 200 sem fazer nada.
+//
+// Fixes v3 (auditoria 2026-07-23):
+//   - EdgeRuntime.waitUntil() em vez de fire-and-forget (Deno drop antes do fetch partir)
+//   - hits do cache calculado corretamente (parenteses + select hits)
+//   - Reservation com marker _pending pra evitar race no cache-miss (2 requests
+//     paralelos ao mesmo target+API pagavam APIFULL 2x)
+//   - Refund parcial: se successCount > 0 mas failCount > 0, refund proporcional
+//   - INTERNAL_WEBHOOK_SECRET dedicado (nao usa mais SERVICE_ROLE_KEY como bearer)
+//   - Guard env vars nao-nulas antes de criar client
+//   - paid_at gravado quando ausente (recover-stuck retomada)
 // =========================================================================
 
 // @ts-expect-error - deno runtime
 import { createClient } from "jsr:@supabase/supabase-js@2";
+
+// @ts-expect-error - deno global EdgeRuntime
+declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
 
 type ProcessRequest = { consultationId: string };
 
 const APIFULL_BASE = "https://api.apifull.com.br/api";
 const APIFULL_TIMEOUT = 30_000;
 const APIFULL_MAX_RETRIES = 2;
+
+// Marker usado pra reservar cache slot enquanto APIFULL responde.
+const RESERVATION_TTL_MS = 120_000; // 2min pra completar (senao expira)
+const POLL_INTERVAL_MS = 1000;
+const POLL_MAX_MS = 30_000;
 
 // =========================================================================
 // MAPPING APIFULL — espelha src/lib/apifull/mapping.ts
@@ -176,6 +195,43 @@ async function callApiFull(
 }
 
 // =========================================================================
+// CACHE HELPERS (com race protection)
+// =========================================================================
+
+type CachedEntry = {
+  result_jsonb: Record<string, unknown> & { _pending?: boolean };
+  cost_cents: number;
+  hits: number;
+};
+
+async function readCache(
+  supabase: ReturnType<typeof createClient>,
+  cacheKey: string
+): Promise<CachedEntry | null> {
+  const { data } = await supabase
+    .from("api_cache")
+    .select("result_jsonb, cost_cents, hits, expires_at")
+    .eq("cache_key", cacheKey)
+    .gt("expires_at", new Date().toISOString())
+    .maybeSingle();
+  return (data as CachedEntry | null) ?? null;
+}
+
+async function pollCacheUntilReady(
+  supabase: ReturnType<typeof createClient>,
+  cacheKey: string,
+  maxMs: number
+): Promise<CachedEntry | null> {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+    const c = await readCache(supabase, cacheKey);
+    if (c && !c.result_jsonb?._pending) return c;
+  }
+  return null;
+}
+
+// =========================================================================
 // MAIN
 // =========================================================================
 
@@ -191,11 +247,20 @@ Deno.serve(async (req: Request) => {
   }
 
   // @ts-expect-error - deno
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
   // @ts-expect-error - deno
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   // @ts-expect-error - deno
   const apifullToken = Deno.env.get("APIFULL_API_KEY");
+  // Novo em v3: secret dedicado pra chamadas internas (nao reusa SERVICE_ROLE)
+  // Fallback pro service key durante transicao — remover em release seguinte.
+  // @ts-expect-error - deno
+  const internalSecret = Deno.env.get("INTERNAL_WEBHOOK_SECRET") ?? serviceKey;
+
+  if (!supabaseUrl || !serviceKey) {
+    console.error("[process-consultation] SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausentes");
+    return resp(500, { error: "Configuracao Supabase ausente" });
+  }
 
   const supabase = createClient(supabaseUrl, serviceKey, {
     db: { schema: "capivara" },
@@ -217,28 +282,18 @@ Deno.serve(async (req: Request) => {
     return resp(200, { ok: true, message: "Consulta nao esta paga, ignorando." });
   }
 
-  // ---- 2. Marca processing ----
+  // ---- 2. Marca processing e paid_at (se ausente) ----
   await supabase
     .from("consultations")
     .update({
       status: "processing",
       processing_started_at: new Date().toISOString(),
+      // Grava paid_at se ainda nao setado (recover-stuck retomou consulta sem paid_at)
+      paid_at: consulta.paid_at ?? new Date().toISOString(),
     })
     .eq("id", consulta.id);
 
   // ---- 3. Resolve APIs do plan_tier ----
-  // Plan tier pode ser:
-  //   - Combo: "cpf-investigacao", "veicular-avancado", "leilao-pre-lance" etc
-  //   - Avulso: "veicular-avulso-fipe", "leilao-avulso-historico" etc
-  //
-  // O plano vem com `apisIncluidas[]`. A Edge Function NAO tem acesso ao
-  // bundle Next, entao recebe esse array via custom_attributes (na hora
-  // de criar a consulta) OU calcula localmente baseado em mapeamento basico.
-  //
-  // Pra evitar duplicar todos os planos aqui, vamos LER o que ja foi salvo
-  // em consultations.api_calls_log (campo onde o frontend ja escreve as APIs
-  // necessarias). Se nao tiver, usa fallback que tenta deduzir do plan_tier.
-
   const apis = extractApis(consulta);
   if (apis.length === 0) {
     console.warn(`[process-consultation] consulta ${consulta.id} sem APIs definidas, marcando completed sem dados`);
@@ -265,7 +320,7 @@ Deno.serve(async (req: Request) => {
     return resp(500, { error: "APIFULL_API_KEY nao configurada" });
   }
 
-  // ---- 4. Orquestra chamadas APIFULL com cache ----
+  // ---- 4. Orquestra chamadas APIFULL com cache (race-safe) ----
   const target = consulta.target_normalized as string;
   const targetHash = consulta.target_hash as string;
 
@@ -288,39 +343,94 @@ Deno.serve(async (req: Request) => {
 
       const cacheKey = `${ep.path}:${targetHash}`;
 
-      // Tenta cache
-      const { data: cached } = await supabase
-        .from("api_cache")
-        .select("result_jsonb, cost_cents")
-        .eq("cache_key", cacheKey)
-        .gt("expires_at", new Date().toISOString())
-        .maybeSingle();
+      // (A) Cache read
+      const cached = await readCache(supabase, cacheKey);
 
-      if (cached) {
+      if (cached && !cached.result_jsonb?._pending) {
+        // Cache HIT real. Incrementa hits (fix: parenteses)
         await supabase
           .from("api_cache")
-          .update({ hits: (cached as { hits?: number }).hits ?? 0 + 1 })
+          .update({ hits: (cached.hits ?? 0) + 1 })
           .eq("cache_key", cacheKey);
-
         return {
           internal,
           path: ep.path,
           nome: ep.nome,
           categoria: ep.categoria,
           status: "cached" as const,
-          dados: (cached as { result_jsonb?: Record<string, unknown> }).result_jsonb,
+          dados: cached.result_jsonb,
           costCents: 0,
           durationMs: 0,
         };
       }
 
-      // Cache miss — chama APIFULL
+      if (cached && cached.result_jsonb?._pending) {
+        // Alguem esta processando. Poll ate ficar pronto ou timeout.
+        const polled = await pollCacheUntilReady(supabase, cacheKey, POLL_MAX_MS);
+        if (polled) {
+          await supabase
+            .from("api_cache")
+            .update({ hits: (polled.hits ?? 0) + 1 })
+            .eq("cache_key", cacheKey);
+          return {
+            internal,
+            path: ep.path,
+            nome: ep.nome,
+            categoria: ep.categoria,
+            status: "cached" as const,
+            dados: polled.result_jsonb,
+            costCents: 0,
+            durationMs: 0,
+          };
+        }
+        // Timeout: reserva expirou ou processo travou. Continua e chama APIFULL.
+      }
+
+      // (B) Reserva slot no cache com _pending marker (evita race).
+      // Se conflito: alguem reservou entre readCache e agora. Recheca+poll.
+      const reserveExpiry = new Date(Date.now() + RESERVATION_TTL_MS).toISOString();
+      const { error: reserveErr } = await supabase
+        .from("api_cache")
+        .insert({
+          cache_key: cacheKey,
+          api_name: ep.path,
+          target_hash: targetHash,
+          result_jsonb: { _pending: true },
+          cost_cents: 0,
+          hits: 0,
+          expires_at: reserveExpiry,
+        });
+
+      // Codigo 23505 = unique_violation (PK conflict) — conflito legitimo de race.
+      const isConflict = reserveErr && ((reserveErr as { code?: string }).code === "23505");
+
+      if (isConflict) {
+        // Aguarda a outra chamada terminar
+        const polled = await pollCacheUntilReady(supabase, cacheKey, POLL_MAX_MS);
+        if (polled && !polled.result_jsonb?._pending) {
+          await supabase
+            .from("api_cache")
+            .update({ hits: (polled.hits ?? 0) + 1 })
+            .eq("cache_key", cacheKey);
+          return {
+            internal,
+            path: ep.path,
+            nome: ep.nome,
+            categoria: ep.categoria,
+            status: "cached" as const,
+            dados: polled.result_jsonb,
+            costCents: 0,
+            durationMs: 0,
+          };
+        }
+        // Se timeout — segue e tenta chamar mesmo (custo dobrado mas nao trava)
+      }
+
+      // (C) Cache miss / expiracao / reserva bem-sucedida — chama APIFULL
       const apiResult = await callApiFull(ep, target, apifullToken);
 
-      // Salva cache se sucesso ou not_found
+      // (D) Grava resultado real no cache (upsert sobre a reserva)
       if (apiResult.ok && (apiResult.status === "sucesso" || apiResult.status === "not_found")) {
-        // TTL especifico por endpoint — dado volatil (gravame, credito)
-        // expira rapido; dado estavel (FIPE, BIN) vive ate 30 dias.
         const expiresAt = new Date(Date.now() + ep.cacheTTLHours * 60 * 60 * 1000).toISOString();
         await supabase
           .from("api_cache")
@@ -332,7 +442,11 @@ Deno.serve(async (req: Request) => {
             cost_cents: ep.custoCentavos,
             hits: 1,
             expires_at: expiresAt,
-          });
+          }, { onConflict: "cache_key" });
+      } else {
+        // APIFULL falhou — remove reserva pra permitir retry futuro rapido
+        // (senao a reserva _pending vale ate reserveExpiry bloqueando reruns)
+        await supabase.from("api_cache").delete().eq("cache_key", cacheKey);
       }
 
       return {
@@ -373,8 +487,6 @@ Deno.serve(async (req: Request) => {
     });
     custoTotal += r.costCents;
 
-    // Sucesso util = veio dado de resposta (cached ou fresh).
-    // not_found NAO conta como sucesso (placa nao existe na base).
     if (r.status === "sucesso" || r.status === "cached") {
       successCount++;
     } else {
@@ -383,10 +495,21 @@ Deno.serve(async (req: Request) => {
   }
 
   const totalApis = callResults.length;
-  // Falha total = 0 sucessos. Pode ser por API down, rate limit, ou
-  // simplesmente porque o alvo nao tem registro em nenhuma das bases.
-  // Em ambos os casos, o cliente nao teve valor entregue -> refund.
-  const refundElegivel = totalApis > 0 && successCount === 0;
+  const failCount = apisQueFalharam.length;
+  // Refund total: nenhuma API entregou dado util
+  const fullRefund = totalApis > 0 && successCount === 0;
+  // Refund parcial: >=1 sucesso mas >=1 falha. Refund proporcional as APIs falhadas.
+  const partialRefund = !fullRefund && failCount > 0 && successCount > 0;
+  const refundEligible = fullRefund || partialRefund;
+
+  // Valor cobrado do cliente pra essa consulta (amount_cents em centavos)
+  const amountCents = (consulta.amount_cents as number | null) ?? 0;
+  let refundAmountCents = 0;
+  if (fullRefund) refundAmountCents = amountCents;
+  else if (partialRefund) {
+    // Proporcional: quantidade de APIs falhadas / total
+    refundAmountCents = Math.round((amountCents * failCount) / totalApis);
+  }
 
   const resultJsonb = {
     _generated_at: new Date().toISOString(),
@@ -394,13 +517,17 @@ Deno.serve(async (req: Request) => {
     plan_tier: consulta.plan_tier,
     target: target,
     sections,
-    ...(refundElegivel
-      ? { _empty_result: true, _failed_apis: apisQueFalharam }
+    ...(fullRefund ? { _empty_result: true, _failed_apis: apisQueFalharam } : {}),
+    ...(partialRefund
+      ? {
+        _partial_result: true,
+        _failed_apis: apisQueFalharam,
+        _refund_amount_cents: refundAmountCents,
+      }
       : {}),
   };
 
   // ---- 6. UPDATE consulta ----
-  // Mesmo quando refundElegivel: marca completed (refund cuidara do status final).
   const { error: updateErr } = await supabase
     .from("consultations")
     .update({
@@ -420,51 +547,65 @@ Deno.serve(async (req: Request) => {
   // @ts-expect-error - deno
   const siteUrl = Deno.env.get("NEXT_PUBLIC_SITE_URL") ?? "https://suacapivara.com.br";
 
-  // ---- 7a. Refund automatico quando nenhuma API trouxe dado ----
-  if (refundElegivel) {
-    console.warn(
-      `[process-consultation] consulta ${consulta.id} sem dados — disparando refund automatico`
-    );
-    // Fire-and-forget. O route /api/consultations/refund cuida de:
-    //  - dispatch webhook consultation.failed
-    //  - refund Asaas OU re-credit balance_cents
-    //  - dispatch webhook consultation.refunded
-    //  - mudar status pra 'refunded'
-    fetch(`${siteUrl}/api/consultations/refund`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-internal-key": serviceKey,
-      },
-      body: JSON.stringify({
-        consultationId: consulta.id,
-        reason: "no_data_found",
-        failedApis: apisQueFalharam,
-      }),
-    }).catch((e: unknown) => {
-      console.error("[process-consultation] refund auto falhou:", e);
-    });
+  // ---- 7. Refund (total/parcial) OU PDF render — AWAITED com waitUntil ----
+  // Fire-and-forget nao funciona em Deno Edge (drop apos response). Usa
+  // EdgeRuntime.waitUntil se disponivel; senao await antes do return.
+  const dispatchPromise = (async () => {
+    if (refundEligible) {
+      const reason = fullRefund ? "no_data_found" : "partial_data_failure";
+      console.warn(
+        `[process-consultation] ${consulta.id} refund=${reason} amount=${refundAmountCents}`
+      );
+      try {
+        const refundResp = await fetch(`${siteUrl}/api/consultations/refund`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-key": internalSecret,
+          },
+          body: JSON.stringify({
+            consultationId: consulta.id,
+            reason,
+            failedApis: apisQueFalharam,
+            partialAmountCents: partialRefund ? refundAmountCents : undefined,
+          }),
+        });
+        if (!refundResp.ok) {
+          const t = await refundResp.text().catch(() => "");
+          console.error(`[process-consultation] refund route retornou ${refundResp.status}: ${t.slice(0, 200)}`);
+        }
+      } catch (e) {
+        console.error("[process-consultation] refund dispatch falhou:", e);
+      }
+    }
 
-    return resp(200, {
-      ok: true,
-      consultationId: consulta.id,
-      refund_triggered: true,
-      reason: "no_data_found",
-      failed_apis: apisQueFalharam,
-    });
+    // PDF render tambem em sucesso parcial (cliente tem parte dos dados)
+    if (!fullRefund) {
+      try {
+        const pdfResp = await fetch(`${siteUrl}/api/pdf/render`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-key": internalSecret,
+          },
+          body: JSON.stringify({ consultationId: consulta.id }),
+        });
+        if (!pdfResp.ok) {
+          const t = await pdfResp.text().catch(() => "");
+          console.error(`[process-consultation] pdf render retornou ${pdfResp.status}: ${t.slice(0, 200)}`);
+        }
+      } catch (e) {
+        console.error("[process-consultation] pdf dispatch falhou:", e);
+      }
+    }
+  })();
+
+  if (typeof EdgeRuntime !== "undefined") {
+    EdgeRuntime.waitUntil(dispatchPromise);
+  } else {
+    // Fallback: await antes de retornar (garante execucao mesmo sem waitUntil)
+    await dispatchPromise;
   }
-
-  // ---- 7b. Sucesso parcial ou total: dispara render PDF (fire-and-forget) ----
-  fetch(`${siteUrl}/api/pdf/render`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-internal-key": serviceKey,
-    },
-    body: JSON.stringify({ consultationId: consulta.id }),
-  }).catch((e: unknown) => {
-    console.error("[process-consultation] dispatch PDF falhou:", e);
-  });
 
   return resp(200, {
     ok: true,
@@ -472,8 +613,11 @@ Deno.serve(async (req: Request) => {
     apis_chamadas: apis.length,
     success_count: successCount,
     cache_hits: callResults.filter((r) => r.status === "cached").length,
-    falhas: apisQueFalharam.length,
+    falhas: failCount,
     custo_cents: custoTotal,
+    refund_triggered: refundEligible,
+    refund_reason: fullRefund ? "no_data_found" : partialRefund ? "partial_data_failure" : null,
+    refund_amount_cents: refundEligible ? refundAmountCents : 0,
     duration_ms: Math.max(...callResults.map((r) => r.durationMs)),
   });
 });
@@ -489,25 +633,18 @@ interface ConsultaRow {
   [key: string]: unknown;
 }
 
-/**
- * Extrai a lista de APIs a chamar.
- *
- * Source da verdade: `consulta.api_calls_log` (preenchido pelo frontend
- * antes da consulta entrar em paid). Se vazio, fallback no plan_tier.
- */
 function extractApis(consulta: ConsultaRow): string[] {
-  // Pode vir como ["fipe", "recall", ...] ou objeto com chave .pending
   if (Array.isArray(consulta.api_calls_log) && consulta.api_calls_log.length > 0) {
     const first = consulta.api_calls_log[0];
     if (typeof first === "string") {
       return consulta.api_calls_log as string[];
     }
   }
-
-  // Fallback estatico baseado no plan_tier (espelha planos.ts apisIncluidas)
   return PLAN_API_MAP[consulta.plan_tier] ?? [];
 }
 
+// PLAN_API_MAP — DEVE ficar em sincronia com src/lib/consultas/planos.ts (apisIncluidas).
+// Chaves internas espelham `internal` de APIFULL_ENDPOINTS acima.
 const PLAN_API_MAP: Record<string, string[]> = {
   // CPF
   "cpf-espiadinha": ["cpf-simples"],

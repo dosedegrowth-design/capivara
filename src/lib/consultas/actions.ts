@@ -20,6 +20,24 @@ import { sendEmail } from "@/lib/email/client";
 import { emailPagamentoAguardando } from "@/lib/email/templates";
 import { formatBRL } from "@/lib/formatters";
 import { logConsent } from "@/lib/legal/consent";
+import { CONSULTATION_RESPONSIBILITY } from "@/lib/legal/documents";
+
+// Metodos de pagamento validos pra B2C — WHITELIST estrita.
+// Bloqueia burla de paywall via POST direto com payment_type='folhas'/'balance_cents'.
+const PAYMENT_TYPES_B2C = new Set(["pix", "boleto", "cartao_avista"]);
+
+// Janela de cache 24h: se cliente ja consultou o mesmo (target, plano) com
+// resultado concluido dentro dessa janela, reusa em vez de cobrar novamente.
+const CACHE_REUSE_WINDOW_HOURS = 24;
+
+/** Valida version do termo de responsabilidade contra a versao atual do server. */
+function validateConsentVersion(clientVersion: string | undefined | null): string | null {
+  const serverVersion = CONSULTATION_RESPONSIBILITY.version;
+  if (!clientVersion || clientVersion !== serverVersion) {
+    return `Termo de responsabilidade foi atualizado (v${serverVersion}). Recarregue a página e revise antes de continuar.`;
+  }
+  return null;
+}
 
 /**
  * Server action: inicia uma consulta.
@@ -44,10 +62,18 @@ export async function iniciarConsultaAction(
   const targetRaw = String(formData.get("target") ?? "").trim();
   const finalidade = String(formData.get("finalidade") ?? "");
   const finalidadeDesc = String(formData.get("finalidadeDescricao") ?? "").trim();
-  const paymentType = String(formData.get("paymentType") ?? "pix") as
-    | "pix"
-    | "boleto"
-    | "cartao_avista";
+  const paymentTypeRaw = String(formData.get("paymentType") ?? "pix");
+  const responsibilityVersionClient = String(formData.get("responsibilityVersion") ?? "");
+
+  // Validacao estrita de payment_type (whitelist B2C — bloqueia burla via 'folhas')
+  if (!PAYMENT_TYPES_B2C.has(paymentTypeRaw)) {
+    return { ok: false, error: "Metodo de pagamento invalido." };
+  }
+  const paymentType = paymentTypeRaw as "pix" | "boleto" | "cartao_avista";
+
+  // Validacao de versao do termo de responsabilidade (LGPD Art. 8º §4º)
+  const versionErr = validateConsentVersion(responsibilityVersionClient);
+  if (versionErr) return { ok: false, error: versionErr };
 
   const plano = findPlano(planoId);
   if (!plano) {
@@ -83,11 +109,11 @@ export async function iniciarConsultaAction(
     };
   }
 
-  if (finalidade === "other" && finalidadeDesc.length < 5) {
+  if (finalidade === "other" && finalidadeDesc.length < 20) {
     return {
       ok: false,
-      error: "Descreva a finalidade.",
-      fieldErrors: { finalidadeDescricao: "Minimo 5 caracteres" },
+      error: "Descreva a finalidade com pelo menos 20 caracteres.",
+      fieldErrors: { finalidadeDescricao: "Minimo 20 caracteres" },
     };
   }
 
@@ -150,9 +176,36 @@ export async function iniciarConsultaAction(
     };
   }
 
+  // target_hash SO do target normalizado — permite cache APIFULL entre planos
+  // diferentes que usam a mesma API (ex: cpf-completo vira 2 caches diferentes
+  // pra mesmo CPF se hash inclui plan_id → paga APIFULL 2x).
   const targetHash = createHash("sha256")
-    .update(`${plano.id}:${targetNormalized}`)
+    .update(targetNormalized)
     .digest("hex");
+
+  // ---- 4.7. Cache 24h — reusa consulta anterior do mesmo user/target/plano ----
+  // Se cliente ja consultou o mesmo (target, plano) e completou nas ultimas 24h,
+  // redireciona pra consulta antiga (sem cobrar). Promessa comercial do site.
+  const cacheWindowStart = new Date(
+    Date.now() - CACHE_REUSE_WINDOW_HOURS * 60 * 60 * 1000
+  ).toISOString();
+
+  const { data: previousConsulta } = await admin
+    .from("consultations")
+    .select("id, status, completed_at, pdf_url")
+    .eq("user_id", user.id)
+    .eq("target_hash", targetHash)
+    .eq("plan_tier", planoId)
+    .eq("status", "completed")
+    .gt("completed_at", cacheWindowStart)
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (previousConsulta) {
+    // Cache hit — retorna consulta anterior sem cobrar novamente
+    return { ok: true, consultationId: previousConsulta.id };
+  }
 
   // ---- 5. Inserir consulta (status pending_payment) ----
   const { data: consulta, error: insertError } = await admin
@@ -248,7 +301,11 @@ export async function iniciarConsultaAction(
       .update({ asaas_payment_id: payment.id })
       .eq("id", consulta.id);
 
-    // Cria transaction
+    // Cria transaction — cria antes de tentar chamar Asaas? Nao, precisa
+    // do payment.id. Idealmente seria upsert, mas race e' baixo aqui pq webhook
+    // Asaas nunca chega antes desta linha (createPayment retorna sincrono).
+    // Se falhar apos createPayment mas antes do INSERT, webhook cai em transaction
+    // inexistente — tratado pelo webhook novo com log critico.
     await admin.from("transactions").insert({
       user_id: user.id,
       type: "consultation",
@@ -330,10 +387,16 @@ export async function iniciarConsultaAvulsoAction(
   const targetRaw = String(formData.get("target") ?? "").trim();
   const finalidade = String(formData.get("finalidade") ?? "");
   const finalidadeDesc = String(formData.get("finalidadeDescricao") ?? "").trim();
-  const paymentType = String(formData.get("paymentType") ?? "pix") as
-    | "pix"
-    | "boleto"
-    | "cartao_avista";
+  const paymentTypeRaw = String(formData.get("paymentType") ?? "pix");
+  const responsibilityVersionClient = String(formData.get("responsibilityVersion") ?? "");
+
+  if (!PAYMENT_TYPES_B2C.has(paymentTypeRaw)) {
+    return { ok: false, error: "Metodo de pagamento invalido." };
+  }
+  const paymentType = paymentTypeRaw as "pix" | "boleto" | "cartao_avista";
+
+  const versionErr = validateConsentVersion(responsibilityVersionClient);
+  if (versionErr) return { ok: false, error: versionErr };
 
   const produto = findProdutoAvulso(produtoId);
   if (!produto) {
@@ -358,11 +421,11 @@ export async function iniciarConsultaAvulsoAction(
     };
   }
 
-  if (finalidade === "other" && finalidadeDesc.length < 5) {
+  if (finalidade === "other" && finalidadeDesc.length < 20) {
     return {
       ok: false,
-      error: "Descreva a finalidade.",
-      fieldErrors: { finalidadeDescricao: "Minimo 5 caracteres" },
+      error: "Descreva a finalidade com pelo menos 20 caracteres.",
+      fieldErrors: { finalidadeDescricao: "Minimo 20 caracteres" },
     };
   }
 
@@ -424,8 +487,25 @@ export async function iniciarConsultaAvulsoAction(
   }
 
   const targetHash = createHash("sha256")
-    .update(`${produto.id}:${targetNormalized}`)
+    .update(targetNormalized)
     .digest("hex");
+
+  // ---- 4.7. Cache 24h — reusa consulta anterior do mesmo user/target/produto ----
+  const cacheWindowStart = new Date(
+    Date.now() - CACHE_REUSE_WINDOW_HOURS * 60 * 60 * 1000
+  ).toISOString();
+  const { data: previousConsulta } = await admin
+    .from("consultations")
+    .select("id, status, completed_at")
+    .eq("user_id", user.id)
+    .eq("target_hash", targetHash)
+    .eq("plan_tier", produto.id)
+    .eq("status", "completed")
+    .gt("completed_at", cacheWindowStart)
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (previousConsulta) return { ok: true, consultationId: previousConsulta.id };
 
   // ---- 5. Inserir consulta (status pending_payment) ----
   // category fica 'veicular' (schema constraint); plan_tier identifica o avulso

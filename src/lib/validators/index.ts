@@ -62,31 +62,68 @@ export const finalidadeVeicularSchema = z.enum([
 
 // =========================================================================
 // Schemas de iniciar consulta
+//
+// Split B2C x B2B:
+//   B2C (avulso): PIX/Boleto/Cartao. NUNCA aceita 'folhas'/'balance_cents'
+//                 — o schema publico jamais permitia burla de paywall.
+//   B2B: 'balance_cents' (novo) + 'folhas' (legado, ainda aceito).
 // =========================================================================
+
+const PAGAMENTO_B2C = z.enum(["pix", "boleto", "cartao_avista"]);
+const PAGAMENTO_B2B = z.enum(["balance_cents", "folhas"]);
+
+/**
+ * finalidade='other' exige descricao com >= 20 chars (evita "aaaaa" que
+ * quebra requisito LGPD Art. 8º §4º de consentimento especifico).
+ */
+const finalidadeOtherRefine = <T extends { finalidade: string; finalidadeDescricao?: string }>(
+  data: T,
+  ctx: z.RefinementCtx
+) => {
+  if (data.finalidade === "other" && (data.finalidadeDescricao ?? "").trim().length < 20) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["finalidadeDescricao"],
+      message: "Descreva a finalidade com pelo menos 20 caracteres.",
+    });
+  }
+};
 
 export const iniciarConsultaCPFSchema = z.object({
   cpf: cpfSchema,
   plano: z.enum(["espiadinha", "investigacao", "avancada", "premium", "raio-x"]),
   finalidade: finalidadeCPFSchema,
   finalidadeDescricao: z.string().optional(),
-  pagamento: z.enum(["pix", "boleto", "cartao_avista", "folhas"]),
-});
+  pagamento: PAGAMENTO_B2C,
+}).superRefine(finalidadeOtherRefine);
 
 export const iniciarConsultaCNPJSchema = z.object({
   cnpj: cnpjSchema,
   plano: z.enum(["espiadinha", "socios", "premium", "total"]),
   finalidade: finalidadeCNPJSchema,
   finalidadeDescricao: z.string().optional(),
-  pagamento: z.enum(["pix", "boleto", "cartao_avista", "folhas"]),
-});
+  pagamento: PAGAMENTO_B2C,
+}).superRefine(finalidadeOtherRefine);
 
 export const iniciarConsultaVeicularSchema = z.object({
   placa: placaSchema,
   plano: z.enum(["espiadinha", "completo", "avancado", "premium", "total"]),
   finalidade: finalidadeVeicularSchema,
   finalidadeDescricao: z.string().optional(),
-  pagamento: z.enum(["pix", "boleto", "cartao_avista", "folhas"]),
-});
+  pagamento: PAGAMENTO_B2C,
+}).superRefine(finalidadeOtherRefine);
+
+/** Schema B2B: aceita `balance_cents` (default) e `folhas` (legado). */
+export const iniciarConsultaB2BSchema = z.object({
+  target: z.string(),
+  plano: z.string(),
+  finalidade: z.string(),
+  finalidadeDescricao: z.string().optional(),
+  pagamento: PAGAMENTO_B2B,
+}).superRefine(finalidadeOtherRefine);
+
+export type PagamentoB2C = z.infer<typeof PAGAMENTO_B2C>;
+export type PagamentoB2B = z.infer<typeof PAGAMENTO_B2B>;
 
 // =========================================================================
 // Auth

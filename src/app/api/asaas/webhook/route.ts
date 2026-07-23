@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logError } from "@/lib/log";
 import type { AsaasWebhookEvent } from "@/lib/asaas/types";
@@ -13,19 +14,38 @@ import { findPacoteManada } from "@/lib/consultas/planos";
  *
  * Header esperado: `asaas-access-token` = ASAAS_WEBHOOK_SECRET
  *
+ * Fixes (auditoria 2026-07-23):
+ *  - Timing-safe compare do token
+ *  - Dedup por event.id via capivara.asaas_webhook_events (migration 0013)
+ *  - Valida payment.value >= consulta.amount_cents antes de marcar paid
+ *  - Retorna 500 em erro de DB pro Asaas reentregar (era 200 sempre)
+ *  - PAYMENT_REFUNDED parcial: so marca refunded se valor cheio
+ *  - paid_at = COALESCE (nao sobrescreve se ja setado)
+ *
  * Eventos tratados:
- *   PAYMENT_CONFIRMED, PAYMENT_RECEIVED   → marca paga + dispara Edge Function
+ *   PAYMENT_CONFIRMED, PAYMENT_RECEIVED   → marca paga + valida valor + dispara Edge
  *   PAYMENT_OVERDUE                       → status='expired'
  *   PAYMENT_DELETED                       → status='expired' + cancela
- *   PAYMENT_REFUNDED                      → status='refunded'
+ *   PAYMENT_REFUNDED                      → status='refunded' se valor cheio
  */
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  try {
+    return timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: NextRequest) {
-  // 1. Validar assinatura
-  const token = request.headers.get("asaas-access-token");
+  // 1. Validar assinatura (timing-safe)
+  const token = request.headers.get("asaas-access-token") ?? "";
   const expected = process.env.ASAAS_WEBHOOK_SECRET;
 
   if (!expected) {
@@ -37,7 +57,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
-  if (token !== expected) {
+  if (!safeEqual(token, expected)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -56,7 +76,31 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
 
-  // 3. Buscar referencia: pode ser consulta (B2C avulso) ou recarga (B2B)
+  // 3. Dedup por event.id (idempotencia). Asaas ja reenvia o mesmo event
+  // em cenarios de retry — sem isso, PAYMENT_REFUNDED replay dispara refund 2x.
+  // Alguns eventos Asaas podem nao ter id proprio; nesse caso derivamos.
+  const eventId =
+    (event as { id?: string; eventId?: string }).id ??
+    (event as { id?: string; eventId?: string }).eventId ??
+    // Fallback (raro): compõe com event+payment.id — nao ideal mas evita replay obvio
+    `${event.event}:${payment.id}`;
+
+  const { error: dedupErr } = await admin
+    .from("asaas_webhook_events")
+    .insert({
+      event_id: eventId,
+      event_type: event.event,
+      payment_id: payment.id,
+      raw_payload: event as unknown as Record<string, unknown>,
+    });
+
+  // 23505 = unique_violation → evento ja processado. Retorna 200 sem re-agir.
+  if (dedupErr && (dedupErr as { code?: string }).code === "23505") {
+    console.log(`[asaas_webhook] evento ${eventId} ja processado, ignorando`);
+    return NextResponse.json({ ok: true, duplicate: true });
+  }
+
+  // 4. Buscar referencia: pode ser consulta (B2C avulso) ou recarga (B2B)
   const externalRef = payment.externalReference ?? "";
 
   // ---- RECARGA B2B: recharge:companyId:pacoteId ----
@@ -68,39 +112,53 @@ export async function POST(request: NextRequest) {
       switch (event.event) {
         case "PAYMENT_CONFIRMED":
         case "PAYMENT_RECEIVED": {
-          // Pega a transaction da recarga
           const { data: tx } = await admin
             .from("transactions")
             .select("id, amount_cents, status")
             .eq("asaas_payment_id", payment.id)
             .maybeSingle();
 
-          if (!tx || tx.status === "paid") {
-            // Ja processado (idempotencia)
-            break;
+          if (!tx || tx.status === "paid") break;
+
+          // Valida valor pago >= valor esperado (evita replay de valor menor)
+          const valorRecebidoCentavos = Math.round(Number(payment.value ?? 0) * 100);
+          if (tx.amount_cents && valorRecebidoCentavos < tx.amount_cents) {
+            await logError({
+              context: "asaas_webhook.recharge",
+              severity: "critical",
+              message: `Valor recebido (R$ ${payment.value}) menor que amount_cents ${tx.amount_cents} — possivel fraude`,
+              metadata: { paymentId: payment.id, companyId, pacoteId, txId: tx.id },
+            });
+            return NextResponse.json({ error: "Valor divergente" }, { status: 400 });
           }
 
-          // Marca como paga
           await admin
             .from("transactions")
             .update({
               status: "paid",
+              // Nao sobrescreve paid_at se ja setado
               paid_at: new Date().toISOString(),
               asaas_response: payment as unknown as Record<string, unknown>,
             })
+            .eq("id", tx.id)
+            .is("paid_at", null);
+
+          // Se paid_at ja estava setado, ainda precisamos garantir status=paid
+          await admin
+            .from("transactions")
+            .update({ status: "paid" })
             .eq("id", tx.id);
 
-          // Lookup do pacote pelo pacoteId no externalReference pra pegar saldoTotal_centavos
-          // (valor pago + bonus). Fallback: usa amount_cents se pacote desconhecido.
           const pacote = findPacoteManada(pacoteId);
           const saldoTotalCentavos =
             pacote?.saldoTotal_centavos ?? tx.amount_cents ?? 0;
 
           if (saldoTotalCentavos > 0) {
-            await admin.rpc("add_balance_cents", {
+            const { error: rpcErr } = await admin.rpc("add_balance_cents", {
               p_company_id: companyId,
               p_amount_cents: saldoTotalCentavos,
             });
+            if (rpcErr) throw rpcErr;
           }
           break;
         }
@@ -125,6 +183,8 @@ export async function POST(request: NextRequest) {
         error: err instanceof Error ? err : new Error(String(err)),
         metadata: { event: event.event, paymentId: payment.id, companyId, pacoteId },
       });
+      // Retorna 500 pra Asaas retentar (era 200 antes — cobrança confirmada podia ficar sem processamento)
+      return NextResponse.json({ error: "Retry" }, { status: 500 });
     }
     return NextResponse.json({ ok: true });
   }
@@ -139,25 +199,59 @@ export async function POST(request: NextRequest) {
     switch (event.event) {
       case "PAYMENT_CONFIRMED":
       case "PAYMENT_RECEIVED": {
-        // Marca consulta como paga + transaction
-        await admin
+        // Valida valor pago >= amount_cents da consulta antes de marcar paid
+        const { data: c0 } = await admin
           .from("consultations")
-          .update({ status: "paid", paid_at: new Date().toISOString() })
-          .eq("id", consultaId);
+          .select("amount_cents, status, paid_at")
+          .eq("id", consultaId)
+          .maybeSingle();
 
-        await admin
+        if (!c0) {
+          return NextResponse.json({ error: "Consultation not found" }, { status: 404 });
+        }
+
+        const valorRecebidoCentavos = Math.round(Number(payment.value ?? 0) * 100);
+        if (c0.amount_cents && valorRecebidoCentavos < c0.amount_cents) {
+          await logError({
+            context: "asaas_webhook.consultation",
+            severity: "critical",
+            message: `Valor recebido (R$ ${payment.value}) menor que amount_cents ${c0.amount_cents} — possivel fraude`,
+            consultationId: consultaId,
+            metadata: { paymentId: payment.id },
+          });
+          return NextResponse.json({ error: "Valor divergente" }, { status: 400 });
+        }
+
+        // Ja marcada paid? entao webhook duplicado (dedup ja pegou eventId, mas
+        // idempotencia defensiva). Nao dispara Edge de novo.
+        if (c0.status !== "pending_payment") {
+          console.log(`[asaas_webhook] consulta ${consultaId} status=${c0.status}, ignorando`);
+          return NextResponse.json({ ok: true, already_paid: true });
+        }
+
+        // COALESCE paid_at (nao sobrescreve se ja setado)
+        const paidAtISO = c0.paid_at ?? new Date().toISOString();
+
+        const { error: e1 } = await admin
+          .from("consultations")
+          .update({ status: "paid", paid_at: paidAtISO })
+          .eq("id", consultaId);
+        if (e1) throw e1;
+
+        const { error: e2 } = await admin
           .from("transactions")
           .update({
             status: "paid",
-            paid_at: new Date().toISOString(),
+            paid_at: paidAtISO,
             asaas_response: payment as unknown as Record<string, unknown>,
           })
           .eq("asaas_payment_id", payment.id);
+        if (e2) throw e2;
 
-        // Dispara Edge Function para processar (em background, fire-and-forget)
+        // Dispara Edge Function (aguarda pra saber se disparo saiu)
         await disparaProcessamento(consultaId);
 
-        // Dispara webhook B2B payment.confirmed (se for consulta de empresa)
+        // Dispatch webhook B2B payment.confirmed
         try {
           const { data: c } = await admin
             .from("consultations")
@@ -171,7 +265,7 @@ export async function POST(request: NextRequest) {
               plan_id: c.plan_tier,
               category: c.category,
               target: c.target_value,
-              confirmed_at: new Date().toISOString(),
+              confirmed_at: paidAtISO,
             });
           }
         } catch (e) {
@@ -206,19 +300,52 @@ export async function POST(request: NextRequest) {
       }
 
       case "PAYMENT_REFUNDED": {
-        await admin
+        // Refund parcial: Asaas suporta. Se valor devolvido < amount_cents,
+        // marca com status especial "refunded_partial" e loga.
+        const { data: cRef } = await admin
           .from("consultations")
-          .update({ status: "refunded" })
-          .eq("id", consultaId);
-        await admin
-          .from("transactions")
-          .update({ status: "refunded" })
-          .eq("asaas_payment_id", payment.id);
+          .select("amount_cents")
+          .eq("id", consultaId)
+          .maybeSingle();
+
+        const valorDevolvidoCentavos = Math.round(Number(payment.value ?? 0) * 100);
+        const eParcial =
+          cRef?.amount_cents &&
+          valorDevolvidoCentavos > 0 &&
+          valorDevolvidoCentavos < cRef.amount_cents;
+
+        if (eParcial) {
+          // Nao mudamos pra 'refunded' (que significa refund total). Logamos
+          // como incidente pra revisao manual do admin.
+          await logError({
+            context: "asaas_webhook.refund_partial",
+            severity: "warning",
+            message: `Refund parcial recebido: R$ ${payment.value} de R$ ${(cRef.amount_cents ?? 0) / 100}`,
+            consultationId: consultaId,
+            metadata: { paymentId: payment.id, valorDevolvidoCentavos, amountCents: cRef.amount_cents },
+          });
+          // Transaction ganha refund_partial (nao no CHECK, so metadado no asaas_response)
+          await admin
+            .from("transactions")
+            .update({
+              asaas_response: payment as unknown as Record<string, unknown>,
+            })
+            .eq("asaas_payment_id", payment.id);
+        } else {
+          // Refund total
+          await admin
+            .from("consultations")
+            .update({ status: "refunded" })
+            .eq("id", consultaId);
+          await admin
+            .from("transactions")
+            .update({ status: "refunded" })
+            .eq("asaas_payment_id", payment.id);
+        }
         break;
       }
 
       default:
-        // Ignorar outros eventos por enquanto
         break;
     }
 
@@ -232,7 +359,9 @@ export async function POST(request: NextRequest) {
       consultationId: consultaId,
       metadata: { event: event.event, paymentId: payment.id },
     });
-    return NextResponse.json({ ok: true }); // Retorna 200 mesmo em erro pra Asaas não ficar reentregando
+    // Retorna 500 pra Asaas retentar — antes retornava 200 e cobrança confirmada
+    // ficava sem processamento se DB estava down.
+    return NextResponse.json({ error: "Retry" }, { status: 500 });
   }
 }
 
@@ -241,15 +370,20 @@ async function disparaProcessamento(consultaId: string) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!baseUrl || !serviceKey) return;
 
-  // Fire and forget — nao espera resposta da Edge Function
-  fetch(`${baseUrl}/functions/v1/process-consultation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serviceKey}`,
-    },
-    body: JSON.stringify({ consultationId: consultaId }),
-  }).catch((e) => {
+  // Chamada assincrona — nao bloqueia o webhook mas garante que saiu antes do return
+  // (fetch em Node runtime nao e' droppado como em Deno Edge)
+  try {
+    await fetch(`${baseUrl}/functions/v1/process-consultation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+      },
+      body: JSON.stringify({ consultationId: consultaId }),
+      // 5s de timeout pro dispatch — se Edge demorar mais, ok, ela continua rodando
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (e) {
     console.error("[asaas_webhook] falha ao disparar Edge Function:", e);
-  });
+  }
 }

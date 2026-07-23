@@ -213,7 +213,6 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
   "external_reference": "ticket-42",
   "pdf_url": "https://...supabase.co/storage/.../report.pdf?signed=...",
   "amount_cents": 990,
-  "folhas_used": 0,
   "created_at": "2026-05-22T15:43:00.000Z",
   "completed_at": "2026-05-22T15:43:08.000Z",
   "result": {
@@ -223,9 +222,9 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
               </CodeBlock>
               <P>
                 <Code>amount_cents</Code> é o preço B2B do plano debitado do saldo
-                (em centavos). O campo legado <Code>folhas_used</Code> continua na
-                resposta apenas pra retrocompatibilidade — sempre <Code>0</Code> no
-                modelo atual.
+                em R$ da empresa (em centavos). O campo legado <Code>folhas_used</Code>
+                pode aparecer com valor <Code>0</Code> em respostas históricas — não usar
+                em integração nova.
               </P>
             </section>
 

@@ -20,6 +20,21 @@ export default async function ApiPage() {
   if (!empresa) redirect("/onboarding/empresa");
 
   const supabase = await createClient();
+
+  // Guard: apenas admin da empresa pode ver/gerenciar API keys.
+  // Sem esse guard, qualquer operator/viewer via URL /empresa/api ve lista de
+  // chaves (id, prefix, uso) — facilita ataque social.
+  const { data: member } = await supabase
+    .from("company_members")
+    .select("role")
+    .eq("company_id", empresa.id)
+    .eq("user_id", profile.id)
+    .maybeSingle();
+
+  if (!member || member.role !== "admin") {
+    redirect("/empresa");
+  }
+
   const { data } = await supabase
     .from("api_keys")
     .select("id, name, key_prefix, scopes, total_calls, last_used_at, created_at, revoked_at")

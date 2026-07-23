@@ -51,7 +51,7 @@ export default async function FaturamentoPage() {
             Faturamento
           </h1>
           <p className="text-tabaco mt-1">
-            Histórico de recargas, NF-e emitidas e boletos.
+            Histórico de recargas, recibos e boletos.
           </p>
         </div>
         <Button asChild variant="accent">
@@ -120,7 +120,7 @@ export default async function FaturamentoPage() {
                 <th className="text-right px-4 py-3 font-display">Saldo creditado</th>
                 <th className="text-left px-4 py-3 font-display hidden sm:table-cell">Método</th>
                 <th className="text-left px-4 py-3 font-display">Status</th>
-                <th className="text-left px-4 py-3 font-display hidden md:table-cell">NF-e</th>
+                <th className="text-left px-4 py-3 font-display hidden md:table-cell">Recibo</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -199,8 +199,8 @@ export default async function FaturamentoPage() {
       )}
 
       <p className="text-[11px] font-mono text-tabaco/70 leading-relaxed">
-        NF-e emitida automaticamente pelo Asaas após confirmação do pagamento.
-        Pra dúvidas fiscais, fale com <Link href="/contato" className="text-fur hover:underline">o suporte</Link>.
+        Recibo baixável em PDF após confirmação do pagamento.
+        Emissão de NF-e sob demanda — fale com <Link href="/contato" className="text-fur hover:underline">o suporte</Link>.
       </p>
     </div>
   );

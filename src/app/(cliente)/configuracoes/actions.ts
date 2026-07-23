@@ -204,13 +204,29 @@ export async function exportarDadosAction(): Promise<
 // ============================================================================
 export async function deletarContaAction(formData: FormData): Promise<SettingsResult> {
   const confirmacao = String(formData.get("confirmacao") ?? "");
+  const senha = String(formData.get("senha") ?? "");
   if (confirmacao !== "DELETAR") {
     return { ok: false, error: 'Digite "DELETAR" pra confirmar.' };
+  }
+  if (!senha) {
+    return { ok: false, error: "Confirme sua senha pra deletar a conta." };
   }
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  // Re-auth via senha (LGPD Art. 18 exige garantir que e' o titular)
+  if (!user.email) {
+    return { ok: false, error: "Conta sem email — nao da pra confirmar identidade." };
+  }
+  const { error: reAuthErr } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: senha,
+  });
+  if (reAuthErr) {
+    return { ok: false, error: "Senha incorreta." };
+  }
 
   const admin = createAdminClient();
 

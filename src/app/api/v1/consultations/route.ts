@@ -17,6 +17,7 @@ import {
   isValidPlaca,
 } from "@/lib/formatters";
 import { logError } from "@/lib/log";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * API publica B2B v1 — Consultations
@@ -55,36 +56,31 @@ export async function POST(req: NextRequest) {
   const rawKey = extractApiKeyFromRequest(req);
   const auth = await validateApiKey(rawKey);
   if (!auth.ok || !auth.apiKey) {
-    return errResponse(401, `unauthorized:${auth.reason ?? "unknown"}`);
+    // Mensagem opaca: nao vaza estado da chave (revoked vs format vs not_found)
+    // — evita enumeration. Detalhes ficam so em logs internos.
+    return errResponse(401, "unauthorized");
   }
 
-  // Rate limiting: conta consultas criadas pela mesma chave no ultimo minuto.
-  // Limite default 60/min, configuravel por chave em api_keys.rate_limit_per_min.
-  const adminRL = createAdminClient();
-  const oneMinAgo = new Date(Date.now() - 60_000).toISOString();
-  const { count: recentCount } = await adminRL
-    .from("consultations")
-    .select("id", { count: "exact", head: true })
-    .eq("api_key_id", auth.apiKey.id)
-    .gte("created_at", oneMinAgo);
-
-  if ((recentCount ?? 0) >= auth.apiKey.rate_limit_per_min) {
+  // Rate limiting sliding-window em memoria (60 req/min default).
+  // Substitui SELECT count no banco (que era caro + permitia burst antes do commit).
+  const rl = checkRateLimit(`api_key:${auth.apiKey.id}`, auth.apiKey.rate_limit_per_min);
+  if (!rl.allowed) {
     return NextResponse.json(
       {
         error: "rate_limited",
         details: {
-          limit: auth.apiKey.rate_limit_per_min,
+          limit: rl.limit,
           window: "60s",
-          retry_after: 60,
+          retry_after: rl.resetInSeconds,
         },
       },
       {
         status: 429,
         headers: {
-          "Retry-After": "60",
-          "X-RateLimit-Limit": String(auth.apiKey.rate_limit_per_min),
+          "Retry-After": String(rl.resetInSeconds),
+          "X-RateLimit-Limit": String(rl.limit),
           "X-RateLimit-Remaining": "0",
-          "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + 60),
+          "X-RateLimit-Reset": String(Math.floor(Date.now() / 1000) + rl.resetInSeconds),
         },
       }
     );
@@ -170,25 +166,38 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // target_hash SO do target normalizado — permite cache APIFULL entre planos.
   const targetHash = createHash("sha256")
-    .update(`${plano.id}:${targetNormalized}`)
+    .update(targetNormalized)
     .digest("hex");
 
-  // Owner_id: criador da api_key OU owner da company
+  // Owner_id: criador da api_key OU owner da company. NUNCA fallback pra
+  // company.id (era o FK bug — company.id !== profile.id).
   const { data: keyOwner } = await admin
     .from("api_keys")
     .select("created_by")
     .eq("id", auth.apiKey.id)
     .maybeSingle();
 
-  const userId = keyOwner?.created_by ?? company.id; // fallback: pode dar erro de FK
   const { data: ownerCheck } = await admin
     .from("companies")
     .select("owner_id")
     .eq("id", company.id)
     .maybeSingle();
 
-  const effectiveUserId = keyOwner?.created_by ?? ownerCheck?.owner_id ?? userId;
+  // Se ambos NULL, deixa NULL — user_id nao e' NOT NULL na tabela?
+  // consultations.user_id e' NOT NULL. Entao owner_id da company e' o ultimo
+  // recurso. Se ate isso for NULL, erro explicito.
+  const effectiveUserId = keyOwner?.created_by ?? ownerCheck?.owner_id ?? null;
+  if (!effectiveUserId) {
+    await logError({
+      context: "api_v1_consultations.no_user_id",
+      severity: "critical",
+      message: "Nenhum user_id disponivel pra atribuir consulta (api_key.created_by NULL + company.owner_id NULL)",
+      metadata: { company_id: company.id, api_key_id: auth.apiKey.id },
+    });
+    return errResponse(500, "no_user_attribution");
+  }
 
   // 1. Debita saldo PRIMEIRO via RPC atomico (com lock). Se falhar, aborta antes
   // de criar a consulta. Evita race condition entre chamadas paralelas da API.
@@ -274,7 +283,23 @@ export async function GET(req: NextRequest) {
   const rawKey = extractApiKeyFromRequest(req);
   const auth = await validateApiKey(rawKey);
   if (!auth.ok || !auth.apiKey) {
-    return errResponse(401, `unauthorized:${auth.reason ?? "unknown"}`);
+    return errResponse(401, "unauthorized");
+  }
+
+  // Rate limit tambem no GET (era so no POST antes — permitia list flood)
+  const rl = checkRateLimit(`api_key:${auth.apiKey.id}`, auth.apiKey.rate_limit_per_min);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited", details: { limit: rl.limit, window: "60s", retry_after: rl.resetInSeconds } },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rl.resetInSeconds),
+          "X-RateLimit-Limit": String(rl.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
   }
 
   if (!auth.apiKey.scopes.includes("consultations:read")) {

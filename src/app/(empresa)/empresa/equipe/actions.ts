@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/client";
@@ -137,10 +138,46 @@ export async function convidarMembroAction(formData: FormData): Promise<EquipeAc
     return { ok: true };
   }
 
-  // User nao existe ainda — guarda email pendente; quando criar conta, aceita convite
-  // Por enquanto, salva intenção em company_members com user_id=null usando uma tabela
-  // auxiliar de convites pendentes seria o ideal. Como nao temos isso ainda, vamos
-  // armazenar em audit_logs como flag e enviar email pra cadastro.
+  // User nao existe ainda — cria company_invites com token opaco.
+  // Aceite via /aceitar-convite/[token] apos cadastro (rota criada nessa migration).
+  const token = randomBytes(32).toString("hex");
+
+  // Verifica se ja existe convite pendente pra esse email nessa company
+  const { data: existingInvite } = await admin
+    .from("company_invites")
+    .select("id")
+    .eq("company_id", guard.companyId)
+    .eq("email", email)
+    .is("accepted_at", null)
+    .maybeSingle();
+
+  if (existingInvite) {
+    // Renova o convite existente (atualiza expiracao)
+    await admin
+      .from("company_invites")
+      .update({
+        token,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        role,
+        cost_center: costCenter,
+      })
+      .eq("id", existingInvite.id);
+  } else {
+    const { error: inviteErr } = await admin
+      .from("company_invites")
+      .insert({
+        company_id: guard.companyId,
+        email,
+        role,
+        cost_center: costCenter,
+        token,
+        invited_by: guard.userId,
+      });
+
+    if (inviteErr) {
+      return { ok: false, error: inviteErr.message };
+    }
+  }
 
   await sendEmail({
     to: email,
@@ -150,10 +187,89 @@ export async function convidarMembroAction(formData: FormData): Promise<EquipeAc
       empresaNome: empresa?.name ?? "Empresa",
       role,
       hasAccount: false,
+      inviteToken: token,
     }),
     tags: [{ name: "type", value: "team_invite_new_user" }],
   });
 
+  revalidatePath("/empresa/equipe");
+  return { ok: true };
+}
+
+// ============================================================================
+// Aceitar convite (chamado pela pagina /aceitar-convite/[token] apos user
+// criar conta OU fazer login com email exato do convite).
+// ============================================================================
+export async function aceitarConviteAction(token: string): Promise<EquipeActionResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { ok: false, error: "auth_required" };
+  }
+
+  const admin = createAdminClient();
+
+  const { data: invite } = await admin
+    .from("company_invites")
+    .select("id, company_id, email, role, cost_center, expires_at, accepted_at")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (!invite) return { ok: false, error: "invite_not_found" };
+  if (invite.accepted_at) return { ok: false, error: "invite_already_accepted" };
+  if (new Date(invite.expires_at) < new Date()) {
+    return { ok: false, error: "invite_expired" };
+  }
+
+  // Confirma que o email do user bate com o do convite (case-insensitive)
+  const userEmail = (user.email ?? "").toLowerCase();
+  if (userEmail !== invite.email.toLowerCase()) {
+    return { ok: false, error: "email_mismatch" };
+  }
+
+  // Verifica se ja e' membro (idempotencia)
+  const { data: existingMember } = await admin
+    .from("company_members")
+    .select("id")
+    .eq("company_id", invite.company_id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existingMember) {
+    const { error: insertErr } = await admin.from("company_members").insert({
+      company_id: invite.company_id,
+      user_id: user.id,
+      role: invite.role,
+      cost_center: invite.cost_center,
+      invited_at: new Date().toISOString(),
+      accepted_at: new Date().toISOString(),
+    });
+    if (insertErr) return { ok: false, error: insertErr.message };
+  }
+
+  // Marca convite como aceito
+  await admin
+    .from("company_invites")
+    .update({
+      accepted_at: new Date().toISOString(),
+      accepted_by: user.id,
+    })
+    .eq("id", invite.id);
+
+  // Ativa a company no profile do user (se ainda nao tem active_company_id)
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("active_company_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile?.active_company_id) {
+    await admin
+      .from("profiles")
+      .update({ active_company_id: invite.company_id })
+      .eq("id", user.id);
+  }
+
+  revalidatePath("/empresa/equipe");
   return { ok: true };
 }
 
@@ -246,6 +362,7 @@ function emailConviteHtml(params: {
   empresaNome: string;
   role: string;
   hasAccount: boolean;
+  inviteToken?: string;
 }): string {
   const C = {
     cocoa: "#1F1611",
@@ -255,8 +372,12 @@ function emailConviteHtml(params: {
     paper: "#FBF6EC",
   };
   const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
-  const ctaHref = params.hasAccount ? `${BASE}/empresa` : `${BASE}/cadastro?tipo=empresa`;
-  const ctaLabel = params.hasAccount ? "Acessar a empresa" : "Criar conta agora";
+  const ctaHref = params.hasAccount
+    ? `${BASE}/empresa`
+    : params.inviteToken
+    ? `${BASE}/aceitar-convite/${params.inviteToken}`
+    : `${BASE}/cadastro?tipo=empresa`;
+  const ctaLabel = params.hasAccount ? "Acessar a empresa" : "Aceitar convite e criar conta";
 
   const roleLabel =
     params.role === "admin"

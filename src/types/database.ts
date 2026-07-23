@@ -12,7 +12,7 @@ export type AccountType = "pf" | "pj_admin" | "pj_member" | "admin";
 export type PlanTier = "start" | "pro" | "plus" | "master" | "corporate";
 export type CompanyRole = "admin" | "operator" | "viewer";
 export type ConsultaCategory = "cpf" | "cnpj" | "veicular";
-export type PaymentType = "pix" | "boleto" | "cartao_avista" | "folhas";
+export type PaymentType = "pix" | "boleto" | "cartao_avista" | "folhas" | "balance_cents";
 export type ConsultationStatus =
   | "pending_payment"
   | "paid"
@@ -117,7 +117,7 @@ export interface Transaction {
   company_id: string | null;
   type: TransactionType;
   reference_id: string | null;
-  payment_method: Exclude<PaymentType, "folhas">;
+  payment_method: Exclude<PaymentType, "folhas">;  // pix | boleto | cartao_avista | balance_cents
   amount_cents: number;
   /** @deprecated Use amount_cents. Mantido por compat. Em recargas, amount_cents = valor pago, e a empresa recebe saldoTotal_centavos (= amount_cents + bonus) em balance_cents. */
   folhas_added: number;

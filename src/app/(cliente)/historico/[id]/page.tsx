@@ -7,10 +7,29 @@ import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/capivara/mascot";
 import { ResultSections } from "@/components/consulta/result-sections";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { findPlano } from "@/lib/consultas/planos";
 import { formatDateTimeBR } from "@/lib/formatters";
 import type { ResultSection } from "@/lib/consultas/mock-data";
+
+const PDF_BUCKET = "capivara-relatorios-pdf";
+const SIGNED_URL_SECONDS = 15 * 60; // 15 min pra download imediato
+
+/**
+ * Resolve o URL do PDF: se consulta.pdf_url e' um path (formato novo),
+ * gera signed URL de 15min sob demanda. Se ja e' URL completa (legado),
+ * usa direto.
+ */
+async function resolvePdfUrl(pdfUrlOrPath: string | null): Promise<string | null> {
+  if (!pdfUrlOrPath) return null;
+  if (pdfUrlOrPath.startsWith("https://")) return pdfUrlOrPath;
+  const admin = createAdminClient();
+  const { data } = await admin.storage
+    .from(PDF_BUCKET)
+    .createSignedUrl(pdfUrlOrPath, SIGNED_URL_SECONDS);
+  return data?.signedUrl ?? null;
+}
 
 export default async function ResultadoPage({
   params,
@@ -36,6 +55,7 @@ export default async function ResultadoPage({
     consulta.status
   );
   const erro = consulta.status === "error";
+  const pdfDownloadUrl = await resolvePdfUrl(consulta.pdf_url ?? null);
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8 space-y-6">
@@ -62,9 +82,9 @@ export default async function ResultadoPage({
             </p>
           </div>
 
-          {!aindaProcessando && !erro && consulta.pdf_url && (
+          {!aindaProcessando && !erro && pdfDownloadUrl && (
             <Button asChild variant="primary" size="lg">
-              <a href={consulta.pdf_url} target="_blank" rel="noreferrer">
+              <a href={pdfDownloadUrl} target="_blank" rel="noreferrer">
                 <Download className="size-4" />
                 Baixar PDF
               </a>

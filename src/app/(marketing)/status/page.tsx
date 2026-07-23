@@ -118,7 +118,7 @@ async function checkServices(): Promise<ServiceStatus[]> {
   services.push({
     name: "Pagamentos (Asaas)",
     status: process.env.ASAAS_API_KEY ? "operational" : "degraded",
-    description: "PIX · Boleto · Cartão · NF-e",
+    description: "PIX · Boleto · Cartão",
     detail: process.env.ASAAS_API_KEY
       ? "Webhook configurado"
       : "Sandbox ou chave ausente",

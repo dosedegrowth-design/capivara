@@ -17,7 +17,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { categoria, plano } = await params;
   const p = findPlano(`${categoria}-${plano}`);
-  return { title: `${p?.nome ?? "Consultar"} · Capivara` };
+  return {
+    title: `${p?.nome ?? "Consultar"} · Capivara`,
+    // Rota transacional dinamica: evita cache do Google com preco velho.
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function PlanoPage({

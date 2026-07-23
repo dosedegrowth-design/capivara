@@ -68,6 +68,32 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // Empresa precisa ter active_company_id + ser membro dela.
+  // (Sem esse guard, qualquer user logado enumera rotas B2B mesmo sem membership.)
+  if ((path === "/empresa" || path.startsWith("/empresa/")) && user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("active_company_id, account_type")
+      .eq("id", user.id)
+      .single();
+
+    // Super admin do sistema pode ver /empresa/* pra suporte
+    if (profile?.account_type !== "admin") {
+      if (!profile?.active_company_id) {
+        return NextResponse.redirect(new URL("/onboarding/empresa", request.url));
+      }
+      const { data: member } = await supabase
+        .from("company_members")
+        .select("id")
+        .eq("company_id", profile.active_company_id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!member) {
+        return NextResponse.redirect(new URL("/onboarding/empresa", request.url));
+      }
+    }
+  }
+
   return response;
 }
 
@@ -79,6 +105,8 @@ export const config = {
      * - assets em /brand
      * - rotas de webhook publicas
      */
-    "/((?!_next/static|_next/image|favicon.ico|brand|api/asaas/webhook).*)",
+    // Exclui: static, assets, webhooks Asaas, e a API publica B2B v1
+    // (esta e' stateless por API key — nao precisa refresh de sessao).
+    "/((?!_next/static|_next/image|favicon.ico|brand|api/asaas/webhook|api/v1/).*)",
   ],
 };

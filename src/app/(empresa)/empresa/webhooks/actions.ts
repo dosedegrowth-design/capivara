@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateWebhookSecret, type WebhookEvent } from "@/lib/webhooks";
+import { validateWebhookUrl } from "@/lib/webhooks/ssrf-guard";
 
 /**
  * Server actions para gestao de endpoints de webhook (B2B).
@@ -52,13 +53,10 @@ async function assertAdmin(): Promise<
   return { ok: true, userId: user.id, companyId: profile.active_company_id };
 }
 
-function isValidHttpsUrl(s: string): boolean {
-  try {
-    const u = new URL(s);
-    return u.protocol === "https:" || u.protocol === "http:";
-  } catch {
-    return false;
-  }
+/** Deprecated — usar validateWebhookUrl de @/lib/webhooks/ssrf-guard. */
+function isValidWebhookUrl(s: string): { ok: boolean; error?: string } {
+  const r = validateWebhookUrl(s);
+  return r.ok ? { ok: true } : { ok: false, error: r.error };
 }
 
 // ============================================================================
@@ -75,8 +73,9 @@ export async function createWebhookAction(formData: FormData): Promise<WebhookAc
   const description = String(formData.get("description") ?? "").trim() || null;
   const eventsRaw = formData.getAll("events").map(String).filter(Boolean);
 
-  if (!isValidHttpsUrl(url)) {
-    return { ok: false, error: "invalid_url" };
+  const urlCheck = isValidWebhookUrl(url);
+  if (!urlCheck.ok) {
+    return { ok: false, error: urlCheck.error ?? "invalid_url" };
   }
 
   const events =

@@ -70,11 +70,11 @@ const PASSOS = [
     icon: CreditCard,
     title: "Pague com PIX, boleto ou cartão",
     description:
-      "PIX é instantâneo. Boleto leva até 2 dias úteis. Cartão à vista (sem parcelamento). NF-e emitida automaticamente quando aplicável.",
+      "PIX é instantâneo. Boleto leva até 2 dias úteis. Cartão à vista (sem parcelamento). Recibo gerado no ato.",
     bullets: [
       "PIX confirma em segundos",
       "Sem mensalidade, sem renovação automática",
-      "NF-e automática para empresas",
+      "Recibo baixável de cada pagamento",
     ],
   },
   {

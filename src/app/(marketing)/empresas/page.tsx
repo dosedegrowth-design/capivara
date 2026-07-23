@@ -32,7 +32,7 @@ import { formatBRL } from "@/lib/formatters";
 export const metadata: Metadata = {
   title: "Capivara para empresas · Manada",
   description:
-    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Recarregue saldo em R$ com até 50% de bônus e tenha API, equipe e NF-e.",
+    "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Recarregue saldo em R$ com até 50% de bônus e tenha API, equipe e recibos.",
 };
 
 export default function EmpresasPage() {
@@ -66,7 +66,7 @@ function HeroEmpresas() {
 
             <p className="text-lg text-tabaco leading-relaxed max-w-xl">
               Recarregue saldo em R$ e consuma conforme uso. Sem
-              mensalidade. Multi-usuário, API REST, webhooks e NF-e inclusos.
+              mensalidade. Multi-usuário, API REST e webhooks inclusos.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -188,9 +188,9 @@ const RECURSOS = [
   },
   {
     icon: Receipt,
-    title: "NF-e automática",
+    title: "Recibo por recarga",
     description:
-      "Toda recarga emite NF-e automaticamente. Envio direto para o e-mail de cobrança da empresa.",
+      "Toda recarga gera recibo baixável em PDF, enviado pro e-mail de cobrança da empresa.",
   },
   {
     icon: Headphones,

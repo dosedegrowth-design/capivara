@@ -4,6 +4,7 @@ import { ShieldCheck, Mail, Download, Pencil, UserMinus, FileDown, BookOpen, Loc
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { identificacaoControladora } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Privacidade · LGPD · Capivara",
@@ -357,7 +358,7 @@ function DPO() {
         </div>
 
         <p className="text-xs text-tabaco/70 mt-8 text-center font-mono leading-relaxed">
-          Capivara é mantida pela Dose de Growth Marketing LTDA · CNPJ XX.XXX.XXX/0001-XX
+          {`Capivara é mantida pela ${identificacaoControladora()}`}
           <br />
           Em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018).
         </p>

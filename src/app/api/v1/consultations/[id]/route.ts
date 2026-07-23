@@ -5,6 +5,7 @@ import {
   extractApiKeyFromRequest,
   touchApiKey,
 } from "@/lib/api-keys";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /**
  * GET /v1/consultations/:id
@@ -25,9 +26,21 @@ export async function GET(
   const rawKey = extractApiKeyFromRequest(req);
   const auth = await validateApiKey(rawKey);
   if (!auth.ok || !auth.apiKey) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const rl = checkRateLimit(`api_key:${auth.apiKey.id}`, auth.apiKey.rate_limit_per_min);
+  if (!rl.allowed) {
     return NextResponse.json(
-      { error: `unauthorized:${auth.reason ?? "unknown"}` },
-      { status: 401 }
+      { error: "rate_limited", details: { limit: rl.limit, retry_after: rl.resetInSeconds } },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rl.resetInSeconds),
+          "X-RateLimit-Limit": String(rl.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
     );
   }
 

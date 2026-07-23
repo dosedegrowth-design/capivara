@@ -61,6 +61,20 @@ export function DeletarContaBox() {
         />
       </div>
 
+      <div>
+        <Label htmlFor="senha" className="text-red-700">
+          Sua senha atual (confirmação de identidade):
+        </Label>
+        <Input
+          id="senha"
+          name="senha"
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="••••••••"
+        />
+      </div>
+
       {err && <p className="text-sm text-red-700">{err}</p>}
 
       <div className="flex gap-2">
