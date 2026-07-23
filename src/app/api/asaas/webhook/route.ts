@@ -112,6 +112,14 @@ export async function POST(request: NextRequest) {
       switch (event.event) {
         case "PAYMENT_CONFIRMED":
         case "PAYMENT_RECEIVED": {
+          // Antes da race fix: 2 eventos com event_id diferente (PAYMENT_CONFIRMED
+          // + PAYMENT_RECEIVED) passam pelo dedup de asaas_webhook_events, e 2
+          // handlers concorrentes viam tx.status!='paid' antes do primeiro commit
+          // → add_balance_cents chamado 2x → saldo dobrado.
+          //
+          // Fix: UPDATE atomico com WHERE status != 'paid' RETURNING. Se
+          // retornar row, ESTE handler ganhou a race — credita saldo. Se
+          // vier vazio, outro handler ja processou — no-op.
           const { data: tx } = await admin
             .from("transactions")
             .select("id, amount_cents, status")
@@ -132,22 +140,26 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Valor divergente" }, { status: 400 });
           }
 
-          await admin
+          // UPDATE atomico: so muda status pra 'paid' se atualmente NAO for.
+          // .select() retorna as rows que foram efetivamente atualizadas.
+          const { data: claimed, error: claimErr } = await admin
             .from("transactions")
             .update({
               status: "paid",
-              // Nao sobrescreve paid_at se ja setado
               paid_at: new Date().toISOString(),
               asaas_response: payment as unknown as Record<string, unknown>,
             })
             .eq("id", tx.id)
-            .is("paid_at", null);
+            .neq("status", "paid")
+            .select("id");
 
-          // Se paid_at ja estava setado, ainda precisamos garantir status=paid
-          await admin
-            .from("transactions")
-            .update({ status: "paid" })
-            .eq("id", tx.id);
+          if (claimErr) throw claimErr;
+
+          // Se vazio: outro handler concorrente ja marcou paid. No-op idempotente.
+          if (!claimed || claimed.length === 0) {
+            console.log(`[asaas_webhook.recharge] tx ${tx.id} ja marcada paid por outro handler, skip credit`);
+            break;
+          }
 
           const pacote = findPacoteManada(pacoteId);
           const saldoTotalCentavos =

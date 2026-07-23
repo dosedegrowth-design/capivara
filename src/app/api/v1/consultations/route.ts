@@ -269,7 +269,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Disparar processamento (fire-and-forget)
-  fireAndForgetProcess(consulta.id);
+  await fireAndForgetProcess(consulta.id);
 
   await touchApiKey(auth.apiKey.id);
 
@@ -379,18 +379,22 @@ function errResponse(status: number, code: string, details?: Record<string, unkn
   );
 }
 
-function fireAndForgetProcess(consultaId: string) {
+async function fireAndForgetProcess(consultaId: string) {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!baseUrl || !serviceKey) return;
-  fetch(`${baseUrl}/functions/v1/process-consultation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serviceKey}`,
-    },
-    body: JSON.stringify({ consultationId: consultaId }),
-  }).catch((e) => {
+  // AWAIT com timeout curto pra garantir dispatch em Vercel serverless.
+  try {
+    await fetch(`${baseUrl}/functions/v1/process-consultation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+      },
+      body: JSON.stringify({ consultationId: consultaId }),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (e) {
     console.error("[api_v1.dispatch] falha disparo:", e);
-  });
+  }
 }

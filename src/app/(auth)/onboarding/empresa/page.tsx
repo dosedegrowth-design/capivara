@@ -28,8 +28,8 @@ export default async function OnboardingEmpresaPage() {
             Cadastre sua empresa
           </h1>
           <p className="text-sm text-tabaco mt-2 max-w-sm mx-auto">
-            Vamos criar sua conta empresarial pra você consumir créditos
-            com desconto, ter equipe e emitir NF-e.
+            Vamos criar sua conta empresarial pra você consumir saldo
+            com desconto, ter equipe e receber recibos.
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export default async function OnboardingEmpresaPage() {
       </div>
 
       <p className="text-center text-xs font-mono text-tabaco/70 mt-6">
-        Toda recarga gera NF-e automaticamente. Sem mensalidade.
+        Recibo baixável a cada recarga. Sem mensalidade.
       </p>
     </div>
   );

@@ -150,8 +150,10 @@ export async function novaConsultaB2BAction(
   const ip = h.get("x-forwarded-for")?.split(",")[0] ?? h.get("x-real-ip") ?? null;
   const ua = h.get("user-agent") ?? null;
 
+  // target_hash SO do target normalizado (fix cache APIFULL reuso entre planos).
+  // Sincronizado com iniciarConsultaAction (B2C) e /api/v1/consultations (B2B API).
   const targetHash = createHash("sha256")
-    .update(`${plano.id}:${targetNormalized}`)
+    .update(targetNormalized)
     .digest("hex");
 
   // 1. Debita saldo PRIMEIRO via RPC atomico (com lock). Se falhar por saldo
@@ -238,24 +240,29 @@ export async function novaConsultaB2BAction(
     },
   }).catch(() => {});
 
-  // Dispara processamento (fire-and-forget)
-  fireAndForgetProcess(consulta.id);
+  // Dispara processamento (awaited com timeout curto — evita drop em serverless)
+  await fireAndForgetProcess(consulta.id);
 
   return { ok: true, consultationId: consulta.id };
 }
 
-function fireAndForgetProcess(consultaId: string) {
+async function fireAndForgetProcess(consultaId: string) {
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!baseUrl || !serviceKey) return;
-  fetch(`${baseUrl}/functions/v1/process-consultation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serviceKey}`,
-    },
-    body: JSON.stringify({ consultationId: consultaId }),
-  }).catch((e) => {
+  // AWAIT com timeout curto pra garantir dispatch no Vercel serverless
+  // (fire-and-forget puro pode ser dropado quando handler retorna).
+  try {
+    await fetch(`${baseUrl}/functions/v1/process-consultation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+      },
+      body: JSON.stringify({ consultationId: consultaId }),
+      signal: AbortSignal.timeout(5000),
+    });
+  } catch (e) {
     console.error("[empresa.novaConsulta] dispatch:", e);
-  });
+  }
 }
