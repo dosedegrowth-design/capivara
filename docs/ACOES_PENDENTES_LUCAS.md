@@ -1,52 +1,49 @@
 # 🐾 Capivara — Ações pendentes do Lucas
 
-> **Última atualização:** 2026-07-23 · pós auditoria + hardening.
+> **Última atualização:** 2026-08-31 · checkup geral (pós auditoria de 2026-07-23).
 >
 > **URL produção:** https://suacapivara.com.br
 >
-> Este doc lista o que DEPENDE de você (credenciais externas, decisões de negócio, envio de deploy). Tudo que era código está resolvido — ver `docs/AUDITORIA_2026-07-23.md`.
+> Este doc lista o que DEPENDE de você (credenciais externas, decisões de negócio). Tudo que era código/infra automatizável está resolvido — ver `docs/AUDITORIA_2026-07-23.md`.
 
 ---
 
-## 🔑 ENV VARS — preencher no Vercel
-
-Sem essas, o hardening não fica completo:
+## 🔑 ENV VARS
 
 ### Críticas
 
-- [ ] **`INTERNAL_WEBHOOK_SECRET`** — secret dedicado pra rotas privilegiadas (Edge → webhook, refund, PDF). Gerar com:
-  ```bash
-  openssl rand -hex 32
-  ```
-  Adicionar em Vercel (production + preview) **E** em Supabase Edge Functions Secrets.
-  Enquanto não setar, o código faz fallback pro `SUPABASE_SERVICE_ROLE_KEY` (log warning) — funciona mas não é o desejável.
+- [x] **`INTERNAL_WEBHOOK_SECRET`** — ✅ FEITO 2026-08-31: gerado e instalado no Vercel (production + preview + development) E nos Supabase Edge Secrets. Mesmo valor também no `.env.local`.
 
 - [ ] **`NEXT_PUBLIC_CAPIVARA_CNPJ`** — CNPJ real da DDG. Aparece em LGPD, contato, footer.
   Formato: `12.345.678/0001-99` ou 14 dígitos puros (a função `cnpjFormatado()` aplica máscara).
+  Hoje o site degrada com elegância (esconde a linha do CNPJ), mas LGPD Art. 9º pede identificação do controlador — resolver antes de tráfego pago.
+  ```bash
+  cd ~/Antigravity/capivara
+  ~/.npm-global/bin/vercel env add NEXT_PUBLIC_CAPIVARA_CNPJ production --value "XX.XXX.XXX/0001-XX" --yes
+  ```
 
 ### Recomendadas
 
-- [ ] `NEXT_PUBLIC_CAPIVARA_WA_URL` — link WhatsApp real (`https://wa.me/5511XXXXXXXXX`). Se vazio, canal não aparece na página de contato.
+- [ ] `NEXT_PUBLIC_CAPIVARA_WA_URL` — link WhatsApp real (`https://wa.me/5511XXXXXXXXX`). Se vazio, canal não aparece na página de contato (comportamento atual).
 - [ ] `NEXT_PUBLIC_CAPIVARA_TEL` — telefone real (`(11) XXXX-XXXX`). Idem.
-- [ ] `NEXT_PUBLIC_CAPIVARA_EMAIL` — email de contato (default já ok se domínio for `suacapivara.com.br`).
+- [x] `NEXT_PUBLIC_CAPIVARA_EMAIL` — default `contato@suacapivara.com.br` já renderiza no site. **Confirmar que essa caixa existe/recebe** (o form de contato envia pra ela via Resend).
 
-### Verificar (já devem existir)
+### Verificar (você precisa CONFIRMAR os valores — vars são "sensitive", não dá pra ler via CLI)
 
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` — ok
-- [ ] `ASAAS_API_KEY` + `ASAAS_ENV` (**confirmar `production` em prod, não `sandbox`**)
-- [ ] `ASAAS_WEBHOOK_SECRET`
-- [ ] `APIFULL_API_KEY`
-- [ ] `RESEND_API_KEY` + `RESEND_FROM_EMAIL`
+- [x] `SUPABASE_SERVICE_ROLE_KEY` — existe no Vercel. (`.env.local` local foi corrigido em 2026-08-31 — tinha placeholder.)
+- [ ] **`ASAAS_ENV`** — ⚠️ MAIS IMPORTANTE: nenhuma transação real registrada no banco (só testes de maio). Se ainda for `sandbox`, **cobrança real não roda**. Pra ir pra produção: conta Asaas prod com KYC + trocar `ASAAS_API_KEY` + `ASAAS_ENV=production` + reconfigurar webhook no painel prod do Asaas.
+- [ ] **`RESEND_FROM_EMAIL`** — confirmar que usa `@suacapivara.com.br` (domínio verificado no Resend), NÃO `@capivara.app` (domínio antigo que aparecia em docs).
+- [ ] `ASAAS_WEBHOOK_SECRET` / `APIFULL_API_KEY` / `RESEND_API_KEY` — existem; validar funcionamento no primeiro fluxo real.
 
 Ver `.env.example` pra lista completa.
 
 ---
 
-## 🚀 Deploys
+## 🚀 Deploys — ✅ TODOS FEITOS
 
-- [ ] **Migration `0013_audit_hardening_2026_07_23.sql`** — aplicar no projeto DDG (`hkjukobqpjezhpxzplpj`) via MCP `apply_migration` ou CLI. Contém: RLS `api_cache`, dedup Asaas, `company_invites`, buckets Storage, retry_count, fix `payment_method` CHECK, RPC `increment_endpoint_stats`, policies admin de leitura.
-- [ ] **Edge Function `process-consultation`** (v3) — deploy via MCP `deploy_edge_function` ou `supabase functions deploy process-consultation`.
-- [ ] **Vercel** — `git push main` autodeploy. Confirmar build passa (typecheck + lint + build).
+- [x] **Migration `0013_audit_hardening_2026_07_23.sql`** — aplicada 2026-07-23 (RLS `api_cache` confirmada ativa em 2026-08-31, crons rodando limpos).
+- [x] **Edge Function `process-consultation`** — v19 ACTIVE com código v3 (markers verificados 2026-08-31).
+- [x] **Vercel** — autodeploy funcionando; site 100% no ar (smoke test 2026-08-31: 10/10 rotas em 200).
 
 ---
 
