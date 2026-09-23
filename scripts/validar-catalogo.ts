@@ -8,7 +8,7 @@
  *   3. supabase/functions/process-consultation/index.ts (PLAN_API_MAP)
  * Divergencia entre eles nao quebra o build: quebra a venda, calada.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
@@ -24,6 +24,7 @@ import {
 } from "../src/lib/consultas/planos";
 import { findEndpoint, custoTotalCentavos } from "../src/lib/apifull/mapping";
 import { iconesFaltando } from "../src/components/consulta/icones";
+import { hrefsDoMenu } from "../src/lib/consultas/menu";
 
 const erros: string[] = [];
 const avisos: string[] = [];
@@ -183,6 +184,39 @@ for (const item of CATALOGO_COMPLETO) {
     if (!findPlano(id)) {
       erro("rota", `href ${item.href} vira id "${id}" que findPlano nao acha (404)`);
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 8. Menu: todo href do header tem que existir
+//    (o menu ja apontou pra rota inexistente duas vezes neste projeto)
+// ---------------------------------------------------------------------------
+const rotasEstaticas = new Set<string>();
+function varrerPaginas(dir: string, rota: string) {
+  for (const entrada of readdirSync(dir, { withFileTypes: true })) {
+    if (!entrada.isDirectory()) {
+      if (entrada.name === "page.tsx") rotasEstaticas.add(rota || "/");
+      continue;
+    }
+    const nome = entrada.name;
+    // Grupo de rota (marketing) nao aparece na URL; [param] nao e estatica.
+    const proximo = nome.startsWith("(") ? rota : `${rota}/${nome}`;
+    if (nome.startsWith("[")) continue;
+    varrerPaginas(resolve(dir, nome), proximo);
+  }
+}
+varrerPaginas(resolve(__dirname, "../src/app"), "");
+
+for (const href of hrefsDoMenu()) {
+  const partes = href.split("/").filter(Boolean);
+  if (partes[0] === "consultar" && partes[1] === "avulso") {
+    if (!findProdutoAvulso(partes[2])) {
+      erro("menu", `menu aponta pra /consultar/avulso/${partes[2]}, que nao existe no catalogo`);
+    }
+    continue;
+  }
+  if (!rotasEstaticas.has(href)) {
+    erro("menu", `menu aponta pra "${href}", que nao tem page.tsx`);
   }
 }
 
