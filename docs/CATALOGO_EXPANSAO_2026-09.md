@@ -99,48 +99,30 @@ Existem 3: `ic-bacen` (R$10,30), `bacen` (R$6,93), `scr-premium` (**R$6,28**). U
 
 A APIFULL subiu **~10% (Nível 1)** em quase tudo. Conta Capivara = **Nível 1** (confirmado).
 
-### 1a. Custos novos dos endpoints atuais
+### 1.4 Custos N1 vigentes (22/09/2026)
 
-| Endpoint | Custo antigo | Custo novo N1 | Δ | Obs |
-|---|---|---|---|---|
-| vip-car | 31,20 | **34,32** | +10% | |
-| crlv | 20,28 | **22,31** | +10% | |
-| foto-leilao | 12,00 | **13,20** | +10% | |
-| scr-bacen | 9,36 | **10,30** | +10% | virou "SCR e Score V2"; existe **SCR Premium a 6,28** (−33%!) |
-| hist-roubo-premium | 9,36 | **10,30** | +10% | |
-| leilao | 8,76 | **9,64** | +10% | |
-| spc-brasil | 8,63 | **8,40** | −3% | |
-| cnd-trabalhista | 7,20 | **7,92** | +10% | |
-| serasa-premium | 6,96 | **7,39** | +6% | existe V2 a 8,40 |
-| serasa-basico | 5,40 | **3,04** | **−44%** | ⚠️ provável rename → "Dados cadastrais, score e dívidas" — CONFIRMAR path |
-| quod | 4,78 | **5,26** | +10% | |
-| csv-completo | 4,50 | **4,95** | +10% | |
-| recall / roubo-furto | 3,60 | **3,96** | +10% | |
-| proprietario-placa | 3,42 | **3,76** | +10% | |
-| boa-vista | 3,23 | **3,03** | −6% | rename → "Boa vista Essencial Positivo" — CONFIRMAR path |
-| bin-nacional | 3,00 | **3,30** | +10% | N2 = 1,98 (desconto grande) |
-| bin-estadual | 2,76 | **3,04** | +10% | |
-| gravame | 2,20 | **2,42** | +10% | |
-| cred-completa-plus | 2,49 | **2,74** | +10% | |
-| cpf-ultra | 1,17 | **2,92** | **+150%** | ⚠️ virou "CPF Ultra Premium" (400 bases) — CONFIRMAR se endpoint antigo morreu |
-| cpf-completo | 0,60 | 0,66 | +10% | |
-| demais baratos (placa, fipe, cpf-simples, cnpj) | 0,06–0,11 | +10% | | |
+Fonte única no código: `src/lib/apifull/mapping.ts` (espelhado inline na Edge `process-consultation` e em `docs/OPERACAO.md`).
 
-### 1b. Margens recalculadas — o que quebrou a regra
-
-| Plano | B2C | Margem B2C nova | Margem B2B nova | Ação sugerida |
-|---|---|---|---|---|
-| **Veicular Total** | 249,90 | **58%** ⚠️ | **16%** 🔴 | B2C → **279,90** · B2B → **169,90** (margem 62% / 38%) |
-| **Auctioneer Total** | 199,90 | **51%** 🔴 | **19%** 🔴 | B2C → **249,90** · B2B → **159,90** (61% / 39%) |
-| **CRLV avulso** | 49,99 | **55%** ⚠️ | **25%** 🔴 | B2C → **59,99** · B2B → **37,99** (63% / 41%) |
-| CPF Premium | 79,90 | 63% ok | **27%** 🔴 | B2B 39,90 → **49,90** (41%) |
-| CPF Raio-X | 129,90 | 63% ok | **26%** 🔴 | B2B 64,90 → **79,90** (40%) |
-| Veicular Avançado | 59,90 | 65% ok | **31%** ⚠️ | B2B 29,90 → **34,90** (41%) |
-| Vip Car avulso | 89,99 | 62% ok | **31%** ⚠️ | B2B 49,99 → **57,99** (41%) |
-| Pré-Lance / Foto Leilão / Pós-Compra | — | 66-67% ok | 39-40% limite | manter (piso 40% no arredondamento) |
-| Demais (espiadinhas, investigação, CNPJs...) | — | 70-99% ok | ok | manter |
-
-**Se `cpf-ultra` → Ultra Premium confirmar**: CPF Avançada segue ok (71%), mas ganha argumento de venda ("400 bases unificadas").
+| Endpoint (path) | Custo N1 |
+|---|---|
+| `placa-basica` · `fipe` · `pf-dadosbasicos` · `cnpj` | R$0,07–0,12 |
+| `ic-cpf-completo` | R$0,66 |
+| `cert-pf-debitos-trabalhistas` ⬅ novo | R$1,16 |
+| `cpf-ultra` | R$2,92 |
+| `gravame` | R$2,42 |
+| `scpc-boavista` · `r-cadastrais-score-dividas` ⬅ novo · `ic-bin-estadual` | R$3,03–3,04 |
+| `ic-bin-nacional` | R$3,30 |
+| `ic-proprietario-atual` | R$3,76 |
+| `ic-recall` · `roubo-furto` ⬅ novo | R$3,96 |
+| `csv-renainf-renajud-recall-bin-proprietario` | R$4,95 |
+| `ic-quod` | R$5,26 |
+| `scr-premium` ⬅ novo | R$6,28 |
+| `serasa-premium` | R$7,39 |
+| `spc-brasil` | R$8,40 |
+| `leilao` | R$9,64 |
+| `ic-foto-leilao` | R$13,20 |
+| `crlv` | R$22,31 |
+| `ic-vipcar` | R$34,32 |
 
 ---
 
@@ -291,3 +273,78 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 - [ ] TTLs de cache pros novos (certidões: 24h; CEP: 30d; processos: 24h; CNH: 7d; débitos: 12h)
 - [ ] Categorias novas exigem: `CategoriaConsulta` ampliada + constraint `consultations.category` (migration) + landings + templates PDF
 - [ ] Finalidades LGPD específicas pros produtos de skip tracing
+
+---
+
+## 8. Paths confirmados (OpenAPI 22/09) — prontos pra implementar
+
+Todos verificados contra `doc.apifull.com.br/openapi.json`. Método POST, body com `link` = path.
+
+### Veicular
+| Produto | path | custo |
+|---|---|---|
+| Multas e Débitos | `veiculo-dados-debitos` | 2,97 |
+| RENAINF | `renainf` | 3,96 |
+| RENAJUD | `renajud` | 3,96 |
+| ATPV-e 2ª via | `atpv-e` | 2,40 |
+| Placa Radar | `placa-radar` | 0,83 |
+| Frota por CPF | `pf-veiculos` | 5,28 |
+| Frota por CNPJ | `pj-veiculos` | 5,28 |
+| ANTT/RNTRC | `veiculo-combo-rntrc` | 5,10 |
+| Rastreamento | `veiculo-rastreamento` | 87,12 |
+| CNH (com foto) | `pf-cnh-v2` | 2,67 |
+
+### CPF
+| Produto | path | custo |
+|---|---|---|
+| Processos Judiciais | `pf-processos-judiciais` | 0,31 |
+| Antecedentes Criminais | `cert-pf-antecedentes-criminais` | 1,16 |
+| Busca pelo Nome | `ic-nome` | 1,65 |
+| Busca por Telefone | `pessoa-telefone` | 0,50 |
+| Dark Web | `pf-darkweb` | 1,16 |
+| Renda e Patrimônio | `pf-dados-financeiros` | 1,41 |
+| Vínculos e Parentes | `pf-pessoas-relacionadas` | 0,22 |
+| Imóveis | `consulta-imoveis` | 7,70 |
+| Vida Profissional | `pf-dados-profissionais` | 0,44 |
+| Validação CPF×Telefone | `pf-validacao-telefone` | 2,31 |
+| Restituição IR | `pf-restituicao-ir` | 0,22 |
+| Servidor Público | `pf-servidor-publico` | 0,22 |
+| PEP / Óbito / Mandados / Score cadastral | `pf-pep` · `pf-obito` · `pf-mandados-prisao` · `pf-score-cadastral` | 0,09–0,22 |
+
+### CNPJ
+| Produto | path | custo |
+|---|---|---|
+| Processos Judiciais | `pj-processos-judiciais` | 0,31 |
+| Quadro Societário | `pj-quadro-societario` | 0,31 |
+| Participação Societária | `pj-participacao-societaria` | 5,65 |
+| QUOD Score / Consulta | `pj-quod-score` · `pj-quod-consulta` | 8,98 / 14,01 |
+| Define Risco / Negócio / Limite | `pj-define-risco` · `pj-define-negocio` · `pj-define-limite` | 16,60 / 27,10 / 31,98 |
+| Sintegra | `pj-sintegra` | 1,16 |
+| Localização | `pj-localizacao` | 0,24 |
+
+### Compliance / Judicial
+| Produto | path | custo |
+|---|---|---|
+| PLD PF / PJ / QSA | `pf-compliance-pld-v3` · `pj-compliance-pld-v3` · `pj-compliance-pld-qsa-v3` | 2,25 / 6,75 / 6,75 |
+| Protesto Nacional | `protesto-nacional` | 3,76 |
+| CADIN | `cadin` | 0,88 |
+| Dívida Ativa PGFN | `cert-pf-divida-ativa-pgfn` | 1,16 |
+| Ações e Processos | `r-acoes-e-processos-judiciais` | 1,98 |
+
+### Certidões (todas R$1,16, exceto SUFRAMA 1,32)
+Padrão de nome: `cert-pf-*` e `cert-pj-*`. Principais: `cert-pf-pgfn`, `cert-pf-debitos-trabalhistas`,
+`cert-pf-antecedentes-criminais`, `cert-pf-negativa-cnj`, `cert-pf-judicial-nada-consta`,
+`cert-pj-fgts`, `cert-pj-pgfn`, `cert-pj-situacao-cadastral`, `cert-pj-debitos-trabalhistas`,
+`cert-pj-negativa-cgu`, `cert-pj-negativa-cnj` + variantes IBAMA/estaduais.
+
+### Inteligência de Local (CEP) — prefixo `mercado-*`
+`mercado-sociodemografico` (0,33) · `mercado-risco-geografico` (0,33) · `mercado-concorrencia` (0,33) ·
+`mercado-infraestrutura-urbana` (0,18) · `mercado-macroeconomicos` (0,33) ·
+`mercado-gastos-*` (11 categorias: alimentacao, consumo, diversos, educacao, habitacao, higiene,
+recreacao, saude, servicos, transporte, vestuario — R$0,09 cada) ·
+`mercado-propensao-seguro` · `mercado-precos-saude` · `mercado-seguro-patologia` (0,18)
+
+### Bônus encontrados no OpenAPI (não estavam na lista de preços)
+`pf-historico-academico` · `pf-doacoes-politicas` · `pj-doacoes-politicas` · `pf-sancoes-restricoes` ·
+`pj-sancoes-restricoes` · `pf-score-credito-nv` · `csv-v2` · `serasa-premium-v2` · `rating-credito-bancario` ·
+`nome-endereco` (busca reversa por nome/endereço) · `reconhecimento-facial`
