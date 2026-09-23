@@ -185,6 +185,52 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     cacheTTLHours: 24, // 1d
   },
 
+  {
+    internal: "veiculo-debitos",
+    path: "veiculo-dados-debitos",
+    nome: "Multas e Debitos do Veiculo",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 297,
+    cacheTTLHours: 12, // 12h — debito muda rapido (pagamento, autuacao nova)
+  },
+  {
+    internal: "renainf",
+    path: "renainf",
+    nome: "RENAINF (infracoes nacionais)",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 396,
+    cacheTTLHours: 12, // 12h
+  },
+  {
+    internal: "renajud",
+    path: "renajud",
+    nome: "RENAJUD (restricoes judiciais)",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 396,
+    cacheTTLHours: 24, // 1d — restricao judicial muda devagar
+  },
+  {
+    internal: "atpv-e",
+    path: "atpv-e",
+    nome: "ATPV-e (2a via)",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 240,
+    cacheTTLHours: 168, // 7d — documento emitido
+  },
+  {
+    internal: "placa-radar",
+    path: "placa-radar",
+    nome: "Placa Radar (passagens)",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 83,
+    cacheTTLHours: 24, // 1d
+  },
+
   // ============= PESSOA (CPF) =============
   {
     internal: "cpf-simples",

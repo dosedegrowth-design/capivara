@@ -77,6 +77,11 @@ const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
   { internal: "certificado-seguranca-veicular", path: "csv-renainf-renajud-recall-bin-proprietario", nome: "CSV Completo", categoria: "veicular", paramType: "placa", custoCentavos: 495, cacheTTLHours: 12 },
   { internal: "crlv", path: "crlv", nome: "CRLV digital", categoria: "veicular", paramType: "placa", custoCentavos: 2231, cacheTTLHours: 168 },
   { internal: "vip-car", path: "ic-vipcar", nome: "Vip Car (analise tecnica)", categoria: "leilao", paramType: "placa", custoCentavos: 3432, cacheTTLHours: 24 },
+  { internal: "veiculo-debitos", path: "veiculo-dados-debitos", nome: "Multas e Debitos do Veiculo", categoria: "veicular", paramType: "placa", custoCentavos: 297, cacheTTLHours: 12 },
+  { internal: "renainf", path: "renainf", nome: "RENAINF (infracoes nacionais)", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 12 },
+  { internal: "renajud", path: "renajud", nome: "RENAJUD (restricoes judiciais)", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 24 },
+  { internal: "atpv-e", path: "atpv-e", nome: "ATPV-e (2a via)", categoria: "veicular", paramType: "placa", custoCentavos: 240, cacheTTLHours: 168 },
+  { internal: "placa-radar", path: "placa-radar", nome: "Placa Radar (passagens)", categoria: "veicular", paramType: "placa", custoCentavos: 83, cacheTTLHours: 24 },
   // Pessoa
   { internal: "cpf-simples", path: "pf-dadosbasicos", nome: "CPF Simples", categoria: "pessoa", paramType: "cpf", custoCentavos: 11, cacheTTLHours: 168 },
   { internal: "cpf-completo", path: "ic-cpf-completo", nome: "CPF Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 66, cacheTTLHours: 168 },
@@ -674,6 +679,11 @@ const PLAN_API_MAP: Record<string, string[]> = {
   "veicular-avulso-bin-estadual": ["bin-estadual", "placa-basica"],
   "veicular-avulso-roubo-furto-basico": ["historico-roubo-furto", "placa-basica"],
   "veicular-avulso-proprietario": ["proprietario-placa", "placa-basica"],
+  "veicular-avulso-debitos": ["veiculo-debitos", "placa-basica"],
+  "veicular-avulso-renainf": ["renainf", "placa-basica"],
+  "veicular-avulso-renajud": ["renajud", "placa-basica"],
+  "veicular-avulso-atpve": ["atpv-e", "placa-basica"],
+  "veicular-avulso-radar": ["placa-radar", "placa-basica"],
   "veicular-avulso-csv": ["certificado-seguranca-veicular", "placa-basica"],
   "veicular-avulso-crlv": ["crlv", "placa-basica"],
   // Avulsos leilao

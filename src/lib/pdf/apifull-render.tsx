@@ -160,6 +160,18 @@ const s = StyleSheet.create({
   },
   emptyText: { fontSize: 9, color: c.ok, fontFamily: "Helvetica-Bold" },
 
+  /** Cabecalho de cada item em lista de registros (multas, restricoes...). */
+  itemHeader: {
+    fontSize: 8,
+    color: c.fur,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+    marginTop: 10,
+    marginBottom: 5,
+    paddingLeft: 2,
+  },
+
   unavailableBox: {
     backgroundColor: "#8E87791A",
     borderColor: "#8E87794D",
@@ -548,11 +560,57 @@ function renderGeneric({ dados }: RenderArgs) {
         </View>
       );
     }
+
+    // Array de OBJETOS (multas, infracoes, restricoes, passagens...):
+    // cada item vira um bloco com seus proprios campos. Sem isso cairia
+    // em "Item 1: {json cru}", ilegivel justamente nas listas que mais
+    // importam pro cliente.
+    if (dados.some(isPlainObject)) {
+      return (
+        <View>
+          {dados.slice(0, 15).map((item, i) => {
+            if (!isPlainObject(item)) {
+              return (
+                <View key={i} style={s.kvRow}>
+                  <Text style={s.kvKey}>{`${i + 1}`}</Text>
+                  <Text style={s.kvValue}>{stringifyValue(item)}</Text>
+                </View>
+              );
+            }
+            const entries: Array<[string, string | null]> = [];
+            for (const [k, v] of Object.entries(item)) {
+              if (isPlainObject(v)) {
+                for (const [k2, v2] of Object.entries(v)) {
+                  if (!isPlainObject(v2) && !Array.isArray(v2)) {
+                    entries.push([`${humanize(k)} · ${humanize(k2)}`, stringifyValue(v2)]);
+                  }
+                }
+              } else {
+                entries.push([humanize(k), stringifyValue(v)]);
+              }
+            }
+            return (
+              <View key={i} style={{ marginBottom: 8 }}>
+                <Text style={s.itemHeader}>{`Registro ${i + 1} de ${dados.length}`}</Text>
+                <KVList entries={entries.slice(0, 14)} />
+              </View>
+            );
+          })}
+          {dados.length > 15 ? (
+            <Text style={s.emptyText}>
+              {`+ ${dados.length - 15} registro(s) adicional(is) — ver dados completos no painel`}
+            </Text>
+          ) : null}
+        </View>
+      );
+    }
+
+    // Array de escalares
     return (
       <View>
-        {dados.slice(0, 10).map((item, i) => (
+        {dados.slice(0, 20).map((item, i) => (
           <View key={i} style={s.kvRow}>
-            <Text style={s.kvKey}>{`Item ${i + 1}`}</Text>
+            <Text style={s.kvKey}>{`${i + 1}`}</Text>
             <Text style={s.kvValue}>{stringifyValue(item)}</Text>
           </View>
         ))}

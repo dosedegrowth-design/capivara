@@ -14,6 +14,11 @@ import {
   Gavel,
   Camera,
   Star,
+  Receipt,
+  AlertCircle,
+  Scale,
+  FileSignature,
+  Radar,
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -43,6 +48,11 @@ const ICONS: Record<string, LucideIcon> = {
   Gavel,
   Camera,
   Star,
+  Receipt,
+  AlertCircle,
+  Scale,
+  FileSignature,
+  Radar,
 };
 
 interface Props {
