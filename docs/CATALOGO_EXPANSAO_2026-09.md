@@ -38,9 +38,66 @@ A régua é guia; **valor percebido manda** (ex: ATPV-e custa R$2,40 mas vale R$
 
 ---
 
-## 1. URGENTE — Reprecificação APIFULL (afeta o que JÁ vendemos)
+## 1. ✅ EXECUTADO 22/09 — Reprecificação + otimização de custo
 
-A APIFULL reajustou **+10% (Nível 1)** em quase todos os endpoints que usamos. Três caíram. Dois mudaram de nome/produto.
+> Status: **implementado e validado** (29 SKUs, typecheck + build limpos).
+> Base: contrato OpenAPI oficial (`https://doc.apifull.com.br/openapi.json`, 272 paths).
+
+### 1.0 Achados da auditoria do OpenAPI (mais importantes que o reajuste)
+
+**A) 🔴 Estávamos pagando o endpoint ERRADO de roubo/furto**
+
+A APIFULL tem dois, e nosso mapping estava invertido:
+
+| Path | Nome oficial | Custo | Descrição |
+|---|---|---|---|
+| `ic-historico-roubo-furto` | "Histórico de roubo **ou** furto" (abr/2025) | **R$10,30** | pobre ("busca de dados") |
+| `roubo-furto` | "Histórico de roubo **e** furto" (jan/2026) | **R$3,96** | rica (BO, local, data, "nada consta") |
+
+Usávamos o **caro como básico** (achando que custava R$3,60) e o **barato como "premium"** (achando R$9,36). O endpoint novo é 2,6x mais barato **e** entrega mais. → Trocado; o "premium" foi **descontinuado** (SKU duplicado que custava mais e entregava menos).
+
+**B) 💰 CNDT: alternativa 85% mais barata**
+
+`ic-cndt` (R$7,92) x `cert-pf-debitos-trabalhistas` (**R$1,16**) — mesma certidão, e a nova ainda retorna PDF. Usada em 5 planos. → Trocado.
+
+**C) 💰 SCR: alternativa 39% mais barata**
+
+Existem 3: `ic-bacen` (R$10,30), `bacen` (R$6,93), `scr-premium` (**R$6,28**). Usávamos o mais caro. → Trocado.
+
+**D) ⚠️ `serasa-basica` sumiu da tabela de preços** (endpoint ainda existe na doc, mas sem preço publicado) → trocado por `r-cadastrais-score-dividas` (R$3,04, mesmo conteúdo).
+
+**E) 🐛 Bug corrigido**: `planos.ts` chamava `"proprietario"` em 3 planos veiculares — nome que **nem o mapping nem a Edge conhecem** (ambos usam `"proprietario-placa"`). Só não quebrou porque o fallback `PLAN_API_MAP` da Edge tem o nome certo.
+
+**F) ⚠️ Pendente de investigação**: `crlv` tem summary "Busca dados **CRLV-MG**" e aceita campo `state` que **não enviamos**. Verificar se entrega fora de Minas antes de promover o produto.
+
+### 1.1 Resultado: custo caiu apesar do reajuste
+
+| Plano | Custo antes | Custo depois | Δ |
+|---|---|---|---|
+| CNPJ + Sócios | R$13,94 | **R$7,18** | −48% |
+| CPF Premium | R$29,26 | **R$22,50** | −23% |
+| CPF Raio-X | R$47,96 | **R$37,18** | −22% |
+| Veicular Avançado | R$26,99 | **R$20,65** | −23% |
+| Roubo/Furto avulso | R$10,39 | **R$4,05** | −61% |
+
+**Margem mínima da base inteira: B2C 62% · B2B 40%** (regra: ≥60% / ≥40%). Antes havia SKU com 16% de margem B2B.
+
+### 1.2 Preços ajustados (aprovados)
+
+| SKU | B2C | B2B |
+|---|---|---|
+| Veicular Total | 249,90 → **279,90** | 124,90 → **179,90** |
+| Auctioneer Total | 199,90 → **249,90** | 119,90 → **159,90** |
+| CRLV avulso | 49,99 → **59,99** | 29,99 → **37,99** |
+| CPF Premium | — | 39,90 → **49,90** |
+| CPF Raio-X | — | 64,90 → **79,90** |
+| Veicular Avançado | — | 29,90 → **34,90** |
+| Vip Car avulso | — | 49,99 → **57,99** |
+| Pré-Lance / Leilão histórico / Foto leilão | — | +R$1 a R$4 (piso 40%) |
+
+### 1.3 Contexto do reajuste APIFULL (referência)
+
+A APIFULL subiu **~10% (Nível 1)** em quase tudo. Conta Capivara = **Nível 1** (confirmado).
 
 ### 1a. Custos novos dos endpoints atuais
 
@@ -215,8 +272,8 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 
 | Fase | O quê | Esforço |
 |---|---|---|
-| **0** | Confirmar com APIFULL: nível da conta (N1/N2), paths dos endpoints novos, renames (serasa-basico, boa-vista, cpf-ultra) | 1 contato |
-| **1** | Reprecificação: atualizar custos no mapping (3 lugares) + subir os 7 preços da seção 1b | ½ dia |
+| ~~**0**~~ | ~~Confirmar nível/paths/renames~~ ✅ **FEITO 22/09** via OpenAPI + confirmação do Lucas | — |
+| ~~**1**~~ | ~~Reprecificação~~ ✅ **FEITO 22/09** — custos + 4 paths otimizados + 11 preços + bug `proprietario` | — |
 | **2** | Quick wins de maior demanda: Multas e Débitos, ATPV-e, Processos Judiciais PF/PJ, Busca por Nome/Telefone, Antecedentes, CNH | 1-2 dias (mesma infra: endpoint novo no mapping + produto no planos.ts + seção no PDF) |
 | **3** | Nicho Certidões (landing + kits) | 2-3 dias |
 | **4** | Nicho Compliance/KYC (foco API B2B) + Judicial | 2-3 dias |
@@ -227,9 +284,10 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 
 ## 7. Pendências técnicas pra implementar
 
-- [ ] **Paths dos endpoints novos** — a lista de preços não traz o slug da API; puxar da doc/painel APIFULL
-- [ ] Confirmar **N1 vs N2** da conta Capivara (impacto direto: margem +8-17% se N2)
-- [ ] Confirmar renames: `serasa-basica` → "Dados cadastrais, score e dívidas"? `scpc-boavista` → "Boa vista Essencial Positivo"? `cpf-ultra` → "CPF Ultra Premium"?
+- [x] ✅ **Paths** — obtidos do contrato OpenAPI oficial (`doc.apifull.com.br/openapi.json`, 272 paths). Todos os slugs da Fase 2 já mapeados na seção 2
+- [x] ✅ **N1 confirmado** (Lucas 22/09). Se o volume crescer, negociar N2 (−8 a 17% em tudo)
+- [x] ✅ Renames investigados: **não houve rename** — todos os paths antigos existem. O que houve foram endpoints NOVOS mais baratos (ver 1.0) e `serasa-basica` perdendo preço público
+- [ ] ⚠️ **CRLV fora de MG**: summary diz "CRLV-MG" e o endpoint aceita `state` que não enviamos — testar placa de SP antes de promover
 - [ ] TTLs de cache pros novos (certidões: 24h; CEP: 30d; processos: 24h; CNH: 7d; débitos: 12h)
 - [ ] Categorias novas exigem: `CategoriaConsulta` ampliada + constraint `consultations.category` (migration) + landings + templates PDF
 - [ ] Finalidades LGPD específicas pros produtos de skip tracing

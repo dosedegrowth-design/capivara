@@ -1,6 +1,13 @@
 /**
  * Mapeamento dos nomes internos (apisIncluidas em planos.ts) pros paths
- * reais da API Full. Fonte da verdade: collection Postman de 23/05/2026.
+ * reais da API Full.
+ *
+ * Fonte da verdade: **https://doc.apifull.com.br/** (contrato OpenAPI em
+ * /openapi.json). A APIFULL atualiza a doc a cada lancamento — conferir
+ * ANTES de adicionar produto novo.
+ *
+ * Custos: tabela Nivel 1 de 22/09/2026 (conta Capivara = **Nivel 1**).
+ * Reajuste de ~10% vs a cotacao anterior (23/05/2026).
  *
  * Base URL: https://api.apifull.com.br/api/
  * Method: POST
@@ -8,6 +15,9 @@
  *
  * Cada call recebe body com campo `link` = path do endpoint (redundante,
  * mas obrigatorio pela API).
+ *
+ * IMPORTANTE — 3 paths trocados em 22/09/2026 apos auditoria do OpenAPI
+ * (mesmo dado, custo menor). Ver docs/CATALOGO_EXPANSAO_2026-09.md secao 1.
  */
 
 export const APIFULL_BASE = "https://api.apifull.com.br/api";
@@ -26,7 +36,7 @@ export interface ApiFullEndpoint {
   categoria: "veicular" | "pessoa" | "empresa" | "leilao" | "credito" | "juridico";
   /** Parametro principal que precisa ser enviado. */
   paramType: ApiParamType;
-  /** Custo aproximado em centavos (Nivel 1 APIFULL cotado em 23/05/2026). */
+  /** Custo em centavos (tabela Nivel 1 APIFULL, 22/09/2026). */
   custoCentavos: number;
   /**
    * TTL do cache (horas). Define quanto tempo o resultado vive em
@@ -54,7 +64,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Placa Super Basica",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 8,
+    custoCentavos: 9,
     cacheTTLHours: 168, // 7d — dados de identificacao estaveis
   },
   {
@@ -63,7 +73,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Placa Basica (propria)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 10,
+    custoCentavos: 11,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -72,7 +82,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Tabela FIPE",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 11,
+    custoCentavos: 12,
     cacheTTLHours: 720, // 30d — tabela FIPE atualiza mensalmente
   },
   {
@@ -81,7 +91,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "BIN Nacional",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 300,
+    custoCentavos: 330,
     cacheTTLHours: 168, // 7d — dados estaveis
   },
   {
@@ -90,7 +100,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "BIN Estadual",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 276,
+    custoCentavos: 304,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -99,7 +109,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Recall pendente",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 360,
+    custoCentavos: 396,
     cacheTTLHours: 24, // 1d — pode aparecer recall novo
   },
   {
@@ -108,7 +118,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gravame / Alienacao",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 220,
+    custoCentavos: 242,
     cacheTTLHours: 6, // 6h — pode mudar rapido (quitacao, novo financiamento)
   },
   {
@@ -117,25 +127,16 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Proprietario atual",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 342,
+    custoCentavos: 376,
     cacheTTLHours: 6, // 6h — pode mudar via transferencia
   },
   {
     internal: "historico-roubo-furto",
-    path: "ic-historico-roubo-furto",
+    path: "roubo-furto",
     nome: "Historico Roubo/Furto",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 360,
-    cacheTTLHours: 24, // 1d
-  },
-  {
-    internal: "historico-roubo-furto-premium",
-    path: "roubo-furto",
-    nome: "Historico Roubo/Furto Premium",
-    categoria: "leilao",
-    paramType: "placa",
-    custoCentavos: 936,
+    custoCentavos: 396,
     cacheTTLHours: 24, // 1d
   },
   {
@@ -144,7 +145,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Historico de Leilao",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 876,
+    custoCentavos: 964,
     cacheTTLHours: 24, // 1d
   },
   {
@@ -153,7 +154,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Foto do Leilao",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 1200,
+    custoCentavos: 1320,
     cacheTTLHours: 720, // 30d — imagens nao mudam
   },
   {
@@ -162,7 +163,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CSV Completo (CSV+RENAJUD+RENAINF+Recall+BIN+Proprietario)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 450,
+    custoCentavos: 495,
     cacheTTLHours: 12, // 12h — combina multas que mudam rapido
   },
   {
@@ -171,7 +172,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CRLV digital",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 2028,
+    custoCentavos: 2231,
     cacheTTLHours: 168, // 7d — CRLV digital anual
   },
   {
@@ -180,7 +181,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Vip Car (analise tecnica)",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 3120,
+    custoCentavos: 3432,
     cacheTTLHours: 24, // 1d
   },
 
@@ -191,7 +192,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Simples",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 10,
+    custoCentavos: 11,
     cacheTTLHours: 168, // 7d — dados cadastrais
   },
   {
@@ -200,7 +201,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Completo",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 60,
+    custoCentavos: 66,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -209,7 +210,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Ultra Completo",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 117,
+    custoCentavos: 292,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -218,7 +219,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Ultra dos socios",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 117,
+    custoCentavos: 292,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -238,7 +239,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CNPJ Completo",
     categoria: "empresa",
     paramType: "cnpj",
-    custoCentavos: 6,
+    custoCentavos: 7,
     cacheTTLHours: 168, // 7d — dados cadastrais
   },
 
@@ -249,16 +250,16 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Boa Vista Essencial",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 323,
+    custoCentavos: 303,
     cacheTTLHours: 4, // 4h — score/dividas mudam
   },
   {
     internal: "serasa-basico",
-    path: "serasa-basica",
+    path: "r-cadastrais-score-dividas",
     nome: "Serasa Basico",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 540,
+    custoCentavos: 304,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -267,7 +268,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Serasa Premium",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 696,
+    custoCentavos: 739,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -276,25 +277,25 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "SPC Brasil",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 863,
+    custoCentavos: 840,
     cacheTTLHours: 4, // 4h
   },
   {
     internal: "scr-bacen",
-    path: "ic-bacen",
+    path: "scr-premium",
     nome: "SCR BACEN",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 936,
+    custoCentavos: 628,
     cacheTTLHours: 4, // 4h
   },
   {
     internal: "scr-bacen-socios",
-    path: "ic-bacen",
+    path: "scr-premium",
     nome: "SCR BACEN dos socios",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 936,
+    custoCentavos: 628,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -303,7 +304,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "QUOD",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 478,
+    custoCentavos: 526,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -312,18 +313,18 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Cred Completa Plus",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 249,
+    custoCentavos: 274,
     cacheTTLHours: 4, // 4h
   },
 
   // ============= JURIDICO =============
   {
     internal: "cnd-trabalhista",
-    path: "ic-cndt",
+    path: "cert-pf-debitos-trabalhistas",
     nome: "CNDT (Certidao Nacional de Debitos Trabalhistas)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 720,
+    custoCentavos: 116,
     cacheTTLHours: 24, // 1d
   },
 ];
