@@ -186,6 +186,15 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
   },
 
   {
+    internal: "rastreamento-veicular",
+    path: "veiculo-rastreamento",
+    nome: "Rastreamento de Veiculo (passagens e patios)",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 8712,
+    cacheTTLHours: 12,
+  },
+  {
     internal: "veiculo-debitos",
     path: "veiculo-dados-debitos",
     nome: "Multas e Debitos do Veiculo",
