@@ -176,7 +176,7 @@ const DIREITOS = [
     description:
       "Solicite uma cópia em JSON de tudo que armazenamos sobre você. Enviamos no seu e-mail em até 15 dias úteis.",
     action: "Solicitar exportação",
-    href: "/dashboard/configuracoes",
+    href: "/configuracoes",
   },
   {
     icon: Pencil,
@@ -184,7 +184,7 @@ const DIREITOS = [
     description:
       "Atualize seu nome, CPF, telefone, e-mail e demais dados cadastrais a qualquer momento na área da conta.",
     action: "Acessar configurações",
-    href: "/dashboard/configuracoes",
+    href: "/configuracoes",
   },
   {
     icon: UserMinus,
@@ -192,7 +192,7 @@ const DIREITOS = [
     description:
       "Pedido de exclusão anonimiza seu cadastro imediatamente. Dados fiscais (transações) ficam por 5 anos por obrigação legal.",
     action: "Excluir minha conta",
-    href: "/dashboard/configuracoes",
+    href: "/configuracoes",
   },
   {
     icon: FileDown,
@@ -200,7 +200,7 @@ const DIREITOS = [
     description:
       "Baixe um ZIP com seu cadastro + todos os PDFs de consultas que você fez. Pronto para migrar ou guardar.",
     action: "Exportar portátil",
-    href: "/dashboard/configuracoes",
+    href: "/configuracoes",
   },
 ];
 

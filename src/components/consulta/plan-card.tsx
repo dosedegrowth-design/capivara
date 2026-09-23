@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatBRL } from "@/lib/formatters";
-import type { Plano } from "@/lib/consultas/planos";
+import { hrefDoPlano, type Plano } from "@/lib/consultas/planos";
 
 interface PlanCardProps {
   plano: Plano;
@@ -27,7 +27,7 @@ export function PlanCard({
   const isDestaque = plano.destaque === "popular";
   const isPremium = plano.destaque === "premium";
 
-  const link = href ?? `/consultar/${plano.categoria}/${plano.id.split("-").slice(1).join("-")}`;
+  const link = href ?? hrefDoPlano(plano);
 
   return (
     <div

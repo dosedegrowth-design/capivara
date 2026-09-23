@@ -1890,3 +1890,13 @@ export function precoMinimoDoGrupo(grupo: GrupoCatalogo): number {
 export function findItemCatalogo(id: string): ItemCatalogo | undefined {
   return CATALOGO_COMPLETO.find((i) => i.id === id);
 }
+
+/**
+ * Rota do plano/combo. Deriva do ID, nunca de `categoria`: os combos de leilao
+ * tem categoria "veicular" (e o que vai pro banco), mas moram em
+ * /consultar/leilao/*. Usar a categoria mandava o cliente pra 404.
+ */
+export function hrefDoPlano(plano: Plano): string {
+  const [prefixo, ...resto] = plano.id.split("-");
+  return `/consultar/${prefixo}/${resto.join("-")}`;
+}
