@@ -124,7 +124,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
     ],
   },
   {
-    label: "Mais",
+    label: "Tudo",
     href: "/consultar",
     secoes: [
       {
@@ -132,7 +132,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
         itens: [
           { href: "/consultar/compliance", label: "Compliance & KYC", hint: "PEP, sanções, mandados" },
           { href: "/consultar/local", label: "Raio-X do CEP", hint: "Perfil e concorrência da região" },
-          { href: "/consultar", label: "Catálogo completo", hint: "As 67 consultas com busca" },
+          { href: "/consultar", label: "Ver as 67 consultas", hint: "Catálogo completo, com busca e filtro" },
         ],
       },
       {
