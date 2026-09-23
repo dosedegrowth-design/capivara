@@ -241,7 +241,7 @@ Busca por nome, telefone, contatos hot, endereços. Já coberto nos avulsos CPF 
 | | Hoje | Proposta |
 |---|---|---|
 | Nichos | 4 (CPF, CNPJ, Veicular, Leilão) | **8** (+ Certidões, Compliance/KYC, Judicial, Local/CEP) |
-| SKUs hoje (22/09) | 29 | **57** (+28 no ar: 5 veiculares + 13 CPF/CNPJ + 10 certidões) |
+| **SKUs (22/09)** | 29 | **67 no ar** — +38 hoje |
 | Combos | 17 | ~28 |
 | Avulsos | 13 | ~45 |
 | SKUs total | 30 | **~73** |
@@ -261,9 +261,9 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 | **2b** | ~~Avulsos de CPF/CNPJ~~ ✅ **FEITO 22/09**: 13 SKUs no ar (9 CPF + 4 CNPJ). Form/action agora aceitam placa, CPF ou CNPJ conforme a categoria — **desbloqueio que habilita o nicho de Certidões** | — |
 | **2c** | Busca reversa (por Nome `ic-nome`, por Telefone `pessoa-telefone`). Input é nome/telefone, não documento — exige novo tipo de alvo no form + revisão das finalidades LGPD (skip tracing é o uso mais sensível do catálogo) | 1 dia |
 | ~~**3**~~ | ~~Nicho Certidões~~ ✅ **FEITO 22/09**: 4 kits + 6 avulsas + landing `/consultar/certidoes` (10 SKUs, 16 endpoints). Estaduais fora (exigem campo UF) | — |
-| **4** | Nicho Compliance/KYC (foco API B2B) + Judicial | 2-3 dias |
-| **5** | Raio-X do CEP (PDF novo, template próprio) | 3-4 dias |
-| **6** | Premium: Rastreamento, Finanças da Empresa (sob demanda) | 1 dia |
+| ~~**4**~~ | ~~Compliance/KYC + Judicial~~ ✅ **FEITO 22/09**: 7 SKUs + landing `/consultar/compliance` |  — |
+| ~~**5**~~ | ~~Raio-X do CEP~~ ✅ **FEITO 22/09**: 2 SKUs + landing `/consultar/local` + **migration 0014** (categoria `cep`) + suporte a CEP em toda a cadeia | — |
+| ~~**6**~~ | ~~Premium~~ ✅ **FEITO 22/09**: Rastreamento R$249,99. Finanças da Empresa (custo R$396) fica fora do self-service — venda consultiva | — |
 
 ---
 
@@ -275,11 +275,11 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 - [ ] ⚠️ **CRLV fora de MG**: summary diz "CRLV-MG" e o endpoint aceita `state` que não enviamos — testar placa de SP antes de promover
 - [x] ✅ TTLs definidos pros 5 do bloco 2a (débitos/RENAINF 12h · RENAJUD 24h · ATPV-e 7d · radar 24h)
 - [x] ✅ TTLs de certidões (24h — validade curta), processos (24h), CNH (7d), imóveis (30d)
-- [ ] TTLs do CEP (30d) quando o nicho entrar
+- [x] ✅ TTLs do CEP (30d — dado censitário muda devagar)
 - [ ] **Renderizadores dedicados de PDF**: o OpenAPI documenta só o envelope (`status`/`dados`/`aux`), não o formato interno de `dados` — escrever renderizador adivinhando campos daria PDF vazio. Os novos usam `renderGeneric` (que agora expande arrays de objetos em blocos legíveis). Calibrar com a 1ª consulta real de cada API
 - [x] ✅ **Form avulso** agora aceita placa/CPF/CNPJ por categoria (helpers `alvoDoProduto` / `categoriaBanco` em planos.ts)
-- [ ] **Alvo por nome/telefone** (fase 2c): form só lida com documento; busca reversa precisa de outro tipo de input
-- [ ] **Categorias novas exigem migration**: `consultations.category` tem CHECK (cpf|cnpj|veicular). Certidões/Compliance/Judicial cabem nas 3 existentes, mas **CEP (geomarketing) não** — vai precisar expandir o CHECK
+- [ ] **Alvo por nome/telefone** (fase 2c): form já lida com placa/CPF/CNPJ/CEP; busca reversa (`ic-nome`, `pessoa-telefone`) precisa de mais um tipo de alvo + revisão das finalidades LGPD (skip tracing é o uso mais sensível do catálogo)
+- [x] ✅ **Migration 0014 aplicada**: `consultations.category` agora aceita `cep`. ALTER de CHECK, não destrutivo — 21 registros preservados
 - [ ] Categorias novas exigem: `CategoriaConsulta` ampliada + constraint `consultations.category` (migration) + landings + templates PDF
 - [ ] Finalidades LGPD específicas pros produtos de skip tracing
 
@@ -379,3 +379,54 @@ o sitemap **já listava essas páginas**, ou seja, o sinal era contraditório.
 
 Se aparecer reclamação real de preço antigo no Google, o caminho é atualizar o
 `lastModified` do sitemap e pedir reindexação — não voltar o noindex.
+
+
+---
+
+## 10. Estado final (22/09/2026)
+
+**67 SKUs no ar** (eram 29 de manhã), em **8 nichos**:
+
+| Nicho | Landing | SKUs |
+|---|---|---|
+| CPF | `/consultar/cpf` | 5 planos + 9 avulsos |
+| CNPJ | `/consultar/cnpj` | 4 planos + 4 avulsos |
+| Veicular | `/consultar/veicular` | 5 planos + 15 avulsos |
+| Leilão | `/consultar/leilao` | 3 combos + 3 avulsos |
+| **Certidões** | `/consultar/certidoes` | 4 kits + 6 avulsas |
+| **Compliance/KYC** | `/consultar/compliance` | 2 KYC + 2 PLD + 3 judiciais |
+| **Local (CEP)** | `/consultar/local` | 2 relatórios |
+| Premium | — | Rastreamento R$249,99 |
+
+Margem mínima da base: **B2C 62% · B2B 40%** (regra: ≥60% / ≥40%).
+
+### Invariantes validadas a cada bloco
+
+Script de verificação roda sobre o catálogo real e checa:
+1. custo declarado == soma do mapping
+2. margem B2C ≥60% e B2B ≥40%
+3. **coerência alvo × API** (produto de CNPJ não pode usar endpoint que espera CPF)
+4. todo SKU presente no `PLAN_API_MAP` da Edge
+5. toda API do catálogo com endpoint correspondente na Edge
+6. todo ícone do catálogo presente no `ICONS` map do card
+
+Os itens 3 e 6 nasceram de bugs reais encontrados hoje.
+
+### O que ficou de fora (decisão consciente)
+
+- **Busca reversa** por nome/telefone — precisa de tipo de alvo novo e revisão
+  LGPD (é o uso mais sensível do catálogo)
+- **Certidões estaduais** — exigem campo UF no formulário
+- **`pf-score-cadastral`, `pf-validacao-telefone`** — exigem nome/data-nasc/telefone
+  que não coletamos
+- **`pf-pep`, `pf-sancoes-restricoes`** — sem preço publicado na tabela (risco de margem)
+- **Finanças da Empresa** (R$396 de custo) — venda consultiva, não self-service
+- **Seguidores de Instagram/TikTok** — nunca; destrói a credibilidade de um
+  produto de verificação
+
+### Pendência que não é de catálogo
+
+Os renderizadores de PDF dos produtos novos usam `renderGeneric` (que hoje
+expande arrays de objetos em blocos legíveis). O OpenAPI documenta só o envelope
+(`status`/`dados`), então um renderizador dedicado seria adivinhação — calibrar
+com a primeira consulta real de cada API.
