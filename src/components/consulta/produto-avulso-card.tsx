@@ -27,6 +27,8 @@ import {
   IdCard,
   Car,
   Home,
+  ShieldAlert,
+  FileWarning,
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -69,6 +71,8 @@ const ICONS: Record<string, LucideIcon> = {
   IdCard,
   Car,
   Home,
+  ShieldAlert,
+  FileWarning,
 };
 
 interface Props {

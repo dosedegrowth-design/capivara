@@ -1366,6 +1366,144 @@ export const PRODUTOS_CERTIDAO: ProdutoAvulso[] = [
   },
 ];
 
+
+// -------------------------------------------------------------------------
+// COMPLIANCE / KYC e JUDICIAL
+//
+// Publico B2B: fintech, imobiliaria, RH, cartorio, marketplace. Canal natural
+// e a API publica — mas tambem vende avulso pra quem faz onboarding manual.
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_COMPLIANCE: ProdutoAvulso[] = [
+  {
+    id: "compliance-kyc-pf",
+    categoria: "cpf",
+    nome: "KYC Pessoa Física",
+    descricao: "Checagem de integridade antes de aceitar alguém como cliente ou parceiro.",
+    bullets: [
+      "Compliance PLD: PEP, sanções, processos e nível de risco",
+      "Verificação de óbito (CPF de falecido é fraude clássica)",
+      "Mandados de prisão em aberto (BNMP)",
+      "Antecedentes criminais (Polícia Federal)",
+      "Identificação cadastral confirmada",
+    ],
+    publicoAlvo: "Fintech, imobiliária, marketplace e RH no onboarding de pessoa física.",
+    precoB2C_centavos: 3990,
+    precoB2B_centavos: 2190,
+    apisIncluidas: ["pld-pf", "obito", "mandados-prisao", "antecedentes-criminais", "cpf-simples"],
+    custoApiReal_centavos: 383,
+    icon: "ShieldCheck",
+  },
+  {
+    id: "compliance-kyc-pj",
+    categoria: "cnpj",
+    nome: "KYC Empresa",
+    descricao: "Integridade da empresa e dos sócios antes de fechar contrato.",
+    bullets: [
+      "Compliance PLD da empresa (sanções, processos, risco)",
+      "Compliance PLD dos sócios e administradores (QSA)",
+      "Certidão de situação cadastral na Receita",
+      "Processos judiciais da empresa",
+      "Protesto nacional",
+    ],
+    publicoAlvo: "Due diligence de fornecedor, KYB de fintech e homologação de parceiro.",
+    precoB2C_centavos: 8990,
+    precoB2B_centavos: 4990,
+    apisIncluidas: ["pld-pj", "pld-qsa", "cert-situacao-cadastral-pj", "processos-judiciais-pj", "protesto-nacional-pj", "cnpj-completo"],
+    custoApiReal_centavos: 1880,
+    icon: "ShieldCheck",
+  },
+  {
+    id: "compliance-pld-pf",
+    categoria: "cpf",
+    nome: "PLD / PEP — Pessoa Física",
+    descricao: "Prevenção à lavagem de dinheiro: PEP, sanções e nível de risco.",
+    bullets: [
+      "Pessoa Exposta Politicamente (PEP)",
+      "Listas de sanções nacionais e internacionais",
+      "Processos e notícias relacionadas",
+      "Nível de risco consolidado",
+    ],
+    publicoAlvo: "Quem é obrigado a fazer PLD por regulação (fintech, seguradora, cartório).",
+    precoB2C_centavos: 1999,
+    precoB2B_centavos: 1099,
+    apisIncluidas: ["pld-pf", "cpf-simples"],
+    custoApiReal_centavos: 236,
+    icon: "ShieldAlert",
+  },
+  {
+    id: "compliance-pld-pj",
+    categoria: "cnpj",
+    nome: "PLD / Sanções — Empresa",
+    descricao: "Compliance da empresa: sanções, processos, relacionamentos e risco.",
+    bullets: [
+      "Listas de sanções e restrições",
+      "Processos e notícias negativas",
+      "Relacionamentos societários de risco",
+      "Nível de risco consolidado",
+    ],
+    publicoAlvo: "Compliance de fornecedor e KYB regulado.",
+    precoB2C_centavos: 3499,
+    precoB2B_centavos: 1899,
+    apisIncluidas: ["pld-pj", "cnpj-completo"],
+    custoApiReal_centavos: 682,
+    icon: "ShieldAlert",
+  },
+  {
+    id: "juridico-radar-pf",
+    categoria: "cpf",
+    nome: "Radar Jurídico",
+    descricao: "Processos, protestos e dívidas com órgãos públicos num relatório só.",
+    bullets: [
+      "Processos judiciais (tribunal, assunto, partes)",
+      "Protesto nacional em cartório",
+      "CADIN — dívidas com órgãos federais",
+      "Dívida ativa da União (PGFN)",
+    ],
+    publicoAlvo: "Advogado, analista de crédito e quem vai fechar contrato de valor alto.",
+    precoB2C_centavos: 3990,
+    precoB2B_centavos: 2190,
+    apisIncluidas: ["processos-judiciais-pf", "protesto-nacional", "cadin", "cert-divida-ativa-pf", "cpf-simples"],
+    custoApiReal_centavos: 622,
+    icon: "Scale",
+  },
+  {
+    id: "juridico-protesto-pf",
+    categoria: "cpf",
+    nome: "Protesto Nacional",
+    descricao: "Títulos protestados em cartório em todo o país.",
+    bullets: [
+      "Cartórios com protesto ativo",
+      "Valor e data do título",
+      "UF e comarca",
+      "Situação atual",
+    ],
+    publicoAlvo: "Análise de crédito, venda a prazo e locação.",
+    precoB2C_centavos: 1999,
+    precoB2B_centavos: 1099,
+    apisIncluidas: ["protesto-nacional", "cpf-simples"],
+    custoApiReal_centavos: 387,
+    icon: "FileWarning",
+  },
+  {
+    id: "juridico-cadin-pf",
+    categoria: "cpf",
+    nome: "CADIN — dívidas federais",
+    descricao: "Pendências com órgãos e entidades federais, em tempo real.",
+    bullets: [
+      "Órgão credor",
+      "Situação da pendência",
+      "Data do registro",
+    ],
+    publicoAlvo: "Quem precisa comprovar regularidade pra contrato público ou financiamento.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cadin", "cpf-simples"],
+    custoApiReal_centavos: 99,
+    icon: "FileWarning",
+  },
+];
+
 // -------------------------------------------------------------------------
 // Combos LEILAO (planos especificos pra /consultar/leilao)
 // -------------------------------------------------------------------------
@@ -1435,6 +1573,7 @@ export const TODOS_PRODUTOS_AVULSO: ProdutoAvulso[] = [
   ...PRODUTOS_CPF_AVULSO,
   ...PRODUTOS_CNPJ_AVULSO,
   ...PRODUTOS_CERTIDAO,
+  ...PRODUTOS_COMPLIANCE,
 ];
 
 export function findProdutoAvulso(id: string): ProdutoAvulso | undefined {

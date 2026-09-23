@@ -272,6 +272,17 @@ export async function callEndpoint<T = Record<string, unknown>>(
       break;
   }
 
+  // Varios endpoints (protesto-nacional, cadin, certidoes...) esperam o campo
+  // generico `document`/`documento`. Mandar junto e' seguro — a APIFULL ignora
+  // campo que nao usa. Mantido em sincronia com a Edge process-consultation.
+  if (ep.paramType === "cpf" && params.cpf) {
+    body.document = params.cpf;
+    body.documento = params.cpf;
+  } else if (ep.paramType === "cnpj" && params.cnpj) {
+    body.document = params.cnpj;
+    body.documento = params.cnpj;
+  }
+
   const result = await callApiFull<T>(ep.path, body, opts);
   return { ...result, endpoint_info: ep };
 }

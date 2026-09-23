@@ -129,6 +129,15 @@ const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
   { internal: "cert-cgu-pj", path: "cert-pj-negativa-cgu", nome: "Certidao Negativa CGU", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
   { internal: "cert-pcd-pj", path: "cert-pj-contratacao-pcd", nome: "Certidao de Contratacao de PCD", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
   { internal: "cert-ibama-pj", path: "cert-pj-negativa-ibama", nome: "Certidao Negativa IBAMA", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
+  { internal: "pld-pf", path: "pf-compliance-pld-v3", nome: "Compliance PLD (PEP, sancoes, risco)", categoria: "juridico", paramType: "cpf", custoCentavos: 225, cacheTTLHours: 24 },
+  { internal: "pld-pj", path: "pj-compliance-pld-v3", nome: "Compliance PLD da Empresa", categoria: "juridico", paramType: "cnpj", custoCentavos: 675, cacheTTLHours: 24 },
+  { internal: "pld-qsa", path: "pj-compliance-pld-qsa-v3", nome: "Compliance PLD dos Socios (QSA)", categoria: "juridico", paramType: "cnpj", custoCentavos: 675, cacheTTLHours: 24 },
+  { internal: "obito", path: "pf-obito", nome: "Dados de Obito", categoria: "pessoa", paramType: "cpf", custoCentavos: 9, cacheTTLHours: 168 },
+  { internal: "mandados-prisao", path: "pf-mandados-prisao", nome: "Mandados de Prisao (BNMP)", categoria: "juridico", paramType: "cpf", custoCentavos: 22, cacheTTLHours: 24 },
+  { internal: "protesto-nacional", path: "protesto-nacional", nome: "Protesto Nacional", categoria: "juridico", paramType: "cpf", custoCentavos: 376, cacheTTLHours: 24 },
+  { internal: "protesto-nacional-pj", path: "protesto-nacional", nome: "Protesto Nacional (empresa)", categoria: "juridico", paramType: "cnpj", custoCentavos: 376, cacheTTLHours: 24 },
+  { internal: "cadin", path: "cadin", nome: "CADIN (dividas federais)", categoria: "juridico", paramType: "cpf", custoCentavos: 88, cacheTTLHours: 24 },
+  { internal: "acoes-processos", path: "r-acoes-e-processos-judiciais", nome: "Acoes e Processos Judiciais", categoria: "juridico", paramType: "cpf", custoCentavos: 198, cacheTTLHours: 24 },
 ];
 
 function findEndpoint(internal: string): ApiFullEndpoint | undefined {
@@ -160,6 +169,14 @@ async function callApiFull(
     case "placa": body.placa = target; break;
     case "cpf": body.cpf = target; break;
     case "cnpj": body.cnpj = target; break;
+  }
+
+  // Varios endpoints (protesto-nacional, cadin, certidoes...) esperam o campo
+  // generico `document`/`documento` em vez de cpf/cnpj. Mandar os dois e' seguro:
+  // a APIFULL ignora campo que nao usa, e evita um paramType novo pra cada API.
+  if (ep.paramType === "cpf" || ep.paramType === "cnpj") {
+    body.document = target;
+    body.documento = target;
   }
 
   const startedAt = Date.now();
@@ -708,6 +725,13 @@ const PLAN_API_MAP: Record<string, string[]> = {
   "veicular-avulso-bin-estadual": ["bin-estadual", "placa-basica"],
   "veicular-avulso-roubo-furto-basico": ["historico-roubo-furto", "placa-basica"],
   "veicular-avulso-proprietario": ["proprietario-placa", "placa-basica"],
+  "compliance-kyc-pf": ["pld-pf", "obito", "mandados-prisao", "antecedentes-criminais", "cpf-simples"],
+  "compliance-kyc-pj": ["pld-pj", "pld-qsa", "cert-situacao-cadastral-pj", "processos-judiciais-pj", "protesto-nacional-pj", "cnpj-completo"],
+  "compliance-pld-pf": ["pld-pf", "cpf-simples"],
+  "compliance-pld-pj": ["pld-pj", "cnpj-completo"],
+  "juridico-radar-pf": ["processos-judiciais-pf", "protesto-nacional", "cadin", "cert-divida-ativa-pf", "cpf-simples"],
+  "juridico-protesto-pf": ["protesto-nacional", "cpf-simples"],
+  "juridico-cadin-pf": ["cadin", "cpf-simples"],
   "certidao-kit-pf-essencial": ["cert-pgfn-pf", "cnd-trabalhista", "antecedentes-criminais", "cert-cnj-pf", "cert-nada-consta-pf", "cpf-simples"],
   "certidao-kit-pf-completo": ["cert-pgfn-pf", "cnd-trabalhista", "antecedentes-criminais", "cert-cnj-pf", "cert-nada-consta-pf", "cert-cgu-pf", "cert-acoes-trabalhistas-pf", "cert-divida-ativa-pf", "cert-ibama-pf", "cpf-simples"],
   "certidao-kit-pj-licitacao": ["cert-fgts-pj", "cert-pgfn-pj", "cert-debitos-trabalhistas-pj", "cert-situacao-cadastral-pj", "sintegra", "cnpj-completo"],
