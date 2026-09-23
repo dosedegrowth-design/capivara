@@ -45,3 +45,7 @@ next-env.d.ts
 
 # Local dev tools
 .claude/
+
+# lixo do `deno check` local (ver scripts/testes)
+supabase/functions/**/node_modules/
+supabase/functions/**/deno.lock
