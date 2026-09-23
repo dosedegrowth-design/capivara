@@ -7,14 +7,16 @@ import {
   extractApiKeyFromRequest,
   touchApiKey,
 } from "@/lib/api-keys";
-import { findPlano } from "@/lib/consultas/planos";
+import { findItemCatalogo } from "@/lib/consultas/planos";
 import {
   normalizeCPF,
   normalizeCNPJ,
   normalizePlaca,
+  normalizeCEP,
   isValidCPF,
   isValidCNPJ,
   isValidPlaca,
+  isValidCEP,
 } from "@/lib/formatters";
 import { logError } from "@/lib/log";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -99,20 +101,27 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const plano = findPlano(body.plan_id);
+  // Aceita QUALQUER item do catalogo: plano, combo de leilao ou consulta
+  // avulsa (certidao, compliance, CEP...). Antes so achava os 14 planos, o que
+  // deixava 53 SKUs vendidos no site fora da API.
+  const plano = findItemCatalogo(body.plan_id);
   if (!plano) {
     return errResponse(404, "plan_not_found", { plan_id: body.plan_id });
   }
 
-  // Normalizar + validar target
+  // Normalizar + validar target pelo ALVO do item (placa/cpf/cnpj/cep), nao
+  // pela categoria do banco — CEP grava category='cep' mas Raio-X pede CEP.
   let targetNormalized: string;
   let valid = false;
-  if (plano.categoria === "cpf") {
+  if (plano.alvo === "cpf") {
     targetNormalized = normalizeCPF(body.target);
     valid = isValidCPF(targetNormalized);
-  } else if (plano.categoria === "cnpj") {
+  } else if (plano.alvo === "cnpj") {
     targetNormalized = normalizeCNPJ(body.target);
     valid = isValidCNPJ(targetNormalized);
+  } else if (plano.alvo === "cep") {
+    targetNormalized = normalizeCEP(body.target);
+    valid = isValidCEP(targetNormalized);
   } else {
     targetNormalized = normalizePlaca(body.target);
     valid = isValidPlaca(targetNormalized);
@@ -120,7 +129,8 @@ export async function POST(req: NextRequest) {
 
   if (!valid) {
     return errResponse(422, "invalid_target", {
-      category: plano.categoria,
+      expected: plano.alvo,
+      category: plano.categoriaBanco,
       received: body.target,
     });
   }
@@ -233,7 +243,7 @@ export async function POST(req: NextRequest) {
       company_id: company.id,
       api_key_id: auth.apiKey.id,
       source: "api",
-      category: plano.categoria,
+      category: plano.categoriaBanco,
       plan_tier: plano.id,
       target_value: body.target,
       target_normalized: targetNormalized,

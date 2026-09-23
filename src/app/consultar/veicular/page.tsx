@@ -20,7 +20,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 export const metadata: Metadata = {
   title: "Consulta veicular online · Placa, leilão, sinistro e multas · Capivara",
   description:
-    "Puxe a capivara da placa antes de comprar o carro usado. Histórico de leilão, sinistro, roubo, multas, débitos e recalls. PDF assinado, a partir de R$ 9,99.",
+    "Puxe a capivara da placa antes de comprar o carro usado. Histórico de leilão, sinistro, roubo, multas, débitos e recalls. PDF assinado, a partir de R$ 9,90.",
   keywords: [
     "consulta veicular",
     "consultar placa",

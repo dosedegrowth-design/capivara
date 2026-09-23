@@ -24,9 +24,14 @@ import { Mascot } from "@/components/capivara/mascot";
 import { ManadaCarousel } from "@/components/consulta/manada-carousel";
 import {
   PACOTES_MANADA,
+  CATALOGO_COMPLETO,
+  GRUPOS_CATALOGO,
+  contagemPorGrupo,
+  precoMinimoDoGrupo,
   findPlano,
   descontoB2BPercent,
 } from "@/lib/consultas/planos";
+import { resolveIcone } from "@/components/consulta/icones";
 import { formatBRL } from "@/lib/formatters";
 
 export const metadata: Metadata = {
@@ -39,6 +44,7 @@ export default function EmpresasPage() {
   return (
     <div className="bg-paper">
       <HeroEmpresas />
+      <Cobertura />
       <QuemUsa />
       <RecursosPJ />
       <PacotesResumo />
@@ -124,6 +130,68 @@ const SEGMENTOS = [
     description: "Análise de inquilino antes da assinatura do contrato.",
   },
 ];
+
+/**
+ * Cobertura do catalogo. Empresa que chega aqui precisa saber O QUE da pra
+ * puxar — antes a pagina so falava de saldo e API, nunca do que a API entrega.
+ */
+function Cobertura() {
+  const contagem = contagemPorGrupo();
+
+  return (
+    <section className="py-20 bg-paper-2 border-y border-line">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <Badge variant="outline" className="mb-3 font-mono">
+            Cobertura
+          </Badge>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
+            {CATALOGO_COMPLETO.length} consultas, todas pelo mesmo saldo.
+          </h2>
+          <p className="mt-3 text-tabaco leading-relaxed">
+            Painel, CSV em lote ou API REST — o preço sai do mesmo saldo em R$,
+            sem contrato por categoria e sem plano mínimo por produto.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {GRUPOS_CATALOGO.map((g) => {
+            const Icon = resolveIcone(g.icon);
+            return (
+              <Link
+                key={g.id}
+                href={g.href}
+                className="group rounded-lg border border-line bg-card p-5 transition-all duration-200 hover:border-fur/60 hover:shadow-[var(--shadow-pop)] hover:-translate-y-0.5"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="size-10 rounded-md bg-fur/15 text-fur flex items-center justify-center">
+                    <Icon className="size-5" strokeWidth={2} />
+                  </span>
+                  <span className="font-mono text-[10px] text-tabaco">
+                    {contagem[g.id]} opções
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-cocoa group-hover:text-fur transition-colors">
+                  {g.label}
+                </h3>
+                <p className="mt-1 text-xs font-mono text-tabaco">
+                  A partir de {formatBRL(precoMinimoDoGrupo(g.id))}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+
+        <p className="mt-6 text-center text-sm text-tabaco">
+          No plano empresa o preço por consulta cai até 50%.{" "}
+          <Link href="/consultar" className="text-fur hover:underline font-medium">
+            Ver catálogo item a item
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
+}
 
 function QuemUsa() {
   return (

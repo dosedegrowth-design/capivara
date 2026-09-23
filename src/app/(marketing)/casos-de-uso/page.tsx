@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { findPlano } from "@/lib/consultas/planos";
+import { formatBRL } from "@/lib/formatters";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
@@ -26,7 +28,8 @@ const CASOS = [
     title: "Imobiliária & Aluguel",
     description:
       "Antes de assinar contrato: score, dívidas, processos e histórico de endereço do inquilino.",
-    cta: "R$ 9,90 · CPF",
+    planoId: "cpf-espiadinha",
+    ctaSufixo: "CPF",
   },
   {
     href: "/casos-de-uso/rh-contratacao",
@@ -34,7 +37,8 @@ const CASOS = [
     title: "RH & Contratação",
     description:
       "Background check pré-admissão: ações trabalhistas, vínculos empresariais, antecedentes.",
-    cta: "R$ 89,90 · CPF Premium",
+    planoId: "cpf-premium",
+    ctaSufixo: "CPF Premium",
   },
   {
     href: "/casos-de-uso/revenda-automotiva",
@@ -42,7 +46,8 @@ const CASOS = [
     title: "Revenda Automotiva",
     description:
       "Antes de aceitar a troca: leilão, sinistro, débitos, recall e Renajud do veículo.",
-    cta: "R$ 49,90 · Veicular",
+    planoId: "veicular-avancado",
+    ctaSufixo: "Veicular Avançado",
   },
   {
     href: "/casos-de-uso/analise-credito",
@@ -50,9 +55,16 @@ const CASOS = [
     title: "Análise de Crédito",
     description:
       "Antes de aprovar venda a prazo: score, dívidas, protestos e SCR Bacen.",
-    cta: "R$ 39,90 · CPF Avançada",
+    planoId: "cpf-avancada",
+    ctaSufixo: "CPF Avançada",
   },
 ];
+
+/** Preco vem do catalogo — texto fixo desatualiza quando a tabela muda. */
+function precoDoPlano(id: string): string {
+  const p = findPlano(id);
+  return p ? formatBRL(p.precoB2C_centavos) : "";
+}
 
 export default function CasosDeUsoPage() {
   return (
@@ -75,7 +87,7 @@ export default function CasosDeUsoPage() {
       <section className="py-12 md:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="grid sm:grid-cols-2 gap-4">
-            {CASOS.map(({ href, icon: Icon, title, description, cta }) => (
+            {CASOS.map(({ href, icon: Icon, title, description, planoId, ctaSufixo }) => (
               <Link
                 key={href}
                 href={href}
@@ -89,7 +101,9 @@ export default function CasosDeUsoPage() {
                 </h2>
                 <p className="text-sm text-tabaco leading-relaxed mb-4">{description}</p>
                 <div className="flex items-center justify-between gap-2 pt-3 border-t border-line/60">
-                  <span className="text-xs font-mono text-fur">{cta}</span>
+                  <span className="text-xs font-mono text-fur">
+                    {precoDoPlano(planoId)} · {ctaSufixo}
+                  </span>
                   <ArrowRight className="size-4 text-tabaco group-hover:text-fur group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>

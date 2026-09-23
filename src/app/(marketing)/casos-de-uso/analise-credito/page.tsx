@@ -77,7 +77,6 @@ export default function CreditoPage() {
         ],
         planoRecomendado: {
           nome: "Avançada",
-          preco: "R$ 39,90",
           id: "cpf-avancada",
         },
       }}

@@ -1,9 +1,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CarFront,
-  Building2,
-  UserRound,
   ShieldCheck,
   Zap,
   FileText,
@@ -17,7 +14,16 @@ import { HeroMascot } from "@/components/capivara/hero-mascot";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCard } from "@/components/consulta/plan-card";
-import { PLANOS_CPF, PLANOS_VEICULAR } from "@/lib/consultas/planos";
+import { resolveIcone } from "@/components/consulta/icones";
+import { formatBRL } from "@/lib/formatters";
+import {
+  CATALOGO_COMPLETO,
+  GRUPOS_CATALOGO,
+  PLANOS_CPF,
+  PLANOS_VEICULAR,
+  precoMinimoDoGrupo,
+  type GrupoCatalogo,
+} from "@/lib/consultas/planos";
 
 export default function Home() {
   return (
@@ -98,13 +104,18 @@ function Hero() {
 }
 
 // =========================================================================
-// 3 Categorias
+// Categorias (7) — derivadas do catalogo, preco "a partir de" calculado
 // =========================================================================
 
-const CATEGORIAS = [
+const CATEGORIAS: {
+  id: GrupoCatalogo;
+  subtitle: string;
+  description: string;
+  bullets: string[];
+  color: string;
+}[] = [
   {
-    icon: UserRound,
-    title: "CPF",
+    id: "cpf",
     subtitle: "Pessoa física",
     description:
       "Saiba quem é a pessoa antes de fechar negócio: identidade, contato, situação financeira e vínculos.",
@@ -115,12 +126,9 @@ const CATEGORIAS = [
       "Parentes, imóveis, veículos e empresas",
     ],
     color: "bg-info/15 text-info",
-    href: "/consultar/cpf",
-    starts: "9,90",
   },
   {
-    icon: Building2,
-    title: "CNPJ",
+    id: "cnpj",
     subtitle: "Empresa",
     description:
       "Confirme se a empresa está ativa, com quem você está fechando contrato e qual a saúde financeira.",
@@ -131,12 +139,9 @@ const CATEGORIAS = [
       "Score empresarial e protestos",
     ],
     color: "bg-sage/20 text-sage",
-    href: "/consultar/cnpj",
-    starts: "7,90",
   },
   {
-    icon: CarFront,
-    title: "Veicular",
+    id: "veicular",
     subtitle: "Placa do veículo",
     description:
       "Antes de comprar ou vender um carro, descubra tudo sobre ele: dono, restrições, leilão e procedência.",
@@ -147,12 +152,64 @@ const CATEGORIAS = [
       "Recall, RENAJUD e roubo/furto",
     ],
     color: "bg-saffron/25 text-fur",
-    href: "/consultar/veicular",
-    starts: "9,90",
+  },
+  {
+    id: "leilao",
+    subtitle: "Antes do lance",
+    description:
+      "Carro de leilão tem história. Veja o que o anúncio não conta antes de arrematar.",
+    bullets: [
+      "Sinistro, perda total e monta",
+      "Foto do veículo no pátio",
+      "Roubo, furto e RENAJUD",
+      "Combo de regularização pós-compra",
+    ],
+    color: "bg-fur/15 text-fur",
+  },
+  {
+    id: "certidoes",
+    subtitle: "Documento oficial",
+    description:
+      "Certidão negativa pra licitação, contrato ou admissão — emitida na hora, sem fila de cartório.",
+    bullets: [
+      "PGFN, CNDT e FGTS",
+      "Antecedentes criminais",
+      "Débitos estaduais e municipais",
+      "Kit completo PF e PJ",
+    ],
+    color: "bg-ok/15 text-ok",
+  },
+  {
+    id: "compliance",
+    subtitle: "KYC & PLD",
+    description:
+      "Due diligence de quem entra na sua base: risco reputacional, sanções e processos.",
+    bullets: [
+      "PEP e listas de sanções",
+      "Mandados de prisão",
+      "Processos judiciais",
+      "Protestos em cartório",
+    ],
+    color: "bg-err/10 text-err",
+  },
+  {
+    id: "local",
+    subtitle: "CEP da região",
+    description:
+      "Vai abrir loja ou mapear território? Veja o perfil de quem mora e gasta naquele CEP.",
+    bullets: [
+      "Renda e perfil de consumo",
+      "Potencial de gasto por categoria",
+      "Concorrência instalada",
+      "Base pra escolher ponto comercial",
+    ],
+    color: "bg-warn/15 text-warn",
   },
 ];
 
 function Categorias() {
+  const meta = Object.fromEntries(GRUPOS_CATALOGO.map((g) => [g.id, g]));
+
   return (
     <section className="bg-paper-2 py-20 border-y border-line">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -161,58 +218,111 @@ function Categorias() {
             Qual capivara você quer puxar?
           </h2>
           <p className="mt-3 text-tabaco">
-            Escolha uma das três categorias e descubra todo o histórico em segundos.
+            São {CATALOGO_COMPLETO.length} consultas em {CATEGORIAS.length}{" "}
+            categorias. Escolha a sua e descubra todo o histórico em segundos.
           </p>
         </div>
+      </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {CATEGORIAS.map(({ icon: Icon, title, subtitle, description, bullets, color, href, starts }) => (
-            <Link
-              key={title}
-              href={href}
-              className="group relative flex flex-col rounded-lg border border-line bg-card p-7 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`size-14 rounded-md flex items-center justify-center ${color}`}>
-                  <Icon className="size-7" strokeWidth={2} />
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
-                    A partir de
+      {/* Mobile: carrossel com snap. Desktop: grid. O overflow fica fora do
+          container pra primeira e ultima carta encostarem na margem certa. */}
+      <div className="md:mx-auto md:max-w-6xl md:px-6">
+        <div
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-4 scroll-px-4
+                     md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0
+                     [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {CATEGORIAS.map((cat) => {
+            const g = meta[cat.id];
+            const Icon = resolveIcone(g.icon);
+            return (
+              <Link
+                key={cat.id}
+                href={g.href}
+                className="group relative flex flex-col rounded-lg border border-line bg-card p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60
+                           w-[85vw] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none md:shrink"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`size-14 rounded-md flex items-center justify-center ${cat.color}`}>
+                    <Icon className="size-7" strokeWidth={2} />
                   </div>
-                  <div className="text-cocoa font-bold font-mono">R$ {starts}</div>
+                  <div className="text-right">
+                    <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
+                      A partir de
+                    </div>
+                    <div className="text-cocoa font-bold font-mono">
+                      {formatBRL(precoMinimoDoGrupo(cat.id))}
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-3">
-                <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
-                  {title}
-                </h3>
-                <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
-                  {subtitle}
+                <div className="mb-3">
+                  <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
+                    {g.label}
+                  </h3>
+                  <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
+                    {cat.subtitle}
+                  </p>
+                </div>
+
+                <p className="text-sm text-tabaco leading-relaxed mb-5">
+                  {cat.description}
                 </p>
-              </div>
 
-              <p className="text-sm text-tabaco leading-relaxed mb-5">
-                {description}
-              </p>
+                <ul className="space-y-1.5 mb-6 flex-1">
+                  {cat.bullets.map((b) => (
+                    <li key={b} className="flex items-start gap-2 text-xs text-cocoa">
+                      <span className="size-1.5 rounded-full bg-fur mt-1.5 shrink-0" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
 
-              <ul className="space-y-1.5 mb-6 flex-1">
-                {bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-xs text-cocoa">
-                    <span className="size-1.5 rounded-full bg-fur mt-1.5 shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
+                <div className="mt-auto pt-4 border-t border-line/60 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
+                  Puxar agora
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            );
+          })}
 
-              <div className="mt-auto pt-4 border-t border-line/60 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
-                Puxar agora
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
-          ))}
+          {/* 7 categorias em 3 colunas deixam um buraco na ultima linha:
+              esse card fecha a grade e ainda leva pro catalogo completo.
+              No mobile ele vira o ultimo slide do carrossel. */}
+          <Link
+            href="/consultar"
+            className="group relative flex flex-col justify-center items-center text-center rounded-lg border border-dashed border-line bg-paper/60 p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:border-fur/60 hover:bg-card
+                       w-[85vw] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none md:shrink"
+          >
+            <Search className="size-8 text-fur mb-3" strokeWidth={1.75} />
+            <h3 className="font-display text-xl font-bold text-cocoa">
+              Ver tudo
+            </h3>
+            <p className="mt-2 text-sm text-tabaco leading-relaxed">
+              As {CATALOGO_COMPLETO.length} consultas numa lista só, com busca e
+              filtro. Puxe um dado avulso sem pagar o plano inteiro.
+            </p>
+            <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
+              Abrir catálogo
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </span>
+          </Link>
         </div>
+
+        {/* Dica de arrasto so no mobile */}
+        <p className="md:hidden px-4 text-[11px] font-mono text-tabaco/70">
+          Arraste pro lado pra ver as {CATEGORIAS.length} categorias →
+        </p>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 mt-8 text-center">
+        <Link
+          href="/consultar"
+          className="inline-flex items-center gap-2 text-sm font-medium text-cocoa hover:text-fur transition-colors"
+        >
+          Ver as {CATALOGO_COMPLETO.length} consultas, uma por uma
+          <ArrowRight className="size-4" />
+        </Link>
       </div>
     </section>
   );

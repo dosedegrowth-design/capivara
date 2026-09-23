@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "gen:pdfs": "tsx scripts/generate-sample-pdfs.tsx",
-    "seed:test": "tsx scripts/seed-test-accounts.ts"
+    "seed:test": "tsx scripts/seed-test-accounts.ts",
+    "validar": "tsx scripts/validar-catalogo.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

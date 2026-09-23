@@ -77,7 +77,6 @@ export default function RHPage() {
         ],
         planoRecomendado: {
           nome: "Premium",
-          preco: "R$ 89,90",
           id: "cpf-premium",
         },
       }}

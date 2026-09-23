@@ -277,8 +277,16 @@ export const TODOS_PLANOS: Plano[] = [
   ...PLANOS_VEICULAR,
 ];
 
+/**
+ * Acha plano por id. Inclui COMBOS_LEILAO: a rota /consultar/leilao/{slug}
+ * monta o id como `leilao-{slug}` e chama esta funcao — sem os combos aqui,
+ * os 3 combos caem em 404 (era o caso ate 23/09/2026).
+ *
+ * COMBOS_LEILAO e declarado depois neste arquivo; por isso a leitura acontece
+ * dentro da funcao (na chamada), nunca no corpo do modulo.
+ */
 export function findPlano(id: string): Plano | undefined {
-  return TODOS_PLANOS.find((p) => p.id === id);
+  return TODOS_PLANOS.find((p) => p.id === id) ?? COMBOS_LEILAO.find((p) => p.id === id);
 }
 
 export function planosPorCategoria(cat: CategoriaConsulta): Plano[] {
@@ -436,8 +444,33 @@ export const RESUMO_INCLUI: Record<string, string[]> = {
   ],
 };
 
+/** Resumo dos combos de leilao (igual ao card da landing /consultar/leilao). */
+const RESUMO_COMBOS_LEILAO: Record<string, string[]> = {
+  "leilao-pre-lance": [
+    "BIN + FIPE atualizado",
+    "Histórico de leilão (categoria, leiloeiro, data)",
+    "Foto do veículo no leilão",
+    "Histórico de roubo/furto",
+    "Resultado em segundos · PDF baixável",
+  ],
+  "leilao-pos-compra": [
+    "CSV (Certificado de Segurança Veicular)",
+    "RENAJUD + RENAINF (restrições e multas)",
+    "Recall pendente + BIN consolidado",
+    "CRLV digital (documento do veículo)",
+    "Verificação de gravame ativo",
+  ],
+  "leilao-auctioneer": [
+    "Pré-Lance completo (FIPE, leilão, foto)",
+    "Pós-Compra completo (CSV, CRLV, RENAJUD)",
+    "Roubo/furto Premium (bases policiais cruzadas)",
+    "Vip Car: análise técnica + precificador",
+    "Pacote pra revendedor profissional",
+  ],
+};
+
 export function getResumoIncluido(planoId: string): string[] {
-  return RESUMO_INCLUI[planoId] ?? [];
+  return RESUMO_INCLUI[planoId] ?? RESUMO_COMBOS_LEILAO[planoId] ?? [];
 }
 
 // =========================================================================
@@ -1706,4 +1739,154 @@ export function margemB2BPercent(prod: ProdutoAvulso): number {
   return Math.round(
     ((prod.precoB2B_centavos - prod.custoApiReal_centavos) / prod.precoB2B_centavos) * 100
   );
+}
+
+// =========================================================================
+// Catalogo unificado (listagem "Tudo")
+// =========================================================================
+
+/**
+ * Grupo VISIVEL no site. Difere de `CategoriaProdutoAvulso` (que espelha o
+ * alvo da consulta no banco): certidoes e compliance sao CPF/CNPJ por dentro,
+ * mas viram secao propria pro cliente porque a intencao de compra e outra.
+ */
+export type GrupoCatalogo =
+  | "cpf"
+  | "cnpj"
+  | "veicular"
+  | "leilao"
+  | "certidoes"
+  | "compliance"
+  | "local";
+
+export const GRUPOS_CATALOGO: {
+  id: GrupoCatalogo;
+  label: string;
+  href: string;
+  /** Nome do icone Lucide (resolvido no componente). */
+  icon: string;
+}[] = [
+  { id: "cpf", label: "CPF", href: "/consultar/cpf", icon: "UserRound" },
+  { id: "cnpj", label: "CNPJ", href: "/consultar/cnpj", icon: "Building2" },
+  { id: "veicular", label: "Veicular", href: "/consultar/veicular", icon: "CarFront" },
+  { id: "leilao", label: "Leilão", href: "/consultar/leilao", icon: "Gavel" },
+  { id: "certidoes", label: "Certidões", href: "/consultar/certidoes", icon: "FileCheck" },
+  { id: "compliance", label: "Compliance & KYC", href: "/consultar/compliance", icon: "ShieldCheck" },
+  { id: "local", label: "Raio-X do CEP", href: "/consultar/local", icon: "MapPin" },
+];
+
+const IDS_CERTIDAO = new Set(PRODUTOS_CERTIDAO.map((p) => p.id));
+const IDS_COMPLIANCE = new Set(PRODUTOS_COMPLIANCE.map((p) => p.id));
+const IDS_LOCAL = new Set(PRODUTOS_LOCAL.map((p) => p.id));
+
+/** Em que secao do site o produto avulso aparece. */
+export function grupoDoProduto(prod: ProdutoAvulso): GrupoCatalogo {
+  if (IDS_CERTIDAO.has(prod.id)) return "certidoes";
+  if (IDS_COMPLIANCE.has(prod.id)) return "compliance";
+  if (IDS_LOCAL.has(prod.id)) return "local";
+  if (prod.categoria === "cep") return "local";
+  return prod.categoria as GrupoCatalogo;
+}
+
+export type TipoItemCatalogo = "plano" | "combo" | "avulso";
+
+/** Item normalizado pra listagem unica (planos + combos + avulsos). */
+export interface ItemCatalogo {
+  id: string;
+  tipo: TipoItemCatalogo;
+  grupo: GrupoCatalogo;
+  nome: string;
+  descricao: string;
+  precoB2C_centavos: number;
+  /** Preco pra empresa (debita de companies.balance_cents). */
+  precoB2B_centavos: number;
+  /** Categoria como gravada em consultations.category. */
+  categoriaBanco: CategoriaConsulta;
+  /** Quantas APIs o item chama (3+ = kit/pacote). */
+  qtdApis: number;
+  /** O que o cliente informa: placa, CPF, CNPJ ou CEP. */
+  alvo: "placa" | "cpf" | "cnpj" | "cep";
+  href: string;
+  icon?: string;
+  /** Texto extra pro filtro de busca (bullets, APIs). */
+  busca: string;
+}
+
+function alvoDaCategoriaBanco(cat: CategoriaConsulta): "placa" | "cpf" | "cnpj" | "cep" {
+  if (cat === "cpf") return "cpf";
+  if (cat === "cnpj") return "cnpj";
+  if (cat === "cep") return "cep";
+  return "placa";
+}
+
+function itemDePlano(plano: Plano, tipo: TipoItemCatalogo): ItemCatalogo {
+  const sufixo = plano.id.replace(/^[^-]+-/, "");
+  const grupo: GrupoCatalogo =
+    tipo === "combo" ? "leilao" : (plano.categoria as GrupoCatalogo);
+  const base = tipo === "combo" ? "leilao" : plano.categoria;
+  return {
+    id: plano.id,
+    tipo,
+    grupo,
+    nome: plano.nome,
+    descricao: plano.descricao,
+    precoB2C_centavos: plano.precoB2C_centavos,
+    precoB2B_centavos: plano.precoB2B_centavos,
+    categoriaBanco: plano.categoria,
+    qtdApis: plano.apisIncluidas.length,
+    alvo: alvoDaCategoriaBanco(plano.categoria),
+    href: `/consultar/${base}/${sufixo}`,
+    icon: tipo === "combo" ? "Gavel" : undefined,
+    busca: plano.apisIncluidas.join(" "),
+  };
+}
+
+function itemDeAvulso(prod: ProdutoAvulso): ItemCatalogo {
+  return {
+    id: prod.id,
+    tipo: "avulso",
+    grupo: grupoDoProduto(prod),
+    nome: prod.nome,
+    descricao: prod.descricao,
+    precoB2C_centavos: prod.precoB2C_centavos,
+    precoB2B_centavos: prod.precoB2B_centavos,
+    categoriaBanco: categoriaBanco(prod.categoria),
+    qtdApis: prod.apisIncluidas.length,
+    alvo: alvoDoProduto(prod.categoria),
+    href: `/consultar/avulso/${prod.id}`,
+    icon: prod.icon,
+    busca: `${prod.bullets.join(" ")} ${prod.publicoAlvo} ${prod.apisIncluidas.join(" ")}`,
+  };
+}
+
+/**
+ * TUDO que da pra comprar, num array so: planos por categoria, combos de
+ * leilao e consultas avulsas. Usado na pagina /consultar ("Tudo") e no
+ * sitemap.
+ */
+export const CATALOGO_COMPLETO: ItemCatalogo[] = [
+  ...TODOS_PLANOS.map((p) => itemDePlano(p, "plano")),
+  ...COMBOS_LEILAO.map((p) => itemDePlano(p, "combo")),
+  ...TODOS_PRODUTOS_AVULSO.map(itemDeAvulso),
+];
+
+/** Quantos itens cada grupo tem (pro contador do filtro). */
+export function contagemPorGrupo(): Record<GrupoCatalogo, number> {
+  const out = {} as Record<GrupoCatalogo, number>;
+  for (const g of GRUPOS_CATALOGO) out[g.id] = 0;
+  for (const item of CATALOGO_COMPLETO) out[item.grupo] += 1;
+  return out;
+}
+
+/** Menor preco B2C de um grupo (pro "a partir de" das landings/home). */
+export function precoMinimoDoGrupo(grupo: GrupoCatalogo): number {
+  const precos = CATALOGO_COMPLETO.filter((i) => i.grupo === grupo).map(
+    (i) => i.precoB2C_centavos
+  );
+  return precos.length ? Math.min(...precos) : 0;
+}
+
+/** Qualquer coisa comprável pelo id: plano, combo ou avulso. */
+export function findItemCatalogo(id: string): ItemCatalogo | undefined {
+  return CATALOGO_COMPLETO.find((i) => i.id === id);
 }

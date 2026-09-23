@@ -1,118 +1,121 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { UserRound, Building2, CarFront, ArrowRight, FileCheck, ShieldCheck, MapPin, Gavel } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
+import { CatalogoExplorer } from "@/components/consulta/catalogo-explorer";
+import { resolveIcone } from "@/components/consulta/icones";
+import { formatBRL } from "@/lib/formatters";
+import {
+  CATALOGO_COMPLETO,
+  GRUPOS_CATALOGO,
+  contagemPorGrupo,
+  precoMinimoDoGrupo,
+} from "@/lib/consultas/planos";
 
 export const metadata: Metadata = {
-  title: "Consultar · Capivara",
-  description: "Escolha o tipo de capivara que você quer puxar.",
+  title: `Todas as consultas · ${CATALOGO_COMPLETO.length} opções`,
+  description:
+    "Catálogo completo: CPF, CNPJ, veicular, leilão, certidões, compliance e raio-X de CEP. Planos, combos e consultas avulsas com preço à vista, sem mensalidade.",
+  alternates: { canonical: "/consultar" },
 };
 
-const CATEGORIAS = [
-  {
-    href: "/consultar/cpf",
-    icon: UserRound,
-    title: "CPF",
-    description: "Dados cadastrais, score, dívidas, certidões.",
-    color: "bg-info/15 text-info",
-    starts: "9,90",
-  },
-  {
-    href: "/consultar/cnpj",
-    icon: Building2,
-    title: "CNPJ",
-    description: "Razão social, sócios, certidões, crédito.",
-    color: "bg-sage/20 text-sage",
-    starts: "7,90",
-  },
-  {
-    href: "/consultar/veicular",
-    icon: CarFront,
-    title: "Veicular",
-    description: "Placa, proprietário, gravame, leilão, recall.",
-    color: "bg-saffron/25 text-fur",
-    starts: "9,90",
-  },
-  {
-    href: "/consultar/certidoes",
-    icon: FileCheck,
-    title: "Certidões",
-    description: "PGFN, CNDT, FGTS, antecedentes. Kit pra licitação.",
-    color: "bg-ok/15 text-ok",
-    starts: "12,99",
-  },
-  {
-    href: "/consultar/compliance",
-    icon: ShieldCheck,
-    title: "Compliance & KYC",
-    description: "PEP, sanções, mandados, processos, protestos.",
-    color: "bg-err/10 text-err",
-    starts: "12,99",
-  },
-  {
-    href: "/consultar/local",
-    icon: MapPin,
-    title: "Raio-X do CEP",
-    description: "Perfil da região, renda, gastos e concorrência.",
-    color: "bg-warn/15 text-warn",
-    starts: "29,90",
-  },
-  {
-    href: "/consultar/leilao",
-    icon: Gavel,
-    title: "Leilão",
-    description: "Antes do lance: sinistro, monta, foto e regularização.",
-    color: "bg-fur/15 text-fur",
-    starts: "12,99",
-  },
-];
+const DESCRICAO_GRUPO: Record<string, string> = {
+  cpf: "Dados cadastrais, score, dívidas, vínculos.",
+  cnpj: "Razão social, sócios, certidões, crédito.",
+  veicular: "Placa, proprietário, gravame, leilão, recall.",
+  leilao: "Antes do lance: sinistro, monta, foto e regularização.",
+  certidoes: "PGFN, CNDT, FGTS, antecedentes. Kit pra licitação.",
+  compliance: "PEP, sanções, mandados, processos, protestos.",
+  local: "Perfil da região, renda, gastos e concorrência.",
+};
 
 export default function ConsultarPage() {
+  const contagem = contagemPorGrupo();
+
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12 md:py-20">
-      <div className="text-center max-w-2xl mx-auto mb-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 md:py-16">
+      {/* Hero */}
+      <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="flex justify-center mb-4">
-          <Mascot pose="investigando" size={120} animate="idle" />
+          <Mascot pose="investigando" size={110} animate="idle" />
         </div>
         <Badge variant="outline" className="mb-3 font-mono">
-          Passo 1 de 3
+          {CATALOGO_COMPLETO.length} consultas disponíveis
         </Badge>
         <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight text-cocoa">
           Que capivara você quer puxar?
         </h1>
         <p className="mt-3 text-tabaco text-lg">
-          Escolha o tipo de consulta. Depois selecione o plano e quanto detalhe quer.
+          Comece por uma categoria ou busque direto a consulta que você precisa.
+          Sem mensalidade — você paga só o que puxar.
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
-        {CATEGORIAS.map(({ href, icon: Icon, title, description, color, starts }) => (
-          <Link
-            key={title}
-            href={href}
-            className="group relative flex flex-col rounded-lg border border-line bg-card p-8 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60"
-          >
-            <div className={`size-14 rounded-md flex items-center justify-center ${color} mb-4`}>
-              <Icon className="size-7" strokeWidth={2} />
-            </div>
-            <h2 className="font-display text-2xl font-bold text-cocoa mb-2">
-              {title}
-            </h2>
-            <p className="text-sm text-tabaco leading-relaxed mb-6 flex-1">
-              {description}
-            </p>
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-tabaco">A partir de</span>
-              <span className="text-cocoa font-bold">R$ {starts}</span>
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
-              Escolher plano
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </div>
+      {/* Atalho por categoria */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-12">
+        {GRUPOS_CATALOGO.map((g) => {
+          const Icon = resolveIcone(g.icon);
+          return (
+            <Link
+              key={g.id}
+              href={g.href}
+              className="group flex flex-col rounded-lg border border-line bg-card p-5 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-0.5 hover:border-fur/60"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="size-10 rounded-md bg-fur/15 text-fur flex items-center justify-center">
+                  <Icon className="size-5" strokeWidth={2} />
+                </div>
+                <span className="font-mono text-[10px] text-tabaco">
+                  {contagem[g.id]} opções
+                </span>
+              </div>
+              <h2 className="font-display text-lg font-bold text-cocoa">
+                {g.label}
+              </h2>
+              <p className="mt-1 text-xs text-tabaco leading-relaxed flex-1">
+                {DESCRICAO_GRUPO[g.id]}
+              </p>
+              <div className="mt-3 pt-3 border-t border-line/60 flex items-center justify-between text-xs font-mono">
+                <span className="text-tabaco">A partir de</span>
+                <span className="text-cocoa font-bold">
+                  {formatBRL(precoMinimoDoGrupo(g.id))}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-cocoa group-hover:text-fur transition-colors">
+                Ver categoria
+                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Catalogo completo, item a item */}
+      <div className="border-t border-line pt-10">
+        <div className="mb-6">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-cocoa">
+            Todas as consultas, uma por uma
+          </h2>
+          <p className="mt-2 text-tabaco">
+            Precisa de um dado só? Puxe avulso sem pagar o plano inteiro.
+            Filtre por categoria ou busque pelo nome.
+          </p>
+        </div>
+
+        <CatalogoExplorer />
+      </div>
+
+      {/* Nota B2B */}
+      <div className="mt-12 rounded-lg border border-line bg-paper-2 p-6 text-center">
+        <p className="text-sm text-tabaco leading-relaxed">
+          Vai consultar em volume? No plano empresa o preço cai até 50% e você
+          puxa por painel, CSV ou API.{" "}
+          <Link href="/empresas" className="text-fur hover:underline font-medium">
+            Ver planos pra empresa
           </Link>
-        ))}
+        </p>
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ export default function ImobiliariaPage() {
               "Junto com a ficha cadastral comum (RG, comprovante de renda).",
           },
           {
-            title: "Consulte pela Capivara (R$ 9,90 a R$ 199)",
+            title: "Consulte pela Capivara (R$ 9,90 a R$ 129,90)",
             description:
               "Espiadinha pra confirmação básica, Avançada pra score + dívidas, Premium pra processos trabalhistas.",
           },
@@ -77,7 +77,6 @@ export default function ImobiliariaPage() {
         ],
         planoRecomendado: {
           nome: "Investigação",
-          preco: "R$ 19,90",
           id: "cpf-investigacao",
         },
       }}

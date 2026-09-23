@@ -77,7 +77,6 @@ export default function RevendaPage() {
         ],
         planoRecomendado: {
           nome: "Avançado",
-          preco: "R$ 49,90",
           id: "veicular-avancado",
         },
       }}

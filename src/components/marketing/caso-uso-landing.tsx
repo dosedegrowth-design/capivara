@@ -4,6 +4,8 @@ import { ArrowRight, Check, type LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/capivara/mascot";
+import { findPlano } from "@/lib/consultas/planos";
+import { formatBRL } from "@/lib/formatters";
 
 export interface CasoUsoContent {
   /** Slug da pagina (cpf/cnpj/veicular) pra qual o caso de uso aponta */
@@ -26,15 +28,20 @@ export interface CasoUsoContent {
   passos: { title: string; description: string }[];
   /** Bullets de "o que vem na consulta" */
   oQueVem: string[];
-  /** Plano recomendado pra esse caso */
+  /**
+   * Plano recomendado pra esse caso. O preco NAO fica aqui: vem do catalogo
+   * pelo `id`, senao desatualiza calado quando a tabela muda.
+   */
   planoRecomendado: {
     nome: string;
-    preco: string;
     id: string;
   };
 }
 
 export function CasoUsoLanding({ content }: { content: CasoUsoContent }) {
+  const plano = findPlano(content.planoRecomendado.id);
+  const preco = plano ? formatBRL(plano.precoB2C_centavos) : "";
+
   return (
     <div className="bg-paper">
       {/* HERO */}
@@ -60,7 +67,7 @@ export function CasoUsoLanding({ content }: { content: CasoUsoContent }) {
                 </Button>
                 <Button asChild variant="secondary" size="xl">
                   <Link href={`/consultar/${content.categoria}/${content.planoRecomendado.id.split("-").slice(1).join("-")}`}>
-                    {content.planoRecomendado.nome} · {content.planoRecomendado.preco}
+                    {content.planoRecomendado.nome} · {preco}
                   </Link>
                 </Button>
               </div>
@@ -162,7 +169,7 @@ export function CasoUsoLanding({ content }: { content: CasoUsoContent }) {
             <div className="relative">
               <h2 className="font-display text-2xl md:text-3xl font-bold leading-tight">
                 Comece agora ·{" "}
-                <span className="text-saffron">{content.planoRecomendado.preco}</span>
+                <span className="text-saffron">{preco}</span>
               </h2>
               <p className="mt-3 text-cream/80 max-w-lg mx-auto">
                 Sem mensalidade. Pague só as consultas que fizer. Resultado em segundos com PDF.

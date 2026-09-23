@@ -21,6 +21,11 @@ import {
   PLANOS_CPF,
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
+  COMBOS_LEILAO,
+  PRODUTOS_CERTIDAO,
+  PRODUTOS_COMPLIANCE,
+  PRODUTOS_LOCAL,
+  CATALOGO_COMPLETO,
   type Plano,
 } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
@@ -28,9 +33,9 @@ import { formatBRL } from "@/lib/formatters";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "API Capivara · Consulta CPF, CNPJ e veicular via REST · Capivara",
+  title: "API Capivara · CPF, CNPJ, veicular, certidões e KYC via REST · Capivara",
   description:
-    "Integre consultas de CPF, CNPJ e veicular direto no seu sistema. API REST com Bearer auth, idempotência, webhooks HMAC e cobrança por consulta debitando do seu saldo em R$. Sem mensalidade.",
+    "Integre consultas de CPF, CNPJ, veicular, leilão, certidões, compliance e CEP direto no seu sistema. API REST com Bearer auth, idempotência, webhooks HMAC e cobrança por consulta debitando do seu saldo em R$. Sem mensalidade.",
   keywords: [
     "api consulta cpf",
     "api consulta cnpj",
@@ -123,7 +128,7 @@ export default function APILandingPage() {
               </h1>
 
               <p className="text-base sm:text-lg text-tabaco leading-relaxed max-w-xl mx-auto md:mx-0">
-                CPF, CNPJ e veicular via REST. Auth por Bearer token, idempotência e
+                CPF, CNPJ, veicular, certidões e KYC via REST. Auth por Bearer token, idempotência e
                 webhooks HMAC. <strong className="text-cocoa">Cobrado por consulta</strong> —
                 sem mensalidade, sem fidelidade.
               </p>
@@ -267,6 +272,27 @@ x-capivara-event: consultation.completed
             <PrecosTable titulo="CPF" planos={planosCpf} />
             <PrecosTable titulo="CNPJ" planos={planosCnpj} />
             <PrecosTable titulo="Veicular" planos={planosVeic} />
+            <PrecosTable titulo="Leilão (combos)" planos={COMBOS_LEILAO} />
+            <PrecosTable titulo="Certidões" planos={PRODUTOS_CERTIDAO} />
+            <PrecosTable titulo="Compliance & KYC" planos={PRODUTOS_COMPLIANCE} />
+            <PrecosTable titulo="Raio-X do CEP" planos={PRODUTOS_LOCAL} />
+          </div>
+
+          <div className="mt-6 rounded-lg border border-line bg-paper-2 p-5">
+            <p className="text-sm text-tabaco leading-relaxed">
+              Faltou alguma acima? A API aceita as{" "}
+              <strong className="text-cocoa">
+                {CATALOGO_COMPLETO.length} consultas do catálogo
+              </strong>{" "}
+              — inclusive as {CATALOGO_COMPLETO.filter((i) => i.tipo === "avulso").length}{" "}
+              avulsas (score, gravame, antecedentes, protesto, sócios). Basta
+              mandar o <code className="font-mono text-xs text-fur">plan_id</code>{" "}
+              do item.{" "}
+              <Link href="/consultar" className="text-fur hover:underline">
+                Ver catálogo completo
+              </Link>
+              .
+            </p>
           </div>
 
           <p className="text-xs font-mono text-tabaco/70 mt-4 text-center">
@@ -398,7 +424,7 @@ function PrecosTable({
   planos,
 }: {
   titulo: string;
-  planos: Plano[];
+  planos: { id: string; nome: string; descricao: string; precoB2B_centavos: number; precoB2C_centavos: number }[];
 }) {
   return (
     <div className="border-b border-line/60 last:border-b-0">

@@ -5,19 +5,35 @@ import { ArrowRight, UserRound, Building2, CarFront, Gavel } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCarousel } from "@/components/consulta/plan-carousel";
+import { ProdutoAvulsoCard } from "@/components/consulta/produto-avulso-card";
+import { resolveIcone } from "@/components/consulta/icones";
+import { formatBRL } from "@/lib/formatters";
 import {
   PLANOS_CPF,
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
   COMBOS_LEILAO,
+  PRODUTOS_CERTIDAO,
+  PRODUTOS_COMPLIANCE,
+  PRODUTOS_LOCAL,
+  CATALOGO_COMPLETO,
+  GRUPOS_CATALOGO,
   RESUMO_INCLUI,
   type Plano,
+  type ProdutoAvulso,
+  type GrupoCatalogo,
 } from "@/lib/consultas/planos";
+
+/** Faixa de preco real do catalogo — nunca hardcode, senao desatualiza. */
+const PRECOS = CATALOGO_COMPLETO.map((i) => i.precoB2C_centavos);
+const PRECO_MIN = Math.min(...PRECOS);
+const PRECO_MAX = Math.max(...PRECOS);
 
 export const metadata: Metadata = {
   title: "Preços · Capivara",
-  description:
-    "Planos avulsos para pessoa física a partir de R$ 7,90. Sem mensalidade — você paga só a consulta que fizer.",
+  description: `Catálogo com ${CATALOGO_COMPLETO.length} consultas: CPF, CNPJ, veicular, leilão, certidões, compliance e CEP. A partir de ${formatBRL(
+    PRECO_MIN
+  )}, sem mensalidade — você paga só a consulta que fizer.`,
   alternates: { canonical: "/precos" },
 };
 
@@ -60,6 +76,24 @@ export default function PrecosPage() {
           href="/consultar/leilao"
         />
 
+        <CategoriaAvulsos
+          grupo="certidoes"
+          descricao="Certidão negativa emitida na hora — licitação, contrato, admissão."
+          produtos={PRODUTOS_CERTIDAO}
+        />
+        <CategoriaAvulsos
+          grupo="compliance"
+          descricao="Due diligence de quem entra na sua base: PEP, sanções, processos."
+          produtos={PRODUTOS_COMPLIANCE}
+        />
+        <CategoriaAvulsos
+          grupo="local"
+          descricao="Perfil de consumo e concorrência do CEP, pra escolher ponto comercial."
+          produtos={PRODUTOS_LOCAL}
+        />
+
+        <TodasAsConsultas />
+
         <EmpresaCallout />
       </div>
 
@@ -83,7 +117,8 @@ function Header() {
           Sem mensalidade. Você só paga o que consultar.
         </h1>
         <p className="mt-4 text-tabaco text-lg leading-relaxed">
-          Planos avulsos do mais leve (R$ 7,90) ao mais completo (R$ 249,90).
+          São {CATALOGO_COMPLETO.length} consultas, do mais leve (
+          {formatBRL(PRECO_MIN)}) ao mais completo ({formatBRL(PRECO_MAX)}).
           Pague Pix, boleto ou cartão. Resultado em PDF com QR Code de verificação.
         </p>
       </div>
@@ -136,6 +171,80 @@ function CategoriaPlanos({
       </div>
 
       <PlanCarousel planos={planos} inclui={RESUMO_INCLUI} cardWidth={300} />
+    </section>
+  );
+}
+
+// =========================================================================
+// Bloco de consultas avulsas por grupo (certidoes, compliance, CEP)
+// =========================================================================
+
+function CategoriaAvulsos({
+  grupo,
+  descricao,
+  produtos,
+}: {
+  grupo: GrupoCatalogo;
+  descricao: string;
+  produtos: ProdutoAvulso[];
+}) {
+  const meta = GRUPOS_CATALOGO.find((g) => g.id === grupo);
+  if (!meta) return null;
+  const Icon = resolveIcone(meta.icon);
+
+  return (
+    <section className="space-y-8">
+      <div className="flex items-start justify-between gap-4 max-w-4xl flex-col sm:flex-row">
+        <div className="flex items-start gap-4">
+          <span className="size-12 rounded-md flex items-center justify-center shrink-0 bg-fur/15 text-fur">
+            <Icon className="size-5" />
+          </span>
+          <div>
+            <h2 className="font-display text-3xl font-bold text-cocoa">
+              {meta.label}
+            </h2>
+            <p className="text-tabaco mt-1">{descricao}</p>
+          </div>
+        </div>
+
+        <Button asChild variant="secondary" size="md">
+          <Link href={meta.href}>
+            Ver detalhes
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-4">
+        {produtos.map((produto) => (
+          <ProdutoAvulsoCard key={produto.id} produto={produto} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// =========================================================================
+// Ponte pro catalogo completo
+// =========================================================================
+
+function TodasAsConsultas() {
+  return (
+    <section className="rounded-2xl border border-line bg-paper-2 p-8 text-center">
+      <h2 className="font-display text-2xl font-bold text-cocoa">
+        Precisa de um dado só?
+      </h2>
+      <p className="mt-2 text-tabaco max-w-2xl mx-auto leading-relaxed">
+        Além dos planos, tem {CATALOGO_COMPLETO.filter((i) => i.tipo === "avulso").length}{" "}
+        consultas avulsas — score, gravame, antecedentes, sócios, protesto. Puxe
+        uma só, sem pagar o pacote inteiro.
+      </p>
+      <Button asChild variant="accent" size="lg" className="mt-5">
+        <Link href="/consultar">
+          Ver as {CATALOGO_COMPLETO.length} consultas
+          <ArrowRight className="size-4" />
+        </Link>
+      </Button>
     </section>
   );
 }
