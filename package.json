@@ -13,7 +13,8 @@
     "seed:test": "tsx scripts/seed-test-accounts.ts",
     "validar": "tsx scripts/validar-catalogo.ts",
     "test:socios": "tsx scripts/testes/socios.test.ts && tsx scripts/testes/particao.test.ts",
-    "check": "npm run typecheck && npm run validar && npm run test:socios"
+    "check": "npm run typecheck && npm run validar && npm run test:socios && npm run test:fraude",
+    "test:fraude": "tsx scripts/testes/fraude.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

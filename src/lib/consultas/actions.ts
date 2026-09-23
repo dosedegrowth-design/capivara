@@ -5,6 +5,10 @@ import { createHash } from "crypto";
 import { headers } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  avaliarConsulta,
+  mensagemDeBloqueio,
+} from "@/lib/anti-fraude";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   findPlano,
@@ -166,6 +170,9 @@ export async function iniciarConsultaAction(
   const ua = h.get("user-agent") ?? null;
 
   // ---- 4.5. Anti-fraude ----
+  // Duas camadas: as regras SQL de 0005 (velocidade por usuario) e as de
+  // src/lib/anti-fraude (blocklist, varredura por IP, finalidade incoerente),
+  // que continuam valendo quando o sujeito cria conta nova.
   const admin = createAdminClient();
   const { data: fraudCheck } = await admin.rpc("check_fraud_rules", {
     p_user_id: user.id,
@@ -179,6 +186,19 @@ export async function iniciarConsultaAction(
       error:
         "Atividade suspeita detectada. Aguarde algumas horas ou entre em contato com o suporte.",
     };
+  }
+
+  const avaliacao = await avaliarConsulta(admin, {
+    userId: user.id,
+    targetNormalizado: targetNormalized,
+    finalidade,
+    documentoDoCadastro: profile.cpf,
+    ip,
+    userAgent: ua,
+  });
+
+  if (avaliacao.acao === "bloquear") {
+    return { ok: false, error: avaliacao.mensagem ?? mensagemDeBloqueio() };
   }
 
   // target_hash SO do target normalizado — permite cache APIFULL entre planos
@@ -494,6 +514,9 @@ export async function iniciarConsultaAvulsoAction(
   const ua = h.get("user-agent") ?? null;
 
   // ---- 4.5. Anti-fraude ----
+  // Duas camadas: as regras SQL de 0005 (velocidade por usuario) e as de
+  // src/lib/anti-fraude (blocklist, varredura por IP, finalidade incoerente),
+  // que continuam valendo quando o sujeito cria conta nova.
   const admin = createAdminClient();
   const { data: fraudCheck } = await admin.rpc("check_fraud_rules", {
     p_user_id: user.id,
@@ -507,6 +530,19 @@ export async function iniciarConsultaAvulsoAction(
       error:
         "Atividade suspeita detectada. Aguarde algumas horas ou entre em contato com o suporte.",
     };
+  }
+
+  const avaliacao = await avaliarConsulta(admin, {
+    userId: user.id,
+    targetNormalizado: targetNormalized,
+    finalidade,
+    documentoDoCadastro: profile.cpf,
+    ip,
+    userAgent: ua,
+  });
+
+  if (avaliacao.acao === "bloquear") {
+    return { ok: false, error: avaliacao.mensagem ?? mensagemDeBloqueio() };
   }
 
   const targetHash = createHash("sha256")
