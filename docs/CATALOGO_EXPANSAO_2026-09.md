@@ -256,7 +256,8 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 |---|---|---|
 | ~~**0**~~ | ~~Confirmar nível/paths/renames~~ ✅ **FEITO 22/09** via OpenAPI + confirmação do Lucas | — |
 | ~~**1**~~ | ~~Reprecificação~~ ✅ **FEITO 22/09** — custos + 4 paths otimizados + 11 preços + bug `proprietario` | — |
-| **2** | Quick wins de maior demanda: Multas e Débitos, ATPV-e, Processos Judiciais PF/PJ, Busca por Nome/Telefone, Antecedentes, CNH | 1-2 dias (mesma infra: endpoint novo no mapping + produto no planos.ts + seção no PDF) |
+| **2a** | ~~Quick wins veiculares~~ ✅ **FEITO 22/09**: Multas e Débitos, RENAINF, RENAJUD, ATPV-e, Placa Radar (5 SKUs no ar) | — |
+| **2b** | Avulsos de CPF/CNPJ (Processos, Antecedentes, Busca por Nome/Telefone, Dark Web, Frota, CNH). **Requer**: `consulta-avulso-form.tsx` hoje assume SEMPRE placa — precisa aceitar CPF/CNPJ + `CategoriaProdutoAvulso` ampliada | 1-2 dias |
 | **3** | Nicho Certidões (landing + kits) | 2-3 dias |
 | **4** | Nicho Compliance/KYC (foco API B2B) + Judicial | 2-3 dias |
 | **5** | Raio-X do CEP (PDF novo, template próprio) | 3-4 dias |
@@ -270,7 +271,10 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 - [x] ✅ **N1 confirmado** (Lucas 22/09). Se o volume crescer, negociar N2 (−8 a 17% em tudo)
 - [x] ✅ Renames investigados: **não houve rename** — todos os paths antigos existem. O que houve foram endpoints NOVOS mais baratos (ver 1.0) e `serasa-basica` perdendo preço público
 - [ ] ⚠️ **CRLV fora de MG**: summary diz "CRLV-MG" e o endpoint aceita `state` que não enviamos — testar placa de SP antes de promover
-- [ ] TTLs de cache pros novos (certidões: 24h; CEP: 30d; processos: 24h; CNH: 7d; débitos: 12h)
+- [x] ✅ TTLs definidos pros 5 do bloco 2a (débitos/RENAINF 12h · RENAJUD 24h · ATPV-e 7d · radar 24h)
+- [ ] TTLs dos próximos (certidões 24h · CEP 30d · processos 24h · CNH 7d)
+- [ ] **Renderizadores dedicados de PDF**: o OpenAPI documenta só o envelope (`status`/`dados`/`aux`), não o formato interno de `dados` — escrever renderizador adivinhando campos daria PDF vazio. Os novos usam `renderGeneric` (que agora expande arrays de objetos em blocos legíveis). Calibrar com a 1ª consulta real de cada API
+- [ ] **Form avulso só aceita placa** (`consulta-avulso-form.tsx:55`) — bloqueia produtos de CPF/CNPJ (fase 2b)
 - [ ] Categorias novas exigem: `CategoriaConsulta` ampliada + constraint `consultations.category` (migration) + landings + templates PDF
 - [ ] Finalidades LGPD específicas pros produtos de skip tracing
 
