@@ -12,9 +12,10 @@ const NAV = [
   { href: "/consultar/cpf", label: "CPF" },
   { href: "/consultar/cnpj", label: "CNPJ" },
   { href: "/consultar/veicular", label: "Veicular" },
+  { href: "/consultar/certidoes", label: "Certidões" },
+  { href: "/consultar", label: "Tudo" },
   { href: "/api-publica", label: "API" },
   { href: "/empresas", label: "Empresas" },
-  { href: "/blog", label: "Blog" },
 ];
 
 export function SiteHeader() {

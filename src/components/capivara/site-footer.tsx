@@ -28,6 +28,10 @@ export function SiteFooter() {
               <li><Link href="/consultar/cpf" className="hover:text-fur transition-colors">Consulta CPF</Link></li>
               <li><Link href="/consultar/cnpj" className="hover:text-fur transition-colors">Consulta CNPJ</Link></li>
               <li><Link href="/consultar/veicular" className="hover:text-fur transition-colors">Consulta veicular</Link></li>
+              <li><Link href="/consultar/certidoes" className="hover:text-fur transition-colors">Certidões</Link></li>
+              <li><Link href="/consultar/compliance" className="hover:text-fur transition-colors">Compliance & KYC</Link></li>
+              <li><Link href="/consultar/local" className="hover:text-fur transition-colors">Raio-X do CEP</Link></li>
+              <li><Link href="/consultar/leilao" className="hover:text-fur transition-colors">Leilão</Link></li>
               <li><Link href="/precos" className="hover:text-fur transition-colors">Preços</Link></li>
               <li><Link href="/empresas" className="hover:text-fur transition-colors">Para empresas</Link></li>
             </ul>
@@ -57,6 +61,7 @@ export function SiteFooter() {
               <li><Link href="/casos-de-uso" className="hover:text-fur transition-colors">Casos de uso</Link></li>
               <li><Link href="/comparar" className="hover:text-fur transition-colors">Comparar</Link></li>
               <li><Link href="/status" className="hover:text-fur transition-colors">Status</Link></li>
+              <li><Link href="/blog" className="hover:text-fur transition-colors">Blog</Link></li>
               <li><Link href="/contato" className="hover:text-fur transition-colors">Contato</Link></li>
             </ul>
           </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { UserRound, Building2, CarFront, ArrowRight } from "lucide-react";
+import { UserRound, Building2, CarFront, ArrowRight, FileCheck, ShieldCheck, MapPin, Gavel } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
@@ -34,6 +34,38 @@ const CATEGORIAS = [
     description: "Placa, proprietário, gravame, leilão, recall.",
     color: "bg-saffron/25 text-fur",
     starts: "9,90",
+  },
+  {
+    href: "/consultar/certidoes",
+    icon: FileCheck,
+    title: "Certidões",
+    description: "PGFN, CNDT, FGTS, antecedentes. Kit pra licitação.",
+    color: "bg-ok/15 text-ok",
+    starts: "12,99",
+  },
+  {
+    href: "/consultar/compliance",
+    icon: ShieldCheck,
+    title: "Compliance & KYC",
+    description: "PEP, sanções, mandados, processos, protestos.",
+    color: "bg-err/10 text-err",
+    starts: "12,99",
+  },
+  {
+    href: "/consultar/local",
+    icon: MapPin,
+    title: "Raio-X do CEP",
+    description: "Perfil da região, renda, gastos e concorrência.",
+    color: "bg-warn/15 text-warn",
+    starts: "29,90",
+  },
+  {
+    href: "/consultar/leilao",
+    icon: Gavel,
+    title: "Leilão",
+    description: "Antes do lance: sinistro, monta, foto e regularização.",
+    color: "bg-fur/15 text-fur",
+    starts: "12,99",
   },
 ];
 
