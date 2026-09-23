@@ -14,6 +14,7 @@ import { HeroMascot } from "@/components/capivara/hero-mascot";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlanCard } from "@/components/consulta/plan-card";
+import { Carousel } from "@/components/ui/carousel";
 import { resolveIcone } from "@/components/consulta/icones";
 import { formatBRL } from "@/lib/formatters";
 import {
@@ -210,10 +211,82 @@ const CATEGORIAS: {
 function Categorias() {
   const meta = Object.fromEntries(GRUPOS_CATALOGO.map((g) => [g.id, g]));
 
+  const cards = [
+    ...CATEGORIAS.map((cat) => {
+      const g = meta[cat.id];
+      const Icon = resolveIcone(g.icon);
+      return (
+        <Link
+          key={cat.id}
+          href={g.href}
+          className="group relative flex h-full flex-col rounded-lg border border-line bg-card p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className={`size-14 rounded-md flex items-center justify-center ${cat.color}`}>
+              <Icon className="size-7" strokeWidth={2} />
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
+                A partir de
+              </div>
+              <div className="text-cocoa font-bold font-mono">
+                {formatBRL(precoMinimoDoGrupo(cat.id))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
+              {g.label}
+            </h3>
+            <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
+              {cat.subtitle}
+            </p>
+          </div>
+
+          <p className="text-sm text-tabaco leading-relaxed mb-5">
+            {cat.description}
+          </p>
+
+          <ul className="space-y-1.5 mb-6 flex-1">
+            {cat.bullets.map((b) => (
+              <li key={b} className="flex items-start gap-2 text-xs text-cocoa">
+                <span className="size-1.5 rounded-full bg-fur mt-1.5 shrink-0" />
+                {b}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-auto pt-4 border-t border-line/60 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
+            Puxar agora
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+          </div>
+        </Link>
+      );
+    }),
+    // Ultimo slide: quem nao se viu em nenhuma categoria vai pro catalogo.
+    <Link
+      key="ver-tudo"
+      href="/consultar"
+      className="group relative flex h-full flex-col justify-center items-center text-center rounded-lg border border-dashed border-line bg-paper/60 p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:border-fur/60 hover:bg-card"
+    >
+      <Search className="size-8 text-fur mb-3" strokeWidth={1.75} />
+      <h3 className="font-display text-xl font-bold text-cocoa">Ver tudo</h3>
+      <p className="mt-2 text-sm text-tabaco leading-relaxed">
+        As {CATALOGO_COMPLETO.length} consultas numa lista só, com busca e
+        filtro. Puxe um dado avulso sem pagar o plano inteiro.
+      </p>
+      <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
+        Abrir catálogo
+        <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+      </span>
+    </Link>,
+  ];
+
   return (
     <section className="bg-paper-2 py-20 border-y border-line">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
             Qual capivara você quer puxar?
           </h2>
@@ -222,107 +295,20 @@ function Categorias() {
             categorias. Escolha a sua e descubra todo o histórico em segundos.
           </p>
         </div>
-      </div>
 
-      {/* Mobile: carrossel com snap. Desktop: grid. O overflow fica fora do
-          container pra primeira e ultima carta encostarem na margem certa. */}
-      <div className="md:mx-auto md:max-w-6xl md:px-6">
-        <div
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-4 scroll-px-4
-                     md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-5 md:overflow-visible md:px-0 md:pb-0
-                     [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {CATEGORIAS.map((cat) => {
-            const g = meta[cat.id];
-            const Icon = resolveIcone(g.icon);
-            return (
-              <Link
-                key={cat.id}
-                href={g.href}
-                className="group relative flex flex-col rounded-lg border border-line bg-card p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:shadow-[var(--shadow-pop)] hover:-translate-y-1 hover:border-fur/60
-                           w-[85vw] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none md:shrink"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`size-14 rounded-md flex items-center justify-center ${cat.color}`}>
-                    <Icon className="size-7" strokeWidth={2} />
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
-                      A partir de
-                    </div>
-                    <div className="text-cocoa font-bold font-mono">
-                      {formatBRL(precoMinimoDoGrupo(cat.id))}
-                    </div>
-                  </div>
-                </div>
+        <Carousel cardWidth={300} fadeColor="paper-2">
+          {cards}
+        </Carousel>
 
-                <div className="mb-3">
-                  <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
-                    {g.label}
-                  </h3>
-                  <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
-                    {cat.subtitle}
-                  </p>
-                </div>
-
-                <p className="text-sm text-tabaco leading-relaxed mb-5">
-                  {cat.description}
-                </p>
-
-                <ul className="space-y-1.5 mb-6 flex-1">
-                  {cat.bullets.map((b) => (
-                    <li key={b} className="flex items-start gap-2 text-xs text-cocoa">
-                      <span className="size-1.5 rounded-full bg-fur mt-1.5 shrink-0" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-auto pt-4 border-t border-line/60 flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
-                  Puxar agora
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </Link>
-            );
-          })}
-
-          {/* 7 categorias em 3 colunas deixam um buraco na ultima linha:
-              esse card fecha a grade e ainda leva pro catalogo completo.
-              No mobile ele vira o ultimo slide do carrossel. */}
+        <div className="mt-6 text-center">
           <Link
             href="/consultar"
-            className="group relative flex flex-col justify-center items-center text-center rounded-lg border border-dashed border-line bg-paper/60 p-6 transition-all duration-200 ease-[var(--ease-cap)] hover:border-fur/60 hover:bg-card
-                       w-[85vw] max-w-[340px] shrink-0 snap-start md:w-auto md:max-w-none md:shrink"
+            className="inline-flex items-center gap-2 text-sm font-medium text-cocoa hover:text-fur transition-colors"
           >
-            <Search className="size-8 text-fur mb-3" strokeWidth={1.75} />
-            <h3 className="font-display text-xl font-bold text-cocoa">
-              Ver tudo
-            </h3>
-            <p className="mt-2 text-sm text-tabaco leading-relaxed">
-              As {CATALOGO_COMPLETO.length} consultas numa lista só, com busca e
-              filtro. Puxe um dado avulso sem pagar o plano inteiro.
-            </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-cocoa group-hover:text-fur transition-colors">
-              Abrir catálogo
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </span>
+            Ver as {CATALOGO_COMPLETO.length} consultas, uma por uma
+            <ArrowRight className="size-4" />
           </Link>
         </div>
-
-        {/* Dica de arrasto so no mobile */}
-        <p className="md:hidden px-4 text-[11px] font-mono text-tabaco/70">
-          Arraste pro lado pra ver as {CATEGORIAS.length} categorias →
-        </p>
-      </div>
-
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 mt-8 text-center">
-        <Link
-          href="/consultar"
-          className="inline-flex items-center gap-2 text-sm font-medium text-cocoa hover:text-fur transition-colors"
-        >
-          Ver as {CATALOGO_COMPLETO.length} consultas, uma por uma
-          <ArrowRight className="size-4" />
-        </Link>
       </div>
     </section>
   );
