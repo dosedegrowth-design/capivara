@@ -6,7 +6,7 @@ import { getCurrentProfile, getActiveCompany } from "@/lib/auth/session";
 import { EquipeClient, type MemberRow } from "./equipe-client";
 
 export const metadata = {
-  title: "Equipe · Empresa · Capivara",
+  title: "Equipe · Empresa",
 };
 
 export default async function EquipePage() {

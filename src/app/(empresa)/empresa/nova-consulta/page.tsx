@@ -10,7 +10,7 @@ import { CONSULTATION_RESPONSIBILITY } from "@/lib/legal/documents";
 import { formatBRL } from "@/lib/formatters";
 
 export const metadata = {
-  title: "Nova consulta · Empresa · Capivara",
+  title: "Nova consulta · Empresa",
 };
 
 export default async function NovaConsultaB2BPage() {

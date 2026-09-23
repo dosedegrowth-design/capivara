@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Mascot } from "@/components/capivara/mascot";
 
 export const metadata: Metadata = {
-  title: "Como funciona · Capivara",
+  title: "Como funciona",
   description:
     "Em 3 passos: escolha o plano, pague com PIX e receba o relatório. Entenda como a Capivara conecta as melhores bases de dados do Brasil.",
 };

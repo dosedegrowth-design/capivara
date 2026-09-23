@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,6 +23,13 @@ import {
 } from "@/lib/consultas/actions";
 import type { Plano } from "@/lib/consultas/planos";
 import { track } from "@/lib/analytics";
+import { RevisaoConsulta } from "@/components/consulta/revisao-consulta";
+
+const LABEL_PAGAMENTO: Record<string, string> = {
+  pix: "PIX · confirma em segundos",
+  boleto: "Boleto · até 2 dias úteis",
+  cartao_avista: "Cartão à vista",
+};
 
 const FINALIDADES_CPF = [
   { id: "credit_analysis", label: "Análise de crédito" },
@@ -70,6 +76,9 @@ export function ConsultaForm({
   const [finalidadeDescricao, setFinalidadeDescricao] = useState("");
   const [paymentType, setPaymentType] = useState<"pix" | "boleto" | "cartao_avista">("pix");
   const [acceptResponsibility, setAcceptResponsibility] = useState(false);
+  // Passo de conferencia antes de gerar a cobranca (LGPD Art. 8 §4 + evita
+  // consultar o documento errado).
+  const [revisando, setRevisando] = useState(false);
 
   const finalidades =
     plano.categoria === "cpf"
@@ -97,9 +106,27 @@ export function ConsultaForm({
     return formatPlaca(v);
   }
 
-  function action(formData: FormData) {
+  // Submit do formulario NAO cobra: leva pra conferencia.
+  function irParaRevisao() {
     setErro(null);
     setFieldErrors({});
+
+    if (!acceptResponsibility) {
+      setErro("Você precisa aceitar o termo de responsabilidade.");
+      return;
+    }
+
+    track("consulta_revisao", {
+      categoria: plano.categoria,
+      plano_id: plano.id,
+    });
+    setRevisando(true);
+  }
+
+  // So aqui a cobranca e criada.
+  function confirmar() {
+    setErro(null);
+    const formData = new FormData();
     formData.set("planoId", plano.id);
     formData.set(
       "target",
@@ -115,11 +142,6 @@ export function ConsultaForm({
     formData.set("acceptResponsibility", acceptResponsibility ? "true" : "false");
     formData.set("responsibilityVersion", responsibilityVersion);
 
-    if (!acceptResponsibility) {
-      setErro("Você precisa aceitar o termo de responsabilidade.");
-      return;
-    }
-
     track("consulta_iniciada", {
       categoria: plano.categoria,
       plano_id: plano.id,
@@ -130,15 +152,41 @@ export function ConsultaForm({
       const result: IniciarConsultaResult = await iniciarConsultaAction(formData);
       if (!result.ok) {
         setErro(result.error);
-        if (result.fieldErrors) setFieldErrors(result.fieldErrors);
+        if (result.fieldErrors) {
+          setFieldErrors(result.fieldErrors);
+          // Erro de campo so da pra corrigir no formulario.
+          setRevisando(false);
+        }
         return;
       }
       router.push(`/consultar/aguardando/${result.consultationId}`);
     });
   }
 
+  if (revisando) {
+    return (
+      <RevisaoConsulta
+        nomeProduto={plano.nome}
+        alvoLabel={targetLabel}
+        alvoFormatado={formatTarget(target)}
+        finalidadeLabel={
+          finalidades.find((f) => f.id === finalidade)?.label ?? finalidade
+        }
+        finalidadeDescricao={
+          finalidade === "other" ? finalidadeDescricao : undefined
+        }
+        pagamentoLabel={LABEL_PAGAMENTO[paymentType] ?? paymentType}
+        valorCentavos={plano.precoB2C_centavos}
+        pendente={pending}
+        onVoltar={() => setRevisando(false)}
+        onConfirmar={confirmar}
+        erro={erro}
+      />
+    );
+  }
+
   return (
-    <form action={action} className="space-y-6">
+    <form action={irParaRevisao} className="space-y-6">
       {/* Target */}
       <div className="space-y-2">
         <Label htmlFor="target">{targetLabel}</Label>
@@ -264,14 +312,16 @@ export function ConsultaForm({
         variant="accent"
         size="xl"
         className="w-full"
-        disabled={pending || !acceptResponsibility}
+        disabled={!acceptResponsibility}
       >
-        {pending
-          ? "Criando cobrança..."
-          : !acceptResponsibility
+        {!acceptResponsibility
           ? "Aceite o termo acima pra continuar"
-          : `Puxar capivara · ir para pagamento`}
+          : "Revisar e ir para pagamento"}
       </Button>
+
+      <p className="text-center text-xs text-tabaco">
+        Você ainda vai conferir os dados antes de pagar.
+      </p>
     </form>
   );
 }

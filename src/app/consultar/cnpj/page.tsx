@@ -9,7 +9,7 @@ import { ProdutosAvulsosSection } from "@/components/marketing/produtos-avulsos-
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Consulta de CNPJ online · Sócios, certidões e situação fiscal · Capivara",
+  title: "Consulta de CNPJ online · Sócios, certidões e situação fiscal",
   description:
     "Puxe a capivara de qualquer CNPJ em segundos. Quadro societário, situação fiscal, certidões trabalhistas, score empresarial. PDF assinado, a partir de R$ 7,90.",
   keywords: [

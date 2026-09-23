@@ -5,7 +5,7 @@ import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Análise de crédito CPF e CNPJ pra venda a prazo · Capivara",
+  title: "Análise de crédito CPF e CNPJ pra venda a prazo",
   description:
     "Antes de aprovar crediário, parcelamento ou venda a prazo: score, dívidas, protestos e SCR Bacen. PDF em segundos, a partir de R$ 9,90.",
   keywords: [

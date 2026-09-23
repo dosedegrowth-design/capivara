@@ -15,7 +15,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { formatBRL, formatDateTimeBR } from "@/lib/formatters";
 
 export const metadata = {
-  title: "Financeiro · Admin · Capivara",
+  title: "Financeiro · Admin",
 };
 
 export default async function AdminFinanceiroPage() {

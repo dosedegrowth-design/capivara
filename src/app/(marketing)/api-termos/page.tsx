@@ -5,7 +5,7 @@ import { API_TERMS, hashDocument } from "@/lib/legal/documents";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Termos da API · Capivara",
+  title: "Termos da API",
   description:
     "Termos específicos pra uso da API pública /v1/*. Regras de chave, rate limit, webhook, segurança.",
   alternates: { canonical: `${SITE}/api-termos` },

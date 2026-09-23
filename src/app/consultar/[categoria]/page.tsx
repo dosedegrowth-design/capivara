@@ -37,7 +37,7 @@ export async function generateMetadata({
   const { categoria } = await params;
   const cat = categoria as CategoriaSlug;
   return {
-    title: `${TITULO[cat] ?? "Consultar"} · Capivara`,
+    title: TITULO[cat] ?? "Consultar",
   };
 }
 

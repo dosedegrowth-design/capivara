@@ -24,7 +24,7 @@ import { formatBRL } from "@/lib/formatters";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Consulta de leilão veicular · Pré-lance, sinistro e recuperado · Capivara",
+  title: "Consulta de leilão veicular · Pré-lance, sinistro e recuperado",
   description:
     "Vai dar lance num carro de leilão? Histórico completo antes de arrematar: pequena/média/grande monta, foto do leilão, roubo/furto e CSV. Combos a partir de R$ 79,90.",
   keywords: [

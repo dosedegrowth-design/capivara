@@ -14,7 +14,7 @@ import { PACOTES_MANADA, TODOS_PLANOS } from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
 
 export const metadata = {
-  title: "Configurações · Admin · Capivara",
+  title: "Configurações · Admin",
 };
 
 export default async function AdminConfiguracoesPage() {

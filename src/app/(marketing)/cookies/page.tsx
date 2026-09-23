@@ -5,7 +5,7 @@ import { COOKIE_POLICY, hashDocument } from "@/lib/legal/documents";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Política de Cookies · Capivara",
+  title: "Política de Cookies",
   description:
     "Como a Capivara usa cookies. Apenas essenciais — sem tracking de terceiros.",
   alternates: { canonical: `${SITE}/cookies` },

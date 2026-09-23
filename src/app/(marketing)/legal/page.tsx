@@ -7,7 +7,7 @@ import { ALL_DOCUMENTS, hashDocument } from "@/lib/legal/documents";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Documentos legais · Capivara",
+  title: "Documentos legais",
   description:
     "Termos de Uso, Política de Privacidade, Política de Cookies, Termo de Responsabilidade, Termos B2B e Termos da API.",
   alternates: { canonical: `${SITE}/legal` },

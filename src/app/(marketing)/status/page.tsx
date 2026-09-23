@@ -14,7 +14,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Status do sistema · Capivara",
+  title: "Status do sistema",
   description:
     "Status em tempo real da plataforma Capivara: API, processamento de consultas, webhooks e integrações.",
   alternates: { canonical: `${SITE}/status` },

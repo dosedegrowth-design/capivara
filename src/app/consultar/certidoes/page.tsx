@@ -18,7 +18,7 @@ import { PRODUTOS_CERTIDAO } from "@/lib/consultas/planos";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Certidões online · PGFN, CNDT, FGTS e kits pra licitação · Capivara",
+  title: "Certidões online · PGFN, CNDT, FGTS e kits pra licitação",
   description:
     "Tire certidões de pessoa física e empresa em segundos: PGFN, CNDT, FGTS, CNJ, antecedentes e situação cadastral. Kit completo pra licitação a partir de R$ 49,90, tudo num PDF só.",
   keywords: [

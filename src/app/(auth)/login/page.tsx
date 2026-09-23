@@ -6,7 +6,7 @@ import { Mascot } from "@/components/capivara/mascot";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
-  title: "Entrar · Capivara",
+  title: "Entrar",
   description:
     "Acesse sua conta Capivara pra ver consultas, baixar PDFs e gerenciar sua empresa.",
 };

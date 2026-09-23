@@ -25,6 +25,13 @@ import {
 } from "@/lib/consultas/actions";
 import { alvoDoProduto, type ProdutoAvulso } from "@/lib/consultas/planos";
 import { track } from "@/lib/analytics";
+import { RevisaoConsulta } from "@/components/consulta/revisao-consulta";
+
+const LABEL_PAGAMENTO: Record<string, string> = {
+  pix: "PIX · confirma em segundos",
+  boleto: "Boleto · até 2 dias úteis",
+  cartao_avista: "Cartão à vista",
+};
 
 const FINALIDADES_VEICULAR = [
   { id: "pre_purchase", label: "Antes de comprar" },
@@ -86,6 +93,9 @@ export function ConsultaAvulsoForm({
   const [finalidadeDescricao, setFinalidadeDescricao] = useState("");
   const [paymentType, setPaymentType] = useState<"pix" | "boleto" | "cartao_avista">("pix");
   const [acceptResponsibility, setAcceptResponsibility] = useState(false);
+  // Passo de conferencia antes de gerar a cobranca (LGPD Art. 8 §4 + evita
+  // consultar o documento errado).
+  const [revisando, setRevisando] = useState(false);
 
   // O alvo depende da categoria do produto: placa, CPF ou CNPJ.
   const alvo = alvoDoProduto(produto.categoria);
@@ -135,9 +145,27 @@ export function ConsultaAvulsoForm({
       ? normalizeCEP
       : normalizePlaca;
 
-  function action(formData: FormData) {
+  // Submit do formulario NAO cobra: leva pra conferencia.
+  function irParaRevisao() {
     setErro(null);
     setFieldErrors({});
+
+    if (!acceptResponsibility) {
+      setErro("Você precisa aceitar o termo de responsabilidade.");
+      return;
+    }
+
+    track("consulta_revisao_avulso", {
+      categoria: produto.categoria,
+      produto_id: produto.id,
+    });
+    setRevisando(true);
+  }
+
+  // So aqui a cobranca e criada.
+  function confirmar() {
+    setErro(null);
+    const formData = new FormData();
     formData.set("produtoId", produto.id);
     formData.set("target", normalizeTarget(target));
     formData.set("finalidade", finalidade);
@@ -145,11 +173,6 @@ export function ConsultaAvulsoForm({
     formData.set("paymentType", paymentType);
     formData.set("acceptResponsibility", acceptResponsibility ? "true" : "false");
     formData.set("responsibilityVersion", responsibilityVersion);
-
-    if (!acceptResponsibility) {
-      setErro("Você precisa aceitar o termo de responsabilidade.");
-      return;
-    }
 
     track("consulta_iniciada_avulso", {
       categoria: produto.categoria,
@@ -162,14 +185,38 @@ export function ConsultaAvulsoForm({
       if (!result.ok) {
         setErro(result.error);
         if (result.fieldErrors) setFieldErrors(result.fieldErrors);
+        // Erro de campo so da pra corrigir no formulario.
+        if (result.fieldErrors) setRevisando(false);
         return;
       }
       router.push(`/consultar/aguardando/${result.consultationId}`);
     });
   }
 
+  if (revisando) {
+    return (
+      <RevisaoConsulta
+        nomeProduto={produto.nome}
+        alvoLabel={targetLabel}
+        alvoFormatado={formatTarget(target)}
+        finalidadeLabel={
+          finalidades.find((f) => f.id === finalidade)?.label ?? finalidade
+        }
+        finalidadeDescricao={
+          finalidade === "other" ? finalidadeDescricao : undefined
+        }
+        pagamentoLabel={LABEL_PAGAMENTO[paymentType] ?? paymentType}
+        valorCentavos={produto.precoB2C_centavos}
+        pendente={pending}
+        onVoltar={() => setRevisando(false)}
+        onConfirmar={confirmar}
+        erro={erro}
+      />
+    );
+  }
+
   return (
-    <form action={action} className="space-y-6">
+    <form action={irParaRevisao} className="space-y-6">
       {/* Target */}
       <div className="space-y-2">
         <Label htmlFor="target">{targetLabel}</Label>
@@ -295,14 +342,16 @@ export function ConsultaAvulsoForm({
         variant="accent"
         size="xl"
         className="w-full"
-        disabled={pending || !acceptResponsibility}
+        disabled={!acceptResponsibility}
       >
-        {pending
-          ? "Criando cobrança..."
-          : !acceptResponsibility
+        {!acceptResponsibility
           ? "Aceite o termo acima pra continuar"
-          : `Puxar capivara · ir para pagamento`}
+          : "Revisar e ir para pagamento"}
       </Button>
+
+      <p className="text-center text-xs text-tabaco">
+        Você ainda vai conferir os dados antes de pagar.
+      </p>
     </form>
   );
 }

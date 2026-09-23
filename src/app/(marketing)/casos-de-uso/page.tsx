@@ -15,7 +15,7 @@ import { formatBRL } from "@/lib/formatters";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Casos de uso · Quando usar Capivara · Capivara",
+  title: "Casos de uso · Quando usar Capivara",
   description:
     "Veja como imobiliárias, RH, revendas e financeiras usam a Capivara pra decidir mais rápido e com menos risco.",
   alternates: { canonical: `${SITE}/casos-de-uso` },

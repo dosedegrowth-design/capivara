@@ -5,7 +5,7 @@ import { COMPANY_TERMS, hashDocument } from "@/lib/legal/documents";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Termos B2B / Empresa · Capivara",
+  title: "Termos B2B / Empresa",
   description:
     "Termos de Uso Empresarial (B2B). Complementa os Termos gerais com cláusulas específicas pra pessoa jurídica.",
   alternates: { canonical: `${SITE}/empresa-termos` },

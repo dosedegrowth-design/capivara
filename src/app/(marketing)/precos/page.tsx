@@ -30,7 +30,7 @@ const PRECO_MIN = Math.min(...PRECOS);
 const PRECO_MAX = Math.max(...PRECOS);
 
 export const metadata: Metadata = {
-  title: "Preços · Capivara",
+  title: "Preços",
   description: `Catálogo com ${CATALOGO_COMPLETO.length} consultas: CPF, CNPJ, veicular, leilão, certidões, compliance e CEP. A partir de ${formatBRL(
     PRECO_MIN
   )}, sem mensalidade — você paga só a consulta que fizer.`,

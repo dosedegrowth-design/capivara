@@ -3,7 +3,7 @@ import Link from "next/link";
 import { RecuperarSenhaForm } from "./recuperar-senha-form";
 
 export const metadata: Metadata = {
-  title: "Recuperar senha · Capivara",
+  title: "Recuperar senha",
 };
 
 export default function RecuperarSenhaPage() {

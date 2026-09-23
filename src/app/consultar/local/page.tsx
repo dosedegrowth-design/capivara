@@ -11,7 +11,7 @@ import { PRODUTOS_LOCAL } from "@/lib/consultas/planos";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Raio-X do CEP · Perfil, renda e concorrência da região · Capivara",
+  title: "Raio-X do CEP · Perfil, renda e concorrência da região",
   description:
     "Antes de abrir negócio ou escolher bairro: quem mora ali, quanto ganha, no que gasta, qual a concorrência e o risco da região. Relatório em PDF a partir de R$ 29,90.",
   keywords: [

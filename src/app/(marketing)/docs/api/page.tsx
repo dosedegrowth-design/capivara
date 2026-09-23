@@ -10,7 +10,7 @@ import { formatBRL } from "@/lib/formatters";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Documentação da API · Capivara",
+  title: "Documentação da API",
   description:
     "Referência completa da API REST da Capivara: autenticação, endpoints, idempotência, rate limits e códigos de erro.",
   alternates: { canonical: `${SITE}/docs/api` },

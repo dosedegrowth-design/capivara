@@ -12,7 +12,7 @@ import {
 } from "./webhooks-client";
 
 export const metadata: Metadata = {
-  title: "Webhooks · Capivara",
+  title: "Webhooks",
 };
 
 export default async function WebhooksPage() {

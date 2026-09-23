@@ -31,6 +31,11 @@
 // @ts-expect-error - deno runtime
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
+import {
+  socioPrincipal,
+  particionarPorAlvo,
+  type SocioEncontrado,
+} from "./socios.ts";
 // @ts-expect-error - deno global EdgeRuntime
 declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
 
@@ -173,6 +178,45 @@ interface ApiFullCallResult {
   errorMessage?: string;
   durationMs: number;
   httpStatus?: number;
+}
+
+/** Resultado normalizado de UMA chamada (direta ou encadeada no socio). */
+interface ResultadoChamada {
+  internal: string;
+  path: string;
+  nome: string;
+  categoria: string;
+  status: string;
+  dados?: Record<string, unknown>;
+  costCents: number;
+  durationMs: number;
+  errorMessage?: string;
+  sobreSocio?: {
+    nome: string | null;
+    cpf_mascarado: string;
+    qualificacao: string | null;
+  };
+}
+
+/** SHA-256 hex — cache key por target da CHAMADA, nao da consulta. */
+async function sha256Hex(texto: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texto));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** O que o cliente informou nessa consulta. */
+function alvoDaCategoria(categoria: string): "placa" | "cpf" | "cnpj" | "cep" {
+  if (categoria === "cpf") return "cpf";
+  if (categoria === "cnpj") return "cnpj";
+  if (categoria === "cep") return "cep";
+  return "placa";
+}
+
+/** CPF mascarado pro log/resultado — nunca gravar o numero inteiro a toa. */
+function mascararCpf(cpf: string): string {
+  return cpf.length === 11 ? `***.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-**` : "***";
 }
 
 async function callApiFull(
@@ -393,8 +437,18 @@ Deno.serve(async (req: Request) => {
   const target = consulta.target_normalized as string;
   const targetHash = consulta.target_hash as string;
 
-  const callResults = await Promise.all(
-    apis.map(async (internal) => {
+  // O guard acima ja garantiu o token; a funcao abaixo e' hoisted, entao o
+  // narrowing nao alcanca ela — captura numa const tipada.
+  const tokenApiFull: string = apifullToken;
+
+  // Executa UMA chamada (cache-aware). O target vem por parametro porque as
+  // APIs de socio rodam com o CPF do socio, nao com o CNPJ da empresa.
+  async function executarChamada(
+    internal: string,
+    targetChamada: string,
+    hashChamada: string,
+    socio?: SocioEncontrado
+  ): Promise<ResultadoChamada> {
       const ep = findEndpoint(internal);
       if (!ep) {
         return {
@@ -410,7 +464,7 @@ Deno.serve(async (req: Request) => {
         };
       }
 
-      const cacheKey = `${ep.path}:${targetHash}`;
+      const cacheKey = `${ep.path}:${hashChamada}`;
 
       // (A) Cache read
       const cached = await readCache(supabase, cacheKey);
@@ -463,7 +517,7 @@ Deno.serve(async (req: Request) => {
         .insert({
           cache_key: cacheKey,
           api_name: ep.path,
-          target_hash: targetHash,
+          target_hash: hashChamada,
           result_jsonb: { _pending: true },
           cost_cents: 0,
           hits: 0,
@@ -496,7 +550,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // (C) Cache miss / expiracao / reserva bem-sucedida — chama APIFULL
-      const apiResult = await callApiFull(ep, target, apifullToken);
+      const apiResult = await callApiFull(ep, targetChamada, tokenApiFull);
 
       // (D) Grava resultado real no cache (upsert sobre a reserva)
       if (apiResult.ok && (apiResult.status === "sucesso" || apiResult.status === "not_found")) {
@@ -506,7 +560,7 @@ Deno.serve(async (req: Request) => {
           .upsert({
             cache_key: cacheKey,
             api_name: ep.path,
-            target_hash: targetHash,
+            target_hash: hashChamada,
             result_jsonb: apiResult.dados ?? { _not_found: true },
             cost_cents: ep.custoCentavos,
             hits: 1,
@@ -528,9 +582,78 @@ Deno.serve(async (req: Request) => {
         costCents: apiResult.ok && apiResult.status === "sucesso" ? ep.custoCentavos : 0,
         durationMs: apiResult.durationMs,
         errorMessage: apiResult.errorMessage,
+        ...(socio
+          ? {
+            sobreSocio: {
+              nome: socio.nome ?? null,
+              cpf_mascarado: mascararCpf(socio.cpf),
+              qualificacao: socio.qualificacao ?? null,
+            },
+          }
+          : {}),
       };
-    })
+  }
+
+  // ---- 4b. Duas fases: direto, depois o que depende do socio ----
+  //
+  // Planos de CNPJ (Socios/Premium/Total) incluem APIs que pedem CPF — "CPF
+  // Ultra dos socios", SCR dos socios, CNDT. Antes a Edge mandava o CNPJ da
+  // empresa no campo `cpf`: a chamada era paga e nao voltava nada util.
+  // Agora a fase 1 consulta a empresa, a gente extrai o CPF do socio
+  // principal do que voltou, e a fase 2 roda com esse CPF.
+  const alvoConsulta = alvoDaCategoria(String(consulta.category ?? ""));
+  const { diretas: apisDiretas, deSocio: apisDeSocio } = particionarPorAlvo(
+    apis,
+    alvoConsulta,
+    (internal) => findEndpoint(internal)?.paramType
   );
+
+  const resultadosDiretos = await Promise.all(
+    apisDiretas.map((internal) => executarChamada(internal, target, targetHash))
+  );
+
+  let socioUsado: SocioEncontrado | null = null;
+  let resultadosDeSocio: ResultadoChamada[] = [];
+
+  if (apisDeSocio.length > 0) {
+    socioUsado = socioPrincipal(resultadosDiretos.map((r) => r.dados));
+
+    if (socioUsado) {
+      const hashSocio = await sha256Hex(socioUsado.cpf);
+      console.log(
+        `[process-consultation] socio encontrado (${mascararCpf(socioUsado.cpf)}) — ${apisDeSocio.length} API(s) encadeada(s)`
+      );
+      resultadosDeSocio = await Promise.all(
+        apisDeSocio.map((internal) =>
+          executarChamada(internal, socioUsado!.cpf, hashSocio, socioUsado!)
+        )
+      );
+    } else {
+      // Sem CPF de socio no retorno da empresa: NAO chama com o CNPJ (era
+      // dinheiro jogado fora). Marca como nao entregue — o refund parcial
+      // proporcional devolve a parte do cliente.
+      console.log(
+        `[process-consultation] nenhum socio PF no retorno do CNPJ — ${apisDeSocio.length} API(s) puladas`
+      );
+      resultadosDeSocio = apisDeSocio.map((internal) => {
+        const ep = findEndpoint(internal);
+        return {
+          internal,
+          path: ep?.path ?? internal,
+          nome: ep?.nome ?? internal,
+          categoria: ep?.categoria ?? "pessoa",
+          status: "not_found" as const,
+          dados: undefined,
+          costCents: 0,
+          durationMs: 0,
+          errorMessage:
+            "Empresa sem socio pessoa fisica identificado — consulta de socio nao executada (sem cobranca)",
+        };
+      });
+    }
+  }
+
+  const callResults = [...resultadosDiretos, ...resultadosDeSocio];
 
   // ---- 5. Consolida result_jsonb ----
   const sections: Record<string, unknown> = {};

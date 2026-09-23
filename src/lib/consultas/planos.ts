@@ -1650,8 +1650,8 @@ export const COMBOS_LEILAO: Plano[] = [
   {
     id: "leilao-pre-lance",
     categoria: "veicular", // banco eh "veicular" — sub-tipo "leilao" via apisIncluidas
-    nome: "Pre-Lance",
-    descricao: "Antes de dar lance: vale comprar esse carro? historico + sinistro.",
+    nome: "Pré-Lance",
+    descricao: "Antes de dar lance: vale comprar esse carro? Histórico + sinistro.",
     precoB2C_centavos: 7990,
     precoB2B_centavos: 4590,
     apisIncluidas: [
@@ -1666,8 +1666,8 @@ export const COMBOS_LEILAO: Plano[] = [
   {
     id: "leilao-pos-compra",
     categoria: "veicular",
-    nome: "Pos-Compra",
-    descricao: "Acabou de arrematar: regularizacao completa pra circular.",
+    nome: "Pós-Compra",
+    descricao: "Acabou de arrematar: regularização completa pra circular.",
     precoB2C_centavos: 8990,
     precoB2B_centavos: 4990,
     apisIncluidas: [
@@ -1683,7 +1683,7 @@ export const COMBOS_LEILAO: Plano[] = [
     categoria: "veicular",
     nome: "Auctioneer Total",
     destaque: "premium",
-    descricao: "Pre-Lance + Pos-Compra + Vip Car tecnico. Pra revendedor profissional.",
+    descricao: "Pré-Lance + Pós-Compra + Vip Car técnico. Pra revendedor profissional.",
     precoB2C_centavos: 24990,
     precoB2B_centavos: 15990,
     apisIncluidas: [

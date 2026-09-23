@@ -9,7 +9,7 @@ import { getCurrentProfile, getActiveCompany } from "@/lib/auth/session";
 import { formatBRL, formatDateTimeBR } from "@/lib/formatters";
 
 export const metadata = {
-  title: "Faturamento · Empresa · Capivara",
+  title: "Faturamento · Empresa",
 };
 
 export default async function FaturamentoPage() {

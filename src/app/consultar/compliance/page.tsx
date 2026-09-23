@@ -18,7 +18,7 @@ import { PRODUTOS_COMPLIANCE } from "@/lib/consultas/planos";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "KYC, PLD e Radar Jurídico · Compliance de pessoa e empresa · Capivara",
+  title: "KYC, PLD e Radar Jurídico · Compliance de pessoa e empresa",
   description:
     "Checagem de integridade antes de aceitar cliente ou fornecedor: PEP, sanções, mandados, óbito, processos, protestos e CADIN. KYC completo a partir de R$ 39,90, com API pra automatizar.",
   keywords: [

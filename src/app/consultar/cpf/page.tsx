@@ -14,7 +14,7 @@ import { ProdutosAvulsosSection } from "@/components/marketing/produtos-avulsos-
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Consulta de CPF online · Score, dívidas e antecedentes · Capivara",
+  title: "Consulta de CPF online · Score, dívidas e antecedentes",
   description:
     "Puxe a capivara de qualquer CPF em segundos. Score, dívidas, protestos, vínculos, endereços e PDF assinado. Sem mensalidade, a partir de R$ 9,90. LGPD compliant.",
   keywords: [

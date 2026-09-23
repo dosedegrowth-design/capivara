@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { identificacaoControladora } from "@/lib/config";
 
 export const metadata: Metadata = {
-  title: "Privacidade · LGPD · Capivara",
+  title: "Privacidade · LGPD",
   description:
     "Como a Capivara trata seus dados pessoais e os dados que você consulta. Direitos do titular, finalidades obrigatórias, retenção e contato do DPO.",
 };

@@ -4,7 +4,7 @@ import { CadastroForm } from "./cadastro-form";
 import { TERMS_OF_USE, PRIVACY_POLICY } from "@/lib/legal/documents";
 
 export const metadata: Metadata = {
-  title: "Criar conta · Capivara",
+  title: "Criar conta",
 };
 
 export default async function CadastroPage({

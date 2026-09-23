@@ -8,7 +8,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { formatDateTimeBR } from "@/lib/formatters";
 
 export const metadata = {
-  title: "LGPD · Admin · Capivara",
+  title: "LGPD · Admin",
 };
 
 interface ConsentLog {

@@ -9,7 +9,7 @@ import { ALL_DOCUMENTS, type DocumentType } from "@/lib/legal/documents";
 import { formatDateTimeBR } from "@/lib/formatters";
 
 export const metadata = {
-  title: "Meus aceites · Capivara",
+  title: "Meus aceites",
 };
 
 const TIPO_LABELS: Record<DocumentType, string> = {

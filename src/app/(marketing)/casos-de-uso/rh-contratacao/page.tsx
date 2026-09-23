@@ -5,7 +5,7 @@ import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Background check pra RH e contratação · Capivara",
+  title: "Background check pra RH e contratação",
   description:
     "Antes da admissão: ações trabalhistas, vínculos profissionais, antecedentes financeiros. PDF em segundos pra decisão de contratação fundamentada.",
   keywords: [

@@ -18,7 +18,7 @@ export async function generateMetadata({
   const { id } = await params;
   const p = findProdutoAvulso(id);
   return {
-    title: `${p?.nome ?? "Consulta avulsa"} · Capivara`,
+    title: p?.nome ?? "Consulta avulsa",
   };
 }
 
@@ -97,7 +97,7 @@ export default async function ProdutoAvulsoPage({
               <div className="flex justify-between">
                 <dt className="text-tabaco">Tipo</dt>
                 <dd className="text-cocoa uppercase font-mono">
-                  Avulsa
+                  {tipoLabel === "Kit" ? "Kit" : "Avulsa"}
                 </dd>
               </div>
               <div className="flex justify-between">

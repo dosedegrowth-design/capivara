@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Documentação de Webhooks · Capivara",
+  title: "Documentação de Webhooks",
   description:
     "Eventos, payload, assinatura HMAC e retry policy dos webhooks da Capivara. Validação timing-safe em Node, Python, PHP e Ruby.",
   alternates: { canonical: `${SITE}/docs/webhooks` },

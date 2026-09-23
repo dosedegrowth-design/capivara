@@ -9,7 +9,7 @@ import { ApiKeysClient, type ApiKeyRow } from "./api-keys-client";
 import { ApiUsageStats, type ApiUsageStats as ApiUsageStatsType } from "./api-usage-stats";
 
 export const metadata: Metadata = {
-  title: "API & Integracoes · Capivara",
+  title: "API & Integracoes",
 };
 
 export default async function ApiPage() {

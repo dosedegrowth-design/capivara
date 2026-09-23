@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import { CreditosClient } from "./creditos-client";
 
 export const metadata = {
-  title: "Saldo · Empresa · Capivara",
+  title: "Saldo · Empresa",
 };
 
 export default async function CreditosPage() {

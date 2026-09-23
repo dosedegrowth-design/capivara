@@ -5,7 +5,7 @@ import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Consulta veicular pra revenda e multimarcas · Capivara",
+  title: "Consulta veicular pra revenda e multimarcas",
   description:
     "Antes de aceitar a troca: histórico de leilão, sinistro, débitos, recall e bloqueio. PDF em segundos, a partir de R$ 14,90. Aceite com segurança.",
   keywords: [

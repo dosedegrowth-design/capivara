@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { HistoricoClient, type ConsultaRow } from "./historico-client";
 
 export const metadata = {
-  title: "Histórico · Empresa · Capivara",
+  title: "Histórico · Empresa",
 };
 
 export default async function EmpresaHistoricoPage() {

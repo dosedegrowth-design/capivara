@@ -8,7 +8,7 @@ import { formatBRL } from "@/lib/formatters";
 import { EmpresasAdminClient, type EmpresaAdminRow } from "./empresas-client";
 
 export const metadata = {
-  title: "Empresas · Admin · Capivara",
+  title: "Empresas · Admin",
 };
 
 export default async function AdminEmpresasPage() {

@@ -5,7 +5,7 @@ import { CasoUsoLanding } from "@/components/marketing/caso-uso-landing";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Consulta de CPF pra imobiliária e aluguel · Capivara",
+  title: "Consulta de CPF pra imobiliária e aluguel",
   description:
     "Antes de fechar o aluguel: score, dívidas, ações trabalhistas e histórico de endereços do inquilino. PDF em segundos, a partir de R$ 9,90.",
   keywords: [

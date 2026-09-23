@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata = {
-  title: "Produtos & Margem · Admin · Capivara",
+  title: "Produtos & Margem · Admin",
 };
 
 export default async function AdminProdutosPage() {

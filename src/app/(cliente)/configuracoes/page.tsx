@@ -13,7 +13,7 @@ import { ExportarBox } from "./_components/exportar-box";
 import { DeletarContaBox } from "./_components/deletar-conta-box";
 
 export const metadata = {
-  title: "Configurações · Capivara",
+  title: "Configurações",
 };
 
 export default async function ConfiguracoesPage() {

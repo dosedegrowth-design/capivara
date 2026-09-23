@@ -8,7 +8,7 @@ import { CAPIVARA_CONFIG, identificacaoControladora } from "@/lib/config";
 import { ContatoForm } from "./contato-form";
 
 export const metadata: Metadata = {
-  title: "Contato · Capivara",
+  title: "Contato",
   description:
     "Fale com a equipe da Capivara. Atendimento via WhatsApp, e-mail ou formulário. Vendas para empresas: contato dedicado.",
 };

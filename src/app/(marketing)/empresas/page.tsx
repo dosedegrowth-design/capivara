@@ -35,7 +35,7 @@ import { resolveIcone } from "@/components/consulta/icones";
 import { formatBRL } from "@/lib/formatters";
 
 export const metadata: Metadata = {
-  title: "Capivara para empresas · Manada",
+  title: "Para empresas · Manada",
   description:
     "Lojas de carro, despachantes, financeiras, advogados, RH e imobiliárias. Recarregue saldo em R$ com até 50% de bônus e tenha API, equipe e recibos.",
 };

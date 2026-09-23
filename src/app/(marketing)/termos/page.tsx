@@ -5,7 +5,7 @@ import { TERMS_OF_USE, hashDocument } from "@/lib/legal/documents";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "Termos de Uso · Capivara",
+  title: "Termos de Uso",
   description: "Termos de Uso da plataforma Capivara. Versão atual e histórico de versões.",
   alternates: { canonical: `${SITE}/termos` },
 };

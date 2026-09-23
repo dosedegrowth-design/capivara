@@ -18,7 +18,7 @@ export async function generateMetadata({
   const { categoria, plano } = await params;
   const p = findPlano(`${categoria}-${plano}`);
   return {
-    title: `${p?.nome ?? "Consultar"} · Capivara`,
+    title: p?.nome ?? "Consultar",
   };
 }
 

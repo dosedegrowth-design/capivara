@@ -33,7 +33,7 @@ import { formatBRL } from "@/lib/formatters";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
 export const metadata: Metadata = {
-  title: "API Capivara · CPF, CNPJ, veicular, certidões e KYC via REST · Capivara",
+  title: "API Capivara · CPF, CNPJ, veicular, certidões e KYC via REST",
   description:
     "Integre consultas de CPF, CNPJ, veicular, leilão, certidões, compliance e CEP direto no seu sistema. API REST com Bearer auth, idempotência, webhooks HMAC e cobrança por consulta debitando do seu saldo em R$. Sem mensalidade.",
   keywords: [
