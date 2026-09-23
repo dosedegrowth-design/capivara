@@ -4,6 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { findPlano, findProdutoAvulso, findComboLeilao } from "@/lib/consultas/planos";
 import { AguardandoPagamento } from "./aguardando";
 
+/** Checkout com QR/boleto — nunca indexar. */
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function AguardandoPage({
   params,
 }: {

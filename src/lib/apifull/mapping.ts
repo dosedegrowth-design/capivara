@@ -492,6 +492,152 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     custoCentavos: 116,
     cacheTTLHours: 24, // 1d
   },
+
+  // ============= CERTIDOES (PF e PJ) =============
+  {
+    internal: "cert-pgfn-pf",
+    path: "cert-pf-pgfn",
+    nome: "Certidao PGFN (Receita/PGFN)",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-acoes-trabalhistas-pf",
+    path: "cert-pf-acoes-trabalhistas",
+    nome: "Certidao de Acoes Trabalhistas",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-cnj-pf",
+    path: "cert-pf-negativa-cnj",
+    nome: "Certidao Negativa CNJ",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-cgu-pf",
+    path: "cert-pf-negativa-cgu",
+    nome: "Certidao Negativa CGU",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-nada-consta-pf",
+    path: "cert-pf-judicial-nada-consta",
+    nome: "Certidao Judicial Nada Consta",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-divida-ativa-pf",
+    path: "cert-pf-divida-ativa-pgfn",
+    nome: "Divida Ativa PGFN",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-ibama-pf",
+    path: "cert-pf-negativa-ibama",
+    nome: "Certidao Negativa IBAMA",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-fgts-pj",
+    path: "cert-pj-fgts",
+    nome: "Certidao FGTS (CRF)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-pgfn-pj",
+    path: "cert-pj-pgfn",
+    nome: "Certidao PGFN (Receita/PGFN)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-situacao-cadastral-pj",
+    path: "cert-pj-situacao-cadastral",
+    nome: "Certidao de Situacao Cadastral",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-debitos-trabalhistas-pj",
+    path: "cert-pj-debitos-trabalhistas",
+    nome: "CNDT (Debitos Trabalhistas)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-acoes-trabalhistas-pj",
+    path: "cert-pj-acoes-trabalhistas",
+    nome: "Certidao de Acoes Trabalhistas",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-cnj-pj",
+    path: "cert-pj-negativa-cnj",
+    nome: "Certidao Negativa CNJ",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-cgu-pj",
+    path: "cert-pj-negativa-cgu",
+    nome: "Certidao Negativa CGU",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-pcd-pj",
+    path: "cert-pj-contratacao-pcd",
+    nome: "Certidao de Contratacao de PCD",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
+  {
+    internal: "cert-ibama-pj",
+    path: "cert-pj-negativa-ibama",
+    nome: "Certidao Negativa IBAMA",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
+  },
 ];
 
 /** Lookup por nome interno (apisIncluidas[]). */

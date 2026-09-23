@@ -5,8 +5,7 @@ import {
   PLANOS_CNPJ,
   PLANOS_VEICULAR,
   COMBOS_LEILAO,
-  PRODUTOS_VEICULAR_AVULSO,
-  PRODUTOS_LEILAO_AVULSO,
+  TODOS_PRODUTOS_AVULSO,
 } from "@/lib/consultas/planos";
 
 const BASE_URL =
@@ -42,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/consultar/cnpj`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE_URL}/consultar/veicular`, lastModified: now, changeFrequency: "weekly", priority: 0.95 },
     { url: `${BASE_URL}/consultar/leilao`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/consultar/certidoes`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/api-publica`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/docs/api`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/docs/webhooks`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },
@@ -85,10 +85,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }));
 
   // Avulsos: /consultar/avulso/{produto.id}
-  const avulsoRoutes: MetadataRoute.Sitemap = [
-    ...PRODUTOS_VEICULAR_AVULSO,
-    ...PRODUTOS_LEILAO_AVULSO,
-  ].map((p) => ({
+  const avulsoRoutes: MetadataRoute.Sitemap = TODOS_PRODUTOS_AVULSO.map((p) => ({
     url: `${BASE_URL}/consultar/avulso/${p.id}`,
     lastModified: now,
     changeFrequency: "monthly" as const,

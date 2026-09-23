@@ -19,7 +19,6 @@ export async function generateMetadata({
   const p = findProdutoAvulso(id);
   return {
     title: `${p?.nome ?? "Consulta avulsa"} · Capivara`,
-    robots: { index: false, follow: false },
   };
 }
 
@@ -40,6 +39,9 @@ export default async function ProdutoAvulsoPage({
       : produto.categoria === "cnpj"
       ? "/consultar/cnpj"
       : "/consultar/veicular";
+
+  // 3+ APIs = kit (ex: Kit Certidoes com 5 certidoes), nao consulta pontual
+  const tipoLabel = produto.apisIncluidas.length >= 3 ? "Kit" : "Consulta avulsa";
 
   const categoriaLabel =
     produto.categoria === "leilao"
@@ -65,7 +67,7 @@ export default async function ProdutoAvulsoPage({
         <div className="space-y-6">
           <div>
             <Badge variant="outline" className="mb-3 font-mono">
-              Consulta avulsa · {categoriaLabel}
+              {tipoLabel} · {categoriaLabel}
             </Badge>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
               {produto.nome}

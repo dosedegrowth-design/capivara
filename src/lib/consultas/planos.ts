@@ -1128,6 +1128,244 @@ export const PRODUTOS_CNPJ_AVULSO: ProdutoAvulso[] = [
   },
 ];
 
+
+// -------------------------------------------------------------------------
+// CERTIDOES (PF e PJ)
+//
+// Certidao custa ~R$1,16 na APIFULL e vale muito mais pro cliente (advogado,
+// RH, licitacao). O KIT e o produto principal: ninguem precisa de "uma"
+// certidao — precisa do conjunto que o orgao/edital exige.
+//
+// Validade curta = recorrencia natural.
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_CERTIDAO: ProdutoAvulso[] = [
+  // ---- KITS (produto principal) ----
+  {
+    id: "certidao-kit-pf-essencial",
+    categoria: "cpf",
+    nome: "Kit Certidões PF — Essencial",
+    descricao: "As 5 certidões que mais pedem de pessoa física, em um PDF só.",
+    bullets: [
+      "Certidão PGFN (Receita Federal + Procuradoria)",
+      "CNDT — Certidão Negativa de Débitos Trabalhistas",
+      "Antecedentes Criminais (Polícia Federal)",
+      "Certidão Negativa CNJ (improbidade e inelegibilidade)",
+      "Certidão Judicial de Nada Consta",
+    ],
+    publicoAlvo: "Quem precisa comprovar regularidade: contratação, locação, credenciamento.",
+    precoB2C_centavos: 3990,
+    precoB2B_centavos: 2190,
+    apisIncluidas: [
+      "cert-pgfn-pf",
+      "cnd-trabalhista",
+      "antecedentes-criminais",
+      "cert-cnj-pf",
+      "cert-nada-consta-pf",
+      "cpf-simples",
+    ],
+    custoApiReal_centavos: 591,
+    icon: "FileCheck",
+  },
+  {
+    id: "certidao-kit-pf-completo",
+    categoria: "cpf",
+    nome: "Kit Certidões PF — Completo",
+    descricao: "Nove certidões: tudo do Essencial + fiscal, trabalhista e ambiental.",
+    bullets: [
+      "Tudo do Kit Essencial (5 certidões)",
+      "Certidão Negativa CGU",
+      "Certidão de Ações Trabalhistas",
+      "Dívida Ativa da União (PGFN)",
+      "Certidão Negativa IBAMA",
+    ],
+    publicoAlvo: "Due diligence completa de pessoa física, processo judicial e habilitação.",
+    precoB2C_centavos: 6990,
+    precoB2B_centavos: 3790,
+    apisIncluidas: [
+      "cert-pgfn-pf",
+      "cnd-trabalhista",
+      "antecedentes-criminais",
+      "cert-cnj-pf",
+      "cert-nada-consta-pf",
+      "cert-cgu-pf",
+      "cert-acoes-trabalhistas-pf",
+      "cert-divida-ativa-pf",
+      "cert-ibama-pf",
+      "cpf-simples",
+    ],
+    custoApiReal_centavos: 1055,
+    icon: "FileCheck",
+  },
+  {
+    id: "certidao-kit-pj-licitacao",
+    categoria: "cnpj",
+    nome: "Kit Certidões PJ — Licitação",
+    descricao: "O pacote que o edital pede: regularidade fiscal, trabalhista e cadastral.",
+    bullets: [
+      "Certidão de Regularidade do FGTS (CRF)",
+      "Certidão PGFN (Receita Federal + Procuradoria)",
+      "CNDT — Certidão Negativa de Débitos Trabalhistas",
+      "Certidão de Situação Cadastral (Receita)",
+      "Sintegra (inscrição estadual)",
+    ],
+    publicoAlvo: "Empresa que vai participar de licitação ou se habilitar como fornecedor.",
+    precoB2C_centavos: 4990,
+    precoB2B_centavos: 2690,
+    apisIncluidas: [
+      "cert-fgts-pj",
+      "cert-pgfn-pj",
+      "cert-debitos-trabalhistas-pj",
+      "cert-situacao-cadastral-pj",
+      "sintegra",
+      "cnpj-completo",
+    ],
+    custoApiReal_centavos: 587,
+    icon: "FileCheck",
+  },
+  {
+    id: "certidao-kit-pj-completo",
+    categoria: "cnpj",
+    nome: "Kit Certidões PJ — Completo",
+    descricao: "Dez certidões da empresa: fiscal, trabalhista, judicial, ambiental e PCD.",
+    bullets: [
+      "Tudo do Kit Licitação",
+      "Certidão Negativa CGU e CNJ",
+      "Certidão de Ações Trabalhistas",
+      "Certidão de Contratação de PCD (cota legal)",
+      "Certidão Negativa IBAMA",
+    ],
+    publicoAlvo: "Due diligence de fornecedor, M&A e habilitação em concorrência grande.",
+    precoB2C_centavos: 8990,
+    precoB2B_centavos: 4790,
+    apisIncluidas: [
+      "cert-fgts-pj",
+      "cert-pgfn-pj",
+      "cert-debitos-trabalhistas-pj",
+      "cert-situacao-cadastral-pj",
+      "cert-cgu-pj",
+      "cert-cnj-pj",
+      "cert-acoes-trabalhistas-pj",
+      "cert-pcd-pj",
+      "cert-ibama-pj",
+      "sintegra",
+      "cnpj-completo",
+    ],
+    custoApiReal_centavos: 1167,
+    icon: "FileCheck",
+  },
+
+  // ---- AVULSAS (as mais procuradas) ----
+  {
+    id: "certidao-pgfn-pf",
+    categoria: "cpf",
+    nome: "Certidão PGFN (pessoa física)",
+    descricao: "Regularidade fiscal perante a Receita Federal e a Procuradoria.",
+    bullets: [
+      "Situação: negativa, positiva com efeito de negativa ou positiva",
+      "Data de emissão e validade",
+      "Código de controle pra conferência",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Quem precisa provar que está em dia com a União.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cert-pgfn-pf", "cpf-simples"],
+    custoApiReal_centavos: 127,
+    icon: "FileText",
+  },
+  {
+    id: "certidao-cndt-pf",
+    categoria: "cpf",
+    nome: "CNDT (pessoa física)",
+    descricao: "Certidão Negativa de Débitos Trabalhistas.",
+    bullets: [
+      "Situação na Justiça do Trabalho",
+      "Data de emissão e validade",
+      "Número da certidão",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Contratação, credenciamento e habilitação que exigem CNDT.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cnd-trabalhista", "cpf-simples"],
+    custoApiReal_centavos: 127,
+    icon: "FileText",
+  },
+  {
+    id: "certidao-nada-consta-pf",
+    categoria: "cpf",
+    nome: "Nada Consta Judicial",
+    descricao: "Certidão judicial de nada consta da pessoa física.",
+    bullets: [
+      "Situação judicial",
+      "Abrangência da certidão",
+      "Data de emissão e validade",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Locação, contratação e processos que pedem certidão judicial.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cert-nada-consta-pf", "cpf-simples"],
+    custoApiReal_centavos: 127,
+    icon: "FileText",
+  },
+  {
+    id: "certidao-fgts-pj",
+    categoria: "cnpj",
+    nome: "Certidão FGTS (CRF)",
+    descricao: "Certificado de Regularidade do FGTS da empresa.",
+    bullets: [
+      "Situação de regularidade no FGTS",
+      "Número do certificado",
+      "Validade",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Licitação, contrato público e habilitação de fornecedor.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cert-fgts-pj", "cnpj-completo"],
+    custoApiReal_centavos: 123,
+    icon: "FileText",
+  },
+  {
+    id: "certidao-pgfn-pj",
+    categoria: "cnpj",
+    nome: "Certidão PGFN (empresa)",
+    descricao: "Regularidade fiscal da empresa na Receita Federal e Procuradoria.",
+    bullets: [
+      "Situação: negativa, positiva com efeito de negativa ou positiva",
+      "Data de emissão e validade",
+      "Código de controle",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Empresa que precisa comprovar regularidade federal.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cert-pgfn-pj", "cnpj-completo"],
+    custoApiReal_centavos: 123,
+    icon: "FileText",
+  },
+  {
+    id: "certidao-situacao-cadastral-pj",
+    categoria: "cnpj",
+    nome: "Situação Cadastral (Receita)",
+    descricao: "Comprovante e situação cadastral atual do CNPJ.",
+    bullets: [
+      "Situação cadastral (ativa, baixada, suspensa...)",
+      "Data da situação e motivo",
+      "Comprovante de inscrição",
+      "PDF oficial",
+    ],
+    publicoAlvo: "Cadastro de fornecedor, emissão de nota e conferência antes de contratar.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["cert-situacao-cadastral-pj", "cnpj-completo"],
+    custoApiReal_centavos: 123,
+    icon: "FileText",
+  },
+];
+
 // -------------------------------------------------------------------------
 // Combos LEILAO (planos especificos pra /consultar/leilao)
 // -------------------------------------------------------------------------
@@ -1196,6 +1434,7 @@ export const TODOS_PRODUTOS_AVULSO: ProdutoAvulso[] = [
   ...PRODUTOS_LEILAO_AVULSO,
   ...PRODUTOS_CPF_AVULSO,
   ...PRODUTOS_CNPJ_AVULSO,
+  ...PRODUTOS_CERTIDAO,
 ];
 
 export function findProdutoAvulso(id: string): ProdutoAvulso | undefined {

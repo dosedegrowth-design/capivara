@@ -79,6 +79,11 @@ interface Props {
 export function ProdutoAvulsoCard({ produto, className }: Props) {
   const Icon = produto.icon ? ICONS[produto.icon] ?? HelpCircle : HelpCircle;
 
+  // Produto com 3+ APIs e um KIT, nao uma consulta pontual — dizer "Avulso"
+  // num pacote de 5 certidoes confunde o cliente.
+  const ehKit = produto.apisIncluidas.length >= 3;
+  const rotulo = ehKit ? "Kit" : "Avulso";
+
   return (
     <div
       className={cn(
@@ -110,7 +115,7 @@ export function ProdutoAvulsoCard({ produto, className }: Props) {
           {/* Preco B2C grande */}
           <div className="shrink-0 text-left sm:text-right">
             <p className="text-[10px] font-mono uppercase tracking-widest text-tabaco">
-              Avulso
+              {rotulo}
             </p>
             <p className="font-display text-2xl sm:text-3xl font-bold text-cocoa leading-none">
               {formatBRL(produto.precoB2C_centavos)}

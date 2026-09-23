@@ -19,8 +19,6 @@ export async function generateMetadata({
   const p = findPlano(`${categoria}-${plano}`);
   return {
     title: `${p?.nome ?? "Consultar"} · Capivara`,
-    // Rota transacional dinamica: evita cache do Google com preco velho.
-    robots: { index: false, follow: false },
   };
 }
 
