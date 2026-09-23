@@ -12,7 +12,7 @@ import {
   alvoDoProduto,
   categoriaBanco,
 } from "@/lib/consultas/planos";
-import { normalizeCPF, normalizeCNPJ, normalizePlaca, isValidCPF, isValidCNPJ, isValidPlaca } from "@/lib/formatters";
+import { normalizeCPF, normalizeCNPJ, normalizePlaca, normalizeCEP, isValidCPF, isValidCNPJ, isValidPlaca, isValidCEP } from "@/lib/formatters";
 import {
   createOrGetCustomer,
   createPayment,
@@ -415,6 +415,9 @@ export async function iniciarConsultaAvulsoAction(
   if (alvo === "cpf") {
     targetNormalized = normalizeCPF(targetRaw);
     alvoValido = isValidCPF(targetNormalized);
+  } else if (alvo === "cep") {
+    targetNormalized = normalizeCEP(targetRaw);
+    alvoValido = isValidCEP(targetNormalized);
   } else if (alvo === "cnpj") {
     targetNormalized = normalizeCNPJ(targetRaw);
     alvoValido = isValidCNPJ(targetNormalized);
@@ -424,7 +427,8 @@ export async function iniciarConsultaAvulsoAction(
   }
 
   if (!alvoValido) {
-    const label = alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : "Placa";
+    const label =
+      alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : alvo === "cep" ? "CEP" : "Placa";
     return {
       ok: false,
       error: `${label} invalido.`,

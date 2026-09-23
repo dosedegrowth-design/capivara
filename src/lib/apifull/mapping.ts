@@ -23,7 +23,7 @@
 export const APIFULL_BASE = "https://api.apifull.com.br/api";
 
 /** Tipo do parametro principal de cada API. */
-export type ApiParamType = "placa" | "cpf" | "cnpj" | "nome" | "documentos";
+export type ApiParamType = "placa" | "cpf" | "cnpj" | "cep" | "nome" | "documentos";
 
 export interface ApiFullEndpoint {
   /** Nome interno usado em apisIncluidas[]. */
@@ -33,7 +33,7 @@ export interface ApiFullEndpoint {
   /** Nome humano pro PDF/UI. */
   nome: string;
   /** Categoria (pra agrupar no PDF e admin). */
-  categoria: "veicular" | "pessoa" | "empresa" | "leilao" | "credito" | "juridico";
+  categoria: "veicular" | "pessoa" | "empresa" | "leilao" | "credito" | "juridico" | "local";
   /** Parametro principal que precisa ser enviado. */
   paramType: ApiParamType;
   /** Custo em centavos (tabela Nivel 1 APIFULL, 22/09/2026). */
@@ -720,6 +720,161 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     paramType: "cpf",
     custoCentavos: 198,
     cacheTTLHours: 24,
+  },
+
+  // ============= LOCAL / CEP (geomarketing) =============
+  {
+    internal: "mercado-sociodemografico",
+    path: "mercado-sociodemografico",
+    nome: "Perfil sociodemografico do CEP",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 33,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-infraestrutura",
+    path: "mercado-infraestrutura-urbana",
+    nome: "Indice de infraestrutura urbana",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 18,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-macroeconomicos",
+    path: "mercado-macroeconomicos",
+    nome: "Indicadores macroeconomicos",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 33,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-concorrencia",
+    path: "mercado-concorrencia",
+    nome: "Score de concorrencia",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 33,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-risco-geografico",
+    path: "mercado-risco-geografico",
+    nome: "Risco geografico",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 33,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-propensao-seguro",
+    path: "mercado-propensao-seguro",
+    nome: "Propensao a seguro",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 18,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-alimentacao",
+    path: "mercado-gastos-alimentacao",
+    nome: "Gastos com alimentacao",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-consumo",
+    path: "mercado-gastos-consumo",
+    nome: "Gastos com consumo",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-diversos",
+    path: "mercado-gastos-diversos",
+    nome: "Gastos com diversos",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-educacao",
+    path: "mercado-gastos-educacao",
+    nome: "Gastos com educacao",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-habitacao",
+    path: "mercado-gastos-habitacao",
+    nome: "Gastos com habitacao",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-higiene",
+    path: "mercado-gastos-higiene",
+    nome: "Gastos com higiene",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-recreacao",
+    path: "mercado-gastos-recreacao",
+    nome: "Gastos com recreacao",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-saude",
+    path: "mercado-gastos-saude",
+    nome: "Gastos com saude",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-servicos",
+    path: "mercado-gastos-servicos",
+    nome: "Gastos com servicos",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-transporte",
+    path: "mercado-gastos-transporte",
+    nome: "Gastos com transporte",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
+  },
+  {
+    internal: "mercado-gastos-vestuario",
+    path: "mercado-gastos-vestuario",
+    nome: "Gastos com vestuario",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 9,
+    cacheTTLHours: 720,
   },
 ];
 

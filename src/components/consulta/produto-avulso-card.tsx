@@ -29,6 +29,8 @@ import {
   Home,
   ShieldAlert,
   FileWarning,
+  MapPin,
+  Store,
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -73,6 +75,8 @@ const ICONS: Record<string, LucideIcon> = {
   Home,
   ShieldAlert,
   FileWarning,
+  MapPin,
+  Store,
 };
 
 interface Props {

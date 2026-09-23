@@ -333,6 +333,7 @@ function CategoriaBadge({ categoria }: { categoria: CategoriaProdutoAvulso }) {
     },
     cpf: { classe: "bg-info/15 text-info border-info/30", label: "CPF" },
     cnpj: { classe: "bg-ok/15 text-ok border-ok/30", label: "CNPJ" },
+    cep: { classe: "bg-warn/15 text-warn border-warn/30", label: "CEP" },
   };
   const { classe, label } = estilo[categoria];
   return (

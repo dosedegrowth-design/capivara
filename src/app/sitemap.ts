@@ -43,6 +43,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/consultar/leilao`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/consultar/certidoes`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/consultar/compliance`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/consultar/local`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE_URL}/api-publica`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${BASE_URL}/docs/api`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/docs/webhooks`, lastModified: now, changeFrequency: "monthly", priority: 0.65 },

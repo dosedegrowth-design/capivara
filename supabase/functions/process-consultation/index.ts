@@ -55,7 +55,7 @@ interface ApiFullEndpoint {
   path: string;
   nome: string;
   categoria: string;
-  paramType: "placa" | "cpf" | "cnpj";
+  paramType: "placa" | "cpf" | "cnpj" | "cep";
   custoCentavos: number;
   /** TTL do cache (horas). Sincronizado com src/lib/apifull/mapping.ts. */
   cacheTTLHours: number;
@@ -138,6 +138,23 @@ const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
   { internal: "protesto-nacional-pj", path: "protesto-nacional", nome: "Protesto Nacional (empresa)", categoria: "juridico", paramType: "cnpj", custoCentavos: 376, cacheTTLHours: 24 },
   { internal: "cadin", path: "cadin", nome: "CADIN (dividas federais)", categoria: "juridico", paramType: "cpf", custoCentavos: 88, cacheTTLHours: 24 },
   { internal: "acoes-processos", path: "r-acoes-e-processos-judiciais", nome: "Acoes e Processos Judiciais", categoria: "juridico", paramType: "cpf", custoCentavos: 198, cacheTTLHours: 24 },
+  { internal: "mercado-sociodemografico", path: "mercado-sociodemografico", nome: "Perfil sociodemografico do CEP", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
+  { internal: "mercado-infraestrutura", path: "mercado-infraestrutura-urbana", nome: "Indice de infraestrutura urbana", categoria: "local", paramType: "cep", custoCentavos: 18, cacheTTLHours: 720 },
+  { internal: "mercado-macroeconomicos", path: "mercado-macroeconomicos", nome: "Indicadores macroeconomicos", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
+  { internal: "mercado-concorrencia", path: "mercado-concorrencia", nome: "Score de concorrencia", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
+  { internal: "mercado-risco-geografico", path: "mercado-risco-geografico", nome: "Risco geografico", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
+  { internal: "mercado-propensao-seguro", path: "mercado-propensao-seguro", nome: "Propensao a seguro", categoria: "local", paramType: "cep", custoCentavos: 18, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-alimentacao", path: "mercado-gastos-alimentacao", nome: "Gastos com alimentacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-consumo", path: "mercado-gastos-consumo", nome: "Gastos com consumo", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-diversos", path: "mercado-gastos-diversos", nome: "Gastos com diversos", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-educacao", path: "mercado-gastos-educacao", nome: "Gastos com educacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-habitacao", path: "mercado-gastos-habitacao", nome: "Gastos com habitacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-higiene", path: "mercado-gastos-higiene", nome: "Gastos com higiene", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-recreacao", path: "mercado-gastos-recreacao", nome: "Gastos com recreacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-saude", path: "mercado-gastos-saude", nome: "Gastos com saude", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-servicos", path: "mercado-gastos-servicos", nome: "Gastos com servicos", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-transporte", path: "mercado-gastos-transporte", nome: "Gastos com transporte", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
+  { internal: "mercado-gastos-vestuario", path: "mercado-gastos-vestuario", nome: "Gastos com vestuario", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
 ];
 
 function findEndpoint(internal: string): ApiFullEndpoint | undefined {
@@ -169,6 +186,7 @@ async function callApiFull(
     case "placa": body.placa = target; break;
     case "cpf": body.cpf = target; break;
     case "cnpj": body.cnpj = target; break;
+    case "cep": body.cep = target; break;
   }
 
   // Varios endpoints (protesto-nacional, cadin, certidoes...) esperam o campo
@@ -725,6 +743,8 @@ const PLAN_API_MAP: Record<string, string[]> = {
   "veicular-avulso-bin-estadual": ["bin-estadual", "placa-basica"],
   "veicular-avulso-roubo-furto-basico": ["historico-roubo-furto", "placa-basica"],
   "veicular-avulso-proprietario": ["proprietario-placa", "placa-basica"],
+  "local-raio-x-cep": ["mercado-sociodemografico", "mercado-gastos-alimentacao", "mercado-gastos-consumo", "mercado-gastos-diversos", "mercado-gastos-educacao", "mercado-gastos-habitacao", "mercado-gastos-higiene", "mercado-gastos-recreacao", "mercado-gastos-saude", "mercado-gastos-servicos", "mercado-gastos-transporte", "mercado-gastos-vestuario", "mercado-infraestrutura", "mercado-macroeconomicos"],
+  "local-ponto-comercial": ["mercado-sociodemografico", "mercado-gastos-alimentacao", "mercado-gastos-consumo", "mercado-gastos-diversos", "mercado-gastos-educacao", "mercado-gastos-habitacao", "mercado-gastos-higiene", "mercado-gastos-recreacao", "mercado-gastos-saude", "mercado-gastos-servicos", "mercado-gastos-transporte", "mercado-gastos-vestuario", "mercado-infraestrutura", "mercado-macroeconomicos", "mercado-concorrencia", "mercado-risco-geografico", "mercado-propensao-seguro"],
   "compliance-kyc-pf": ["pld-pf", "obito", "mandados-prisao", "antecedentes-criminais", "cpf-simples"],
   "compliance-kyc-pj": ["pld-pj", "pld-qsa", "cert-situacao-cadastral-pj", "processos-judiciais-pj", "protesto-nacional-pj", "cnpj-completo"],
   "compliance-pld-pf": ["pld-pf", "cpf-simples"],

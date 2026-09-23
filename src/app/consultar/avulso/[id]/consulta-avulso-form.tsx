@@ -16,6 +16,8 @@ import {
   normalizeCPF,
   formatCNPJ,
   normalizeCNPJ,
+  formatCEP,
+  normalizeCEP,
 } from "@/lib/formatters";
 import {
   iniciarConsultaAvulsoAction,
@@ -48,6 +50,13 @@ const FINALIDADES_CPF = [
   { id: "commercial_relation", label: "Estabelecer relação comercial" },
   { id: "identity_verification", label: "Verificar identidade" },
   { id: "self_check", label: "Consultar a mim mesmo" },
+  { id: "other", label: "Outros (descrever)" },
+];
+
+const FINALIDADES_CEP = [
+  { id: "commercial_relation", label: "Estudo de mercado / ponto comercial" },
+  { id: "credit_analysis", label: "Análise de investimento" },
+  { id: "self_check", label: "Minha própria região" },
   { id: "other", label: "Outros (descrever)" },
 ];
 
@@ -84,6 +93,8 @@ export function ConsultaAvulsoForm({
   const finalidades =
     produto.categoria === "cpf"
       ? FINALIDADES_CPF
+      : produto.categoria === "cep"
+      ? FINALIDADES_CEP
       : produto.categoria === "cnpj"
       ? FINALIDADES_CNPJ
       : produto.categoria === "leilao"
@@ -91,18 +102,38 @@ export function ConsultaAvulsoForm({
       : FINALIDADES_VEICULAR;
 
   const targetLabel =
-    alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : "Placa do veículo";
+    alvo === "cpf"
+      ? "CPF"
+      : alvo === "cnpj"
+      ? "CNPJ"
+      : alvo === "cep"
+      ? "CEP da região"
+      : "Placa do veículo";
   const targetPlaceholder =
     alvo === "cpf"
       ? "000.000.000-00"
       : alvo === "cnpj"
       ? "00.000.000/0000-00"
+      : alvo === "cep"
+      ? "00000-000"
       : "AAA-0A00";
 
   const formatTarget =
-    alvo === "cpf" ? formatCPF : alvo === "cnpj" ? formatCNPJ : formatPlaca;
+    alvo === "cpf"
+      ? formatCPF
+      : alvo === "cnpj"
+      ? formatCNPJ
+      : alvo === "cep"
+      ? formatCEP
+      : formatPlaca;
   const normalizeTarget =
-    alvo === "cpf" ? normalizeCPF : alvo === "cnpj" ? normalizeCNPJ : normalizePlaca;
+    alvo === "cpf"
+      ? normalizeCPF
+      : alvo === "cnpj"
+      ? normalizeCNPJ
+      : alvo === "cep"
+      ? normalizeCEP
+      : normalizePlaca;
 
   function action(formData: FormData) {
     setErro(null);

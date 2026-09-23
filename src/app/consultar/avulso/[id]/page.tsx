@@ -38,6 +38,8 @@ export default async function ProdutoAvulsoPage({
       ? "/consultar/cpf"
       : produto.categoria === "cnpj"
       ? "/consultar/cnpj"
+      : produto.categoria === "cep"
+      ? "/consultar/local"
       : "/consultar/veicular";
 
   // 3+ APIs = kit (ex: Kit Certidoes com 5 certidoes), nao consulta pontual
@@ -50,6 +52,8 @@ export default async function ProdutoAvulsoPage({
       ? "CPF"
       : produto.categoria === "cnpj"
       ? "CNPJ"
+      : produto.categoria === "cep"
+      ? "CEP"
       : "Veicular";
 
   return (

@@ -152,3 +152,30 @@ export function maskCNPJ(input: string): string {
   if (cnpj.length !== 14) return formatCNPJ(input);
   return `${cnpj.slice(0, 2)}.***.***/****-${cnpj.slice(12)}`;
 }
+
+// =========================================================================
+// CEP
+// =========================================================================
+
+/** So digitos, no maximo 8. */
+export function normalizeCEP(input: string): string {
+  return input.replace(/\D/g, "").slice(0, 8);
+}
+
+/** Formata como 00000-000. */
+export function formatCEP(input: string): string {
+  const c = normalizeCEP(input);
+  if (c.length <= 5) return c;
+  return `${c.slice(0, 5)}-${c.slice(5)}`;
+}
+
+/**
+ * CEP valido = 8 digitos e nao pode ser tudo igual (00000000, 11111111...).
+ * Nao existe digito verificador de CEP — a validacao real e' a base dos Correios.
+ */
+export function isValidCEP(input: string): boolean {
+  const c = normalizeCEP(input);
+  if (c.length !== 8) return false;
+  if (/^(\d)\1{7}$/.test(c)) return false;
+  return true;
+}

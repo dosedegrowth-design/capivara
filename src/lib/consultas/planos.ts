@@ -12,7 +12,7 @@
  *  B2B: pacotes Manada (Start, Pro, Plus, Reserva Capivara)
  */
 
-export type CategoriaConsulta = "cpf" | "cnpj" | "veicular";
+export type CategoriaConsulta = "cpf" | "cnpj" | "veicular" | "cep";
 
 export interface Plano {
   id: string;
@@ -514,7 +514,7 @@ export function bonusCentavos(pacote: PacoteManada): number {
 // Margem alvo: >=60% B2C, idealmente >70%.
 // =========================================================================
 
-export type CategoriaProdutoAvulso = "veicular" | "leilao" | "cpf" | "cnpj";
+export type CategoriaProdutoAvulso = "veicular" | "leilao" | "cpf" | "cnpj" | "cep";
 
 /**
  * Categoria que vai pro banco. `consultations.category` so aceita
@@ -523,13 +523,17 @@ export type CategoriaProdutoAvulso = "veicular" | "leilao" | "cpf" | "cnpj";
 export function categoriaBanco(cat: CategoriaProdutoAvulso): CategoriaConsulta {
   if (cat === "cpf") return "cpf";
   if (cat === "cnpj") return "cnpj";
+  if (cat === "cep") return "cep";
   return "veicular";
 }
 
 /** Qual documento o cliente digita pra esse produto. */
-export function alvoDoProduto(cat: CategoriaProdutoAvulso): "placa" | "cpf" | "cnpj" {
+export function alvoDoProduto(
+  cat: CategoriaProdutoAvulso
+): "placa" | "cpf" | "cnpj" | "cep" {
   if (cat === "cpf") return "cpf";
   if (cat === "cnpj") return "cnpj";
+  if (cat === "cep") return "cep";
   return "placa";
 }
 
@@ -1504,6 +1508,89 @@ export const PRODUTOS_COMPLIANCE: ProdutoAvulso[] = [
   },
 ];
 
+
+// -------------------------------------------------------------------------
+// LOCAL / CEP (geomarketing)
+//
+// Cada endpoint mercado-* custa centavos e sozinho nao vale nada. O produto
+// e' o RELATORIO consolidado — e PDF e' exatamente o que a Capivara faz bem.
+// Nenhum concorrente de consulta oferece isso.
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_LOCAL: ProdutoAvulso[] = [
+  {
+    id: "local-raio-x-cep",
+    categoria: "cep",
+    nome: "Raio-X do CEP",
+    descricao: "Quem mora ali, quanto ganha e no que gasta — o perfil do entorno.",
+    bullets: [
+      "População, domicílios, gênero e faixas etárias",
+      "Renda média estimada da região",
+      "Gasto estimado em 11 categorias (alimentação, saúde, educação, transporte...)",
+      "Índice de infraestrutura urbana e qualidade de vida",
+      "Indicadores de crescimento econômico e urbanístico",
+    ],
+    publicoAlvo: "Quem vai abrir negócio, escolher bairro ou dimensionar campanha por região.",
+    precoB2C_centavos: 2990,
+    precoB2B_centavos: 1590,
+    apisIncluidas: [
+      "mercado-sociodemografico",
+      "mercado-gastos-alimentacao",
+      "mercado-gastos-consumo",
+      "mercado-gastos-diversos",
+      "mercado-gastos-educacao",
+      "mercado-gastos-habitacao",
+      "mercado-gastos-higiene",
+      "mercado-gastos-recreacao",
+      "mercado-gastos-saude",
+      "mercado-gastos-servicos",
+      "mercado-gastos-transporte",
+      "mercado-gastos-vestuario",
+      "mercado-infraestrutura",
+      "mercado-macroeconomicos",
+    ],
+    custoApiReal_centavos: 183,
+    icon: "MapPin",
+  },
+  {
+    id: "local-ponto-comercial",
+    categoria: "cep",
+    nome: "Estudo de Ponto Comercial",
+    descricao: "Vale abrir aqui? Perfil do público, concorrência e risco da região.",
+    bullets: [
+      "Tudo do Raio-X do CEP",
+      "Score de concorrência por segmento",
+      "Risco geográfico e indicadores de colisão automotiva",
+      "Propensão da região a seguros e planos",
+      "Leitura consolidada pra decisão de ponto",
+    ],
+    publicoAlvo: "Franqueado, lojista e corretor decidindo onde abrir ou investir.",
+    precoB2C_centavos: 4990,
+    precoB2B_centavos: 2690,
+    apisIncluidas: [
+      "mercado-sociodemografico",
+      "mercado-gastos-alimentacao",
+      "mercado-gastos-consumo",
+      "mercado-gastos-diversos",
+      "mercado-gastos-educacao",
+      "mercado-gastos-habitacao",
+      "mercado-gastos-higiene",
+      "mercado-gastos-recreacao",
+      "mercado-gastos-saude",
+      "mercado-gastos-servicos",
+      "mercado-gastos-transporte",
+      "mercado-gastos-vestuario",
+      "mercado-infraestrutura",
+      "mercado-macroeconomicos",
+      "mercado-concorrencia",
+      "mercado-risco-geografico",
+      "mercado-propensao-seguro",
+    ],
+    custoApiReal_centavos: 267,
+    icon: "Store",
+  },
+];
+
 // -------------------------------------------------------------------------
 // Combos LEILAO (planos especificos pra /consultar/leilao)
 // -------------------------------------------------------------------------
@@ -1574,6 +1661,7 @@ export const TODOS_PRODUTOS_AVULSO: ProdutoAvulso[] = [
   ...PRODUTOS_CNPJ_AVULSO,
   ...PRODUTOS_CERTIDAO,
   ...PRODUTOS_COMPLIANCE,
+  ...PRODUTOS_LOCAL,
 ];
 
 export function findProdutoAvulso(id: string): ProdutoAvulso | undefined {
