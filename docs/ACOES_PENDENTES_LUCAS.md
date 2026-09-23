@@ -1,120 +1,123 @@
-# 🐾 Capivara — Ações pendentes do Lucas
+# 🐾 Capivara — o que ainda depende de você
 
-> **Última atualização:** 2026-08-31 · checkup geral (pós auditoria de 2026-07-23).
->
-> **URL produção:** https://suacapivara.com.br
->
-> Este doc lista o que DEPENDE de você (credenciais externas, decisões de negócio). Tudo que era código/infra automatizável está resolvido — ver `docs/AUDITORIA_2026-07-23.md`.
+> **Última atualização:** 2026-09-23
+> **Produção:** https://suacapivara.com.br
+> **Catálogo:** 67 consultas (14 planos · 3 combos · 50 avulsas) em 7 categorias
 
----
-
-## 🔑 ENV VARS
-
-### Críticas
-
-- [x] **`INTERNAL_WEBHOOK_SECRET`** — ✅ FEITO 2026-08-31: gerado e instalado no Vercel (production + preview + development) E nos Supabase Edge Secrets. Mesmo valor também no `.env.local`.
-
-- [ ] **`NEXT_PUBLIC_CAPIVARA_CNPJ`** — CNPJ real da DDG. Aparece em LGPD, contato, footer.
-  Formato: `12.345.678/0001-99` ou 14 dígitos puros (a função `cnpjFormatado()` aplica máscara).
-  Hoje o site degrada com elegância (esconde a linha do CNPJ), mas LGPD Art. 9º pede identificação do controlador — resolver antes de tráfego pago.
-  ```bash
-  cd ~/Antigravity/capivara
-  ~/.npm-global/bin/vercel env add NEXT_PUBLIC_CAPIVARA_CNPJ production --value "XX.XXX.XXX/0001-XX" --yes
-  ```
-
-### Recomendadas
-
-- [ ] `NEXT_PUBLIC_CAPIVARA_WA_URL` — link WhatsApp real (`https://wa.me/5511XXXXXXXXX`). Se vazio, canal não aparece na página de contato (comportamento atual).
-- [ ] `NEXT_PUBLIC_CAPIVARA_TEL` — telefone real (`(11) XXXX-XXXX`). Idem.
-- [x] `NEXT_PUBLIC_CAPIVARA_EMAIL` — default `contato@suacapivara.com.br` já renderiza no site. **Confirmar que essa caixa existe/recebe** (o form de contato envia pra ela via Resend).
-
-### Verificar (você precisa CONFIRMAR os valores — vars são "sensitive", não dá pra ler via CLI)
-
-- [x] `SUPABASE_SERVICE_ROLE_KEY` — existe no Vercel. (`.env.local` local foi corrigido em 2026-08-31 — tinha placeholder.)
-- [ ] **`ASAAS_ENV`** — ⚠️ MAIS IMPORTANTE: nenhuma transação real registrada no banco (só testes de maio). Se ainda for `sandbox`, **cobrança real não roda**. Pra ir pra produção: conta Asaas prod com KYC + trocar `ASAAS_API_KEY` + `ASAAS_ENV=production` + reconfigurar webhook no painel prod do Asaas.
-- [ ] **`RESEND_FROM_EMAIL`** — confirmar que usa `@suacapivara.com.br` (domínio verificado no Resend), NÃO `@capivara.app` (domínio antigo que aparecia em docs).
-- [ ] `ASAAS_WEBHOOK_SECRET` / `APIFULL_API_KEY` / `RESEND_API_KEY` — existem; validar funcionamento no primeiro fluxo real.
-
-Ver `.env.example` pra lista completa.
+Este doc lista só o que **eu não consigo resolver sozinho**: credencial que não
+tenho, conta que precisa do seu CPF, decisão de negócio. Tudo que era código
+está feito e validado — ver o histórico de commits.
 
 ---
 
-## 🚀 Deploys — ✅ TODOS FEITOS
+## 🔴 Trava o faturamento
 
-- [x] **Migration `0013_audit_hardening_2026_07_23.sql`** — aplicada 2026-07-23 (RLS `api_cache` confirmada ativa em 2026-08-31, crons rodando limpos).
-- [x] **Edge Function `process-consultation`** — v19 ACTIVE com código v3 (markers verificados 2026-08-31).
-- [x] **Vercel** — autodeploy funcionando; site 100% no ar (smoke test 2026-08-31: 10/10 rotas em 200).
+### 1. Asaas em produção
+**Nada cobra de verdade hoje.** O ambiente é sandbox; os 8 pagamentos no banco
+são testes de maio. Todo o resto do fluxo (consulta, Edge, PDF, refund) está
+pronto e esperando pagamento real.
 
----
+Passos: conta Asaas com KYC aprovado → trocar `ASAAS_API_KEY` → `ASAAS_ENV=production`
+→ reconfigurar o webhook no painel de produção do Asaas.
 
-## 🎨 Decisões de UX pendentes
+Enquanto isso não acontece, nada do catálogo gera receita — é a única pendência
+que segura dinheiro.
 
-- [ ] **Review step antes de pagar** — Auditor recomendou tela intermediária "Confirmar: você vai consultar CPF 123.XXX.XXX-99 para finalidade X, cobrado R$ Y". Merece 1 sprint de design. Impacta LGPD Art. 8º §4º ("consentimento específico"). Sem isso, `iniciarConsultaAction` valida o que já vem do form.
-- [ ] **NF-e**: as claims de "NF-e automática" foram REMOVIDAS do marketing. Se você quiser implementar de fato, é uma sprint dedicada (usar `/invoices` da Asaas). Enquanto isso, marketing fala em "Recibo baixável".
-- [ ] **Rate limit externo (Upstash / Cloudflare)** — o `checkRateLimit` local funciona por instância mas não persiste entre cold starts serverless. Pra produção com tráfego real, plugar Upstash Redis.
-
----
-
-## 🧪 Testes recomendados após deploy
-
-Rodar cada um em prod (com valores reais) pra validar:
-
-1. **Migration** — SQL Editor:
-   ```sql
-   -- api_cache com RLS
-   SELECT relname, relrowsecurity FROM pg_class
-     WHERE relname IN ('api_cache','asaas_webhook_events','company_invites');
-   -- Todas devem retornar t (true).
-
-   -- Retry count column
-   SELECT column_name FROM information_schema.columns
-     WHERE table_schema='capivara' AND table_name='consultations' AND column_name='retry_count';
-   ```
-
-2. **Webhook Asaas dedup** — dispare o mesmo `event.id` 2x manualmente. 2ª chamada deve retornar `{ok:true, duplicate:true}`.
-
-3. **Rate limit API v1** — bata 61 requests com mesma key em 60s. 61ª deve retornar 429 com `Retry-After`.
-
-4. **SSRF** — tente cadastrar webhook `http://169.254.169.254/` em `/empresa/webhooks`. Deve rejeitar `private_ip`.
-
-5. **Admin PII audit** — acesse `/admin/consultas`, clique "revelar" num row. Verificar em `capivara.audit_logs`:
-   ```sql
-   SELECT * FROM capivara.audit_logs WHERE action='reveal_target_pii' ORDER BY created_at DESC LIMIT 5;
-   ```
-
-6. **Cache 24h B2C** — inicie consulta CPF X. Após completar, tente iniciar CPF X mesmo plano. Deve retornar consulta anterior sem criar cobrança.
-
-7. **Form contato** — envie mensagem em `/contato`. Verifique chegada no email. Repita 4 vezes com o mesmo IP — 4ª deve falhar rate limit.
+### 2. Saldo na APIFULL
+Sem saldo, consulta paga entra e falha. O refund automático devolve, mas o
+cliente vive a falha. Confirmar saldo antes de ligar o Asaas em produção.
 
 ---
 
-## 📋 Backlog do produto (referência)
+## 🟠 Legal e confiança
 
-Sprint futura, não relacionado a hardening:
+### 3. `NEXT_PUBLIC_CAPIVARA_CNPJ`
+Conferido hoje: o site mostra a razão social **sem o CNPJ**. A LGPD (Art. 9º)
+pede identificação do controlador. O site degrada com elegância (esconde a
+linha), mas resolver antes de tráfego pago.
 
-| Frente | Estado |
-|---|---|
-| Anti-fraude blocklist (PEP, geo, device) | Pendente — dir vazio hoje |
-| Rate limit externo (Upstash) | Pendente |
-| NF-e Asaas real | Adiado (marketing removeu claim) |
-| Review step de consulta | Pendente |
-| Painel admin: quick actions extras | Ok — mínimo viável entregue |
-| Delete de conta com data retention | Ok — anonimização, não delete |
-| PWA offline real | Manifest existe, service worker é pending |
-| Dashboards de KPI B2B (por empresa) | Existe estatística básica |
+```bash
+cd ~/Antigravity/capivara
+~/.npm-global/bin/vercel env add NEXT_PUBLIC_CAPIVARA_CNPJ production --value "XX.XXX.XXX/0001-XX" --yes
+```
 
-Detalhe técnico em `docs/AUDITORIA_2026-07-23.md`.
+### 4. Canais de contato
+`NEXT_PUBLIC_CAPIVARA_WA_URL` e `NEXT_PUBLIC_CAPIVARA_TEL` estão vazios, então
+WhatsApp e telefone **não aparecem** na página de contato. Só o e-mail aparece.
+
+### 5. `RESEND_FROM_EMAIL`
+Confirmar que usa `@suacapivara.com.br` (domínio verificado no Resend), não o
+`@capivara.app` antigo. Se estiver errado, nenhum e-mail chega.
 
 ---
 
-## ✅ JÁ FEITO (código pronto, sem ação sua)
+## 🟡 Um comando seu
 
-- ✅ 15/15 findings críticos corrigidos (privilege escalation, api_cache RLS, SSRF, timing-safe, dedup event, valor payment, race, target_hash, fire-and-forget, PLAN_API_MAP, form contato, admin refund UI + mask PII)
-- ✅ 15/15 findings altos corrigidos (cache 24h, refund parcial, retry_count, SSRF guard, convite real, rate limit, unauthorized opaco, ASAAS_ENV, NF-e claim removida, min(20) finalidade, guards, etc.)
-- ✅ 15+ findings médios corrigidos
-- ✅ Toda a stack "folhas → R$" limpa (schema validators + marketing + blog)
-- ✅ Migration 0013 escrita
-- ✅ Edge Function v3
-- ✅ Novos arquivos: `src/lib/refund.ts`, `src/lib/auth/internal.ts`, `src/lib/webhooks/ssrf-guard.ts`, `src/lib/rate-limit.ts`, `src/lib/config.ts`, `admin/consultas/actions.ts` + `consultas-client.tsx`, `aceitar-convite/[token]/page.tsx`, `contato/actions.ts` + `contato-form.tsx`
+### 6. Deploy da Edge Function
+O encadeamento de sócio (planos CNPJ) está no repo e validado, mas **não subiu**:
+o deploy precisa do seu Personal Access Token do Supabase, que não fica no
+ambiente. A função em produção ainda é a v34.
 
-Ver diff completo no git.
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_xxx ./scripts/deploy-edge.sh
+```
+(Token em supabase.com/dashboard/account/tokens. O script roda `npm run check`
+antes de subir.)
+
+Sem esse deploy, 15 chamadas dos planos CNPJ Sócios/Premium/Total continuam
+saindo com o CNPJ no campo `cpf` e voltando vazias.
+
+---
+
+## 🔵 Decisão de produto (não é código)
+
+### 7. Busca reversa por nome/telefone
+A APIFULL tem `busca-por-documentos` (R$ 0,90) mapeada e **não vendida**.
+Encontrar alguém a partir do nome ou telefone é o uso mais sensível do catálogo
+inteiro: a finalidade legítima é muito mais estreita e o risco de uso pra
+perseguição é real.
+
+Não implementei por decisão sua, não por dificuldade. Se quiser, o caminho é:
+finalidades próprias (mais restritas que as atuais), aceite específico, e
+provavelmente restrito a B2B com contrato.
+
+### 8. Margem abaixo do alvo em 6 avulsos
+Passam o piso de 60% mas ficam abaixo do alvo de 70%:
+Recall (69%), Rastreamento (65%), CRLV (63%), Histórico de Leilão (68%),
+Foto do Leilão (67%), Vip Car (62%).
+São os produtos de custo alto da APIFULL. Subir preço ou aceitar margem menor
+nesses — `npm run validar` lista eles a cada rodada.
+
+### 9. Planos CNPJ: quantos sócios consultar
+O encadeamento consulta **um** sócio (o administrador, ou o primeiro da lista).
+Consultar todos multiplicaria o custo da APIFULL por sócio, e o preço atual
+assume uma chamada. Se quiser cobrir o quadro inteiro, vira um SKU novo com
+preço por sócio.
+
+### 10. Rate limit externo (Upstash)
+O `checkRateLimit` atual vale por instância serverless e zera em cold start.
+Com tráfego real, plugar Upstash Redis. Precisa de conta — não tenho.
+
+### 11. NF-e
+O marketing fala em "recibo baixável", não em NF-e. Implementar de verdade
+(via `/invoices` da Asaas) é uma sprint dedicada. Só vale se um cliente
+empresa exigir.
+
+---
+
+## ✅ Resolvido nesta rodada (23/09)
+
+- Catálogo completo no site: página "Tudo" com as 67 consultas, busca e filtro;
+  7 categorias na home (carrossel no celular).
+- **3 combos de leilão davam 404 em produção** — os CTAs da landing de leilão e
+  de /precos caíam em página inexistente.
+- Os 3 links de direito do titular em /lgpd apontavam pra rota que não existe.
+- `<title>` com "Capivara" duas vezes em 44 páginas.
+- Revisão antes de pagar (LGPD Art. 8º §4º) — era a última pendência aberta da
+  auditoria de julho.
+- API B2B aceitava só 14 dos 67 SKUs.
+- Preços errados no marketing (CPF Premium dizia R$ 89,90 e custa 79,90;
+  "Veicular R$ 49,90" não existia; Leilão "a partir de R$ 12,99" e o mínimo é
+  29,99). Agora todo preço sai do catálogo.
+- Anti-fraude saiu do zero: blocklist e varredura por IP.
+- `npm run check` roda typecheck + invariantes do catálogo + 41 testes.
