@@ -241,6 +241,7 @@ Busca por nome, telefone, contatos hot, endereços. Já coberto nos avulsos CPF 
 | | Hoje | Proposta |
 |---|---|---|
 | Nichos | 4 (CPF, CNPJ, Veicular, Leilão) | **8** (+ Certidões, Compliance/KYC, Judicial, Local/CEP) |
+| SKUs hoje (22/09) | 29 | **47** (+18 no ar: 5 veiculares + 13 CPF/CNPJ) |
 | Combos | 17 | ~28 |
 | Avulsos | 13 | ~45 |
 | SKUs total | 30 | **~73** |
@@ -257,7 +258,8 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 | ~~**0**~~ | ~~Confirmar nível/paths/renames~~ ✅ **FEITO 22/09** via OpenAPI + confirmação do Lucas | — |
 | ~~**1**~~ | ~~Reprecificação~~ ✅ **FEITO 22/09** — custos + 4 paths otimizados + 11 preços + bug `proprietario` | — |
 | **2a** | ~~Quick wins veiculares~~ ✅ **FEITO 22/09**: Multas e Débitos, RENAINF, RENAJUD, ATPV-e, Placa Radar (5 SKUs no ar) | — |
-| **2b** | Avulsos de CPF/CNPJ (Processos, Antecedentes, Busca por Nome/Telefone, Dark Web, Frota, CNH). **Requer**: `consulta-avulso-form.tsx` hoje assume SEMPRE placa — precisa aceitar CPF/CNPJ + `CategoriaProdutoAvulso` ampliada | 1-2 dias |
+| **2b** | ~~Avulsos de CPF/CNPJ~~ ✅ **FEITO 22/09**: 13 SKUs no ar (9 CPF + 4 CNPJ). Form/action agora aceitam placa, CPF ou CNPJ conforme a categoria — **desbloqueio que habilita o nicho de Certidões** | — |
+| **2c** | Busca reversa (por Nome `ic-nome`, por Telefone `pessoa-telefone`). Input é nome/telefone, não documento — exige novo tipo de alvo no form + revisão das finalidades LGPD (skip tracing é o uso mais sensível do catálogo) | 1 dia |
 | **3** | Nicho Certidões (landing + kits) | 2-3 dias |
 | **4** | Nicho Compliance/KYC (foco API B2B) + Judicial | 2-3 dias |
 | **5** | Raio-X do CEP (PDF novo, template próprio) | 3-4 dias |
@@ -274,7 +276,9 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 - [x] ✅ TTLs definidos pros 5 do bloco 2a (débitos/RENAINF 12h · RENAJUD 24h · ATPV-e 7d · radar 24h)
 - [ ] TTLs dos próximos (certidões 24h · CEP 30d · processos 24h · CNH 7d)
 - [ ] **Renderizadores dedicados de PDF**: o OpenAPI documenta só o envelope (`status`/`dados`/`aux`), não o formato interno de `dados` — escrever renderizador adivinhando campos daria PDF vazio. Os novos usam `renderGeneric` (que agora expande arrays de objetos em blocos legíveis). Calibrar com a 1ª consulta real de cada API
-- [ ] **Form avulso só aceita placa** (`consulta-avulso-form.tsx:55`) — bloqueia produtos de CPF/CNPJ (fase 2b)
+- [x] ✅ **Form avulso** agora aceita placa/CPF/CNPJ por categoria (helpers `alvoDoProduto` / `categoriaBanco` em planos.ts)
+- [ ] **Alvo por nome/telefone** (fase 2c): form só lida com documento; busca reversa precisa de outro tipo de input
+- [ ] **Categorias novas exigem migration**: `consultations.category` tem CHECK (cpf|cnpj|veicular). Certidões/Compliance/Judicial cabem nas 3 existentes, mas **CEP (geomarketing) não** — vai precisar expandir o CHECK
 - [ ] Categorias novas exigem: `CategoriaConsulta` ampliada + constraint `consultations.category` (migration) + landings + templates PDF
 - [ ] Finalidades LGPD específicas pros produtos de skip tracing
 
