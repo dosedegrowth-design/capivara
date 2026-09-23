@@ -241,7 +241,7 @@ Busca por nome, telefone, contatos hot, endereços. Já coberto nos avulsos CPF 
 | | Hoje | Proposta |
 |---|---|---|
 | Nichos | 4 (CPF, CNPJ, Veicular, Leilão) | **8** (+ Certidões, Compliance/KYC, Judicial, Local/CEP) |
-| SKUs hoje (22/09) | 29 | **47** (+18 no ar: 5 veiculares + 13 CPF/CNPJ) |
+| SKUs hoje (22/09) | 29 | **57** (+28 no ar: 5 veiculares + 13 CPF/CNPJ + 10 certidões) |
 | Combos | 17 | ~28 |
 | Avulsos | 13 | ~45 |
 | SKUs total | 30 | **~73** |
@@ -260,7 +260,7 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 | **2a** | ~~Quick wins veiculares~~ ✅ **FEITO 22/09**: Multas e Débitos, RENAINF, RENAJUD, ATPV-e, Placa Radar (5 SKUs no ar) | — |
 | **2b** | ~~Avulsos de CPF/CNPJ~~ ✅ **FEITO 22/09**: 13 SKUs no ar (9 CPF + 4 CNPJ). Form/action agora aceitam placa, CPF ou CNPJ conforme a categoria — **desbloqueio que habilita o nicho de Certidões** | — |
 | **2c** | Busca reversa (por Nome `ic-nome`, por Telefone `pessoa-telefone`). Input é nome/telefone, não documento — exige novo tipo de alvo no form + revisão das finalidades LGPD (skip tracing é o uso mais sensível do catálogo) | 1 dia |
-| **3** | Nicho Certidões (landing + kits) | 2-3 dias |
+| ~~**3**~~ | ~~Nicho Certidões~~ ✅ **FEITO 22/09**: 4 kits + 6 avulsas + landing `/consultar/certidoes` (10 SKUs, 16 endpoints). Estaduais fora (exigem campo UF) | — |
 | **4** | Nicho Compliance/KYC (foco API B2B) + Judicial | 2-3 dias |
 | **5** | Raio-X do CEP (PDF novo, template próprio) | 3-4 dias |
 | **6** | Premium: Rastreamento, Finanças da Empresa (sob demanda) | 1 dia |
@@ -274,7 +274,8 @@ Destaques de margem nos novos: certidões (83-91%), CEP (93%), processos judicia
 - [x] ✅ Renames investigados: **não houve rename** — todos os paths antigos existem. O que houve foram endpoints NOVOS mais baratos (ver 1.0) e `serasa-basica` perdendo preço público
 - [ ] ⚠️ **CRLV fora de MG**: summary diz "CRLV-MG" e o endpoint aceita `state` que não enviamos — testar placa de SP antes de promover
 - [x] ✅ TTLs definidos pros 5 do bloco 2a (débitos/RENAINF 12h · RENAJUD 24h · ATPV-e 7d · radar 24h)
-- [ ] TTLs dos próximos (certidões 24h · CEP 30d · processos 24h · CNH 7d)
+- [x] ✅ TTLs de certidões (24h — validade curta), processos (24h), CNH (7d), imóveis (30d)
+- [ ] TTLs do CEP (30d) quando o nicho entrar
 - [ ] **Renderizadores dedicados de PDF**: o OpenAPI documenta só o envelope (`status`/`dados`/`aux`), não o formato interno de `dados` — escrever renderizador adivinhando campos daria PDF vazio. Os novos usam `renderGeneric` (que agora expande arrays de objetos em blocos legíveis). Calibrar com a 1ª consulta real de cada API
 - [x] ✅ **Form avulso** agora aceita placa/CPF/CNPJ por categoria (helpers `alvoDoProduto` / `categoriaBanco` em planos.ts)
 - [ ] **Alvo por nome/telefone** (fase 2c): form só lida com documento; busca reversa precisa de outro tipo de input
@@ -356,3 +357,25 @@ recreacao, saude, servicos, transporte, vestuario — R$0,09 cada) ·
 `pf-historico-academico` · `pf-doacoes-politicas` · `pj-doacoes-politicas` · `pf-sancoes-restricoes` ·
 `pj-sancoes-restricoes` · `pf-score-credito-nv` · `csv-v2` · `serasa-premium-v2` · `rating-credito-bancario` ·
 `nome-endereco` (busca reversa por nome/endereço) · `reconhecimento-facial`
+
+
+---
+
+## 9. Decisão de SEO revista (22/09)
+
+A auditoria de julho colocou `noindex` em `/consultar/avulso/[id]` e
+`/consultar/[categoria]/[plano]` pra evitar "preço velho cacheado no Google".
+
+**Revisto**: com 57 SKUs — a maioria de cauda longa ("certidão PGFN online",
+"consultar antecedentes criminais", "multas por placa") — essas são as páginas
+que mais trazem busca orgânica, o canal principal do B2C. O risco de preço
+desatualizado é o mesmo de qualquer e-commerce (o Google recacheia em dias) e
+o sitemap **já listava essas páginas**, ou seja, o sinal era contraditório.
+
+- Páginas de **produto** → indexáveis
+- **Checkout** (`/consultar/aguardando/[id]`, com QR/boleto) → ganhou o `noindex` que faltava
+- Sitemap passa a derivar de `TODOS_PRODUTOS_AVULSO` (fonte única) — 23 produtos
+  novos estavam fora dele. Hoje: 100 URLs, 40 de produto avulso.
+
+Se aparecer reclamação real de preço antigo no Google, o caminho é atualizar o
+`lastModified` do sitemap e pedir reindexação — não voltar o noindex.
