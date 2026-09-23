@@ -221,6 +221,32 @@ for (const href of hrefsDoMenu()) {
 }
 
 // ---------------------------------------------------------------------------
+// 9. Tokens de cor: toda variavel semantica precisa virar utilitario
+//
+//    No Tailwind v4 a classe `bg-card` so existe se houver `--color-card`.
+//    Definir apenas `--card` em :root nao gera nada — e foi assim que 179
+//    `bg-card` ficaram transparentes no projeto inteiro sem ninguem notar,
+//    ate o dropdown do menu aparecer vazado por cima do conteudo.
+// ---------------------------------------------------------------------------
+const css = readFileSync(resolve(__dirname, "../src/app/globals.css"), "utf-8");
+
+const blocoRoot = css.slice(css.indexOf(":root {"), css.indexOf("}", css.indexOf(":root {")));
+const semanticas = [...blocoRoot.matchAll(/^\s*--([a-z-]+):/gm)]
+  .map((m) => m[1])
+  // --radius nao e cor; nao precisa de utilitario de cor.
+  .filter((n) => n !== "radius");
+
+const temaInline = css.slice(css.indexOf("@theme inline"));
+for (const nome of semanticas) {
+  if (!new RegExp(`--color-${nome}:\\s*var\\(--${nome}\\)`).test(temaInline)) {
+    erro(
+      "tokens",
+      `--${nome} existe em :root mas nao vira utilitario (falta --color-${nome} no @theme inline)`
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Relatorio
 // ---------------------------------------------------------------------------
 console.log(`\nCatalogo: ${CATALOGO_COMPLETO.length} SKUs`);
