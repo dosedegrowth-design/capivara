@@ -160,6 +160,29 @@ const s = StyleSheet.create({
   },
   emptyText: { fontSize: 9, color: c.ok, fontFamily: "Helvetica-Bold" },
 
+  /** Destaque do codigo de barras — e' o que o cliente usa pra pagar. */
+  barrasBox: {
+    backgroundColor: "#1F16110A",
+    borderWidth: 1,
+    borderColor: "#C46A3F55",
+    borderRadius: 4,
+    padding: 8,
+    marginVertical: 6,
+  },
+  barrasLabel: {
+    fontSize: 7,
+    color: "#C46A3F",
+    fontFamily: "Helvetica-Bold",
+    letterSpacing: 0.6,
+    marginBottom: 3,
+  },
+  barrasValor: {
+    fontSize: 10,
+    color: "#1F1611",
+    fontFamily: "Courier-Bold",
+    letterSpacing: 0.5,
+  },
+
   /** Cabecalho de cada item em lista de registros (multas, restricoes...). */
   itemHeader: {
     fontSize: 8,
@@ -291,6 +314,245 @@ function KVList({
           >
             <Text style={s.kvKey}>{k}</Text>
             <Text style={s.kvValue}>{v ?? "—"}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+
+// ============================================================
+// Deteccao por PADRAO (nao por nome exato de campo)
+//
+// A APIFULL nao documenta o formato de `dados` — cada endpoint devolve o que
+// quer. Em vez de escrever um renderizador por endpoint (que exigiria conhecer
+// os campos de cada um), reconhecemos PADROES no nome + no valor. Isso vale
+// pros ~87 endpoints de hoje e pros que vierem depois.
+// ============================================================
+
+/** Normaliza chave pra comparar: minuscula, sem acento, sem separador. */
+function chaveNorm(k: string): string {
+  return k
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+// "total" sozinho e' ambiguo (TotalPendencias = contagem, nao dinheiro):
+// so trata como moeda quando o nome e' inequivoco OU quando o numero tem casa
+// decimal. Contagem inteira com nome de quantidade fica como numero.
+const RE_MONETARIO = /(valor|preco|montante|saldo|renda|patrimonio|faturamento|capital|mensalidade|parcela)/;
+const RE_MONETARIO_FRACO = /(debito|divida|multa|taxa|ipva|custo|limite|total)/;
+const RE_CONTAGEM = /(qtd|quantidade|numero|count|total(pendencias|ocorrencias|registros|protestos|consultas|itens))/;
+const RE_DATA = /(data|dt|emissao|validade|vencimento|nascimento|cadastro|atualizacao|inclusao|ocorrencia|abertura|em$)/;
+const RE_DOC = /(cpf|cnpj|documento|placa|renavam|chassi|protocolo|inscricao)/;
+const RE_BARRAS = /(codigobarras|linhadigitavel|barcode|codigopagamento|digitavel)/;
+const RE_LINK = /(url|link|pdf|imagem|foto|arquivo|href|anexo)/;
+const RE_SITUACAO = /(situacao|status|resultado|condicao|restricao|possui|existe|consta|regular|ativo|resultado)/;
+
+/** Valor parece data ISO ou dd/mm/aaaa? */
+function pareceData(v: unknown): boolean {
+  if (typeof v !== "string") return false;
+  return /^\d{4}-\d{2}-\d{2}/.test(v) || /^\d{2}\/\d{2}\/\d{4}/.test(v);
+}
+
+function formatarDataBR(v: string): string {
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+  if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+  return v.slice(0, 10);
+}
+
+/**
+ * Converte string numerica em number, detectando o separador decimal.
+ *
+ * A APIFULL pode mandar "1284.55" (americano) ou "1.284,55" (brasileiro).
+ * Tratar ponto sempre como separador de milhar multiplicava o valor por 100 —
+ * "1284.55" virava R$ 128.455,00.
+ */
+export function paraNumero(v: unknown): number | null {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  if (typeof v !== "string") return null;
+
+  const bruto = v.replace(/R\$/gi, "").trim();
+  if (!/\d/.test(bruto)) return null;
+  if (!/^-?[\d.,\s]+$/.test(bruto)) return null;
+
+  const semEspaco = bruto.replace(/\s/g, "");
+  const temVirgula = semEspaco.includes(",");
+  const temPonto = semEspaco.includes(".");
+
+  let normalizado: string;
+  if (temVirgula && temPonto) {
+    // O separador decimal e' o que aparece POR ULTIMO
+    normalizado =
+      semEspaco.lastIndexOf(",") > semEspaco.lastIndexOf(".")
+        ? semEspaco.replace(/\./g, "").replace(",", ".")
+        : semEspaco.replace(/,/g, "");
+  } else if (temVirgula) {
+    // So virgula = decimal brasileiro
+    normalizado = semEspaco.replace(",", ".");
+  } else if (temPonto) {
+    // So ponto: 1 ou 2 casas depois do ultimo ponto = decimal ("1284.55").
+    // Mais de um ponto, ou exatamente 3 casas, = separador de milhar ("1.284").
+    const partes = semEspaco.split(".");
+    const ultima = partes[partes.length - 1];
+    normalizado =
+      partes.length === 2 && ultima.length > 0 && ultima.length <= 2
+        ? semEspaco
+        : semEspaco.replace(/\./g, "");
+  } else {
+    normalizado = semEspaco;
+  }
+
+  const n = Number(normalizado);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Formata numero como BRL. Aceita number ou string numerica. */
+function formatarBRL(v: unknown): string | null {
+  const n = paraNumero(v);
+  if (n === null) return null;
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+/**
+ * Semantica de situacao: em consulta de risco, "nada consta" e' BOM e
+ * "consta" e' RUIM — o oposto do senso comum de "positivo".
+ */
+function corDaSituacao(texto: string): "ok" | "err" | "warn" | null {
+  const t = chaveNorm(texto);
+  if (!t) return null;
+  const bom = /(nadaconsta|negativa|regular|semrestricao|semocorrencia|semdebito|semapontamento|ativa|adimplente|liberado|semprotesto|naoconsta|inexistente|semregistro)/;
+  const ruim = /(positiva|irregular|comrestricao|comdebito|inadimplente|bloqueado|suspensa|baixada|inapta|cancelada|protestado|comapontamento|roubo|furto|sinistro|leilao)/;
+  if (bom.test(t)) return "ok";
+  if (ruim.test(t)) return "err";
+  return null;
+}
+
+export type CampoFormatado = {
+  label: string;
+  valor: string;
+  /** Destaque visual especial (codigo de barras, situacao critica). */
+  realce?: "barras" | "ok" | "err" | "warn";
+  /** Ordem semantica: identificacao < situacao < valores < datas < resto. */
+  peso: number;
+};
+
+/** Aplica heuristica a um par chave/valor. */
+function formatarCampo(k: string, v: unknown): CampoFormatado | null {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "object") return null; // tratado fora
+
+  const kn = chaveNorm(k);
+  const label = humanize(k);
+
+  // 1. Codigo de barras — o dado mais acionavel de uma consulta de debito
+  if (RE_BARRAS.test(kn) && typeof v === "string" && v.replace(/\D/g, "").length >= 20) {
+    return { label, valor: v, realce: "barras", peso: 1 };
+  }
+
+  // 2. Link / documento
+  if (RE_LINK.test(kn) && typeof v === "string" && /^https?:\/\//.test(v)) {
+    return { label, valor: v, peso: 6 };
+  }
+
+  // 3. Booleano — em consulta de risco, `true` costuma ser ocorrencia (ruim)
+  if (typeof v === "boolean") {
+    const ehRisco = /(restricao|debito|protesto|roubo|furto|divida|pendencia|bloqueio|gravame|multa|obito|sinistro)/.test(kn);
+    return {
+      label,
+      valor: v ? "Sim" : "Não",
+      realce: ehRisco ? (v ? "err" : "ok") : undefined,
+      peso: 2,
+    };
+  }
+
+  // 4. Situacao / status com semantica de risco
+  if (RE_SITUACAO.test(kn) && typeof v === "string") {
+    const cor = corDaSituacao(v);
+    return { label, valor: v, realce: cor ?? undefined, peso: 2 };
+  }
+
+  // 5. Monetario — inequivoco sempre; ambiguo so com casa decimal
+  if (!RE_CONTAGEM.test(kn)) {
+    const temDecimal =
+      (typeof v === "number" && !Number.isInteger(v)) ||
+      (typeof v === "string" && /[.,]\d{1,2}$/.test(v.trim()));
+    if (RE_MONETARIO.test(kn) || (RE_MONETARIO_FRACO.test(kn) && temDecimal)) {
+      const brl = formatarBRL(v);
+      if (brl) return { label, valor: brl, peso: 3 };
+    }
+  }
+
+  // 6. Data
+  if (RE_DATA.test(kn) && pareceData(v)) {
+    return { label, valor: formatarDataBR(String(v)), peso: 4 };
+  }
+  if (pareceData(v)) {
+    return { label, valor: formatarDataBR(String(v)), peso: 4 };
+  }
+
+  // 7. Documento — mono, sem quebrar
+  if (RE_DOC.test(kn)) {
+    return { label, valor: String(v), peso: 0 };
+  }
+
+  return { label, valor: stringifyValue(v), peso: 5 };
+}
+
+/** Extrai campos formatados de um objeto (expande 1 nivel de aninhamento). */
+function camposDoObjeto(obj: Record<string, unknown>): CampoFormatado[] {
+  const out: CampoFormatado[] = [];
+  for (const [k, v] of Object.entries(obj)) {
+    if (isPlainObject(v)) {
+      for (const [k2, v2] of Object.entries(v)) {
+        if (isPlainObject(v2) || Array.isArray(v2)) continue;
+        const c = formatarCampo(`${k} ${k2}`, v2);
+        if (c) out.push(c);
+      }
+    } else if (!Array.isArray(v)) {
+      const c = formatarCampo(k, v);
+      if (c) out.push(c);
+    }
+  }
+  // ordena por peso (identificacao -> situacao -> valores -> datas -> resto),
+  // mantendo a ordem original dentro do mesmo peso
+  return out.map((c, i) => ({ c, i })).sort((a, b) => a.c.peso - b.c.peso || a.i - b.i).map((x) => x.c);
+}
+
+/** Lista de campos ja formatados, com realce visual quando aplicavel. */
+function CamposList({ campos }: { campos: CampoFormatado[] }) {
+  return (
+    <View>
+      {campos.map((campo, i) => {
+        const last = i === campos.length - 1;
+        if (campo.realce === "barras") {
+          return (
+            <View key={`${campo.label}-${i}`} style={s.barrasBox}>
+              <Text style={s.barrasLabel}>{campo.label.toUpperCase()}</Text>
+              <Text style={s.barrasValor}>{campo.valor}</Text>
+            </View>
+          );
+        }
+        const corValor =
+          campo.realce === "ok"
+            ? c.ok
+            : campo.realce === "err"
+            ? c.err
+            : campo.realce === "warn"
+            ? c.warn
+            : undefined;
+        return (
+          <View
+            key={`${campo.label}-${i}`}
+            style={[s.kvRow, ...(last ? [{ borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }] : [])]}
+          >
+            <Text style={s.kvKey}>{campo.label}</Text>
+            <Text style={[s.kvValue, ...(corValor ? [{ color: corValor, fontFamily: "Helvetica-Bold" }] : [])]}>
+              {campo.valor}
+            </Text>
           </View>
         );
       })}
@@ -577,22 +839,11 @@ function renderGeneric({ dados }: RenderArgs) {
                 </View>
               );
             }
-            const entries: Array<[string, string | null]> = [];
-            for (const [k, v] of Object.entries(item)) {
-              if (isPlainObject(v)) {
-                for (const [k2, v2] of Object.entries(v)) {
-                  if (!isPlainObject(v2) && !Array.isArray(v2)) {
-                    entries.push([`${humanize(k)} · ${humanize(k2)}`, stringifyValue(v2)]);
-                  }
-                }
-              } else {
-                entries.push([humanize(k), stringifyValue(v)]);
-              }
-            }
+            const campos = camposDoObjeto(item);
             return (
               <View key={i} style={{ marginBottom: 8 }}>
                 <Text style={s.itemHeader}>{`Registro ${i + 1} de ${dados.length}`}</Text>
-                <KVList entries={entries.slice(0, 14)} />
+                <CamposList campos={campos.slice(0, 14)} />
               </View>
             );
           })}
@@ -619,32 +870,34 @@ function renderGeneric({ dados }: RenderArgs) {
   }
 
   if (isPlainObject(dados)) {
-    const entries: Array<[string, string | null]> = [];
-    for (const [k, v] of Object.entries(dados)) {
-      // Profundidade 2: se for objeto, expande 1 nivel
-      if (isPlainObject(v)) {
-        for (const [k2, v2] of Object.entries(v)) {
-          if (
-            typeof v2 === "string" ||
-            typeof v2 === "number" ||
-            typeof v2 === "boolean" ||
-            v2 === null
-          ) {
-            entries.push([`${humanize(k)} · ${humanize(k2)}`, stringifyValue(v2)]);
-          }
-        }
-      } else {
-        entries.push([humanize(k), stringifyValue(v)]);
-      }
-    }
-    if (entries.length === 0) {
+    // Heuristica por padrao: formata R$, datas, documentos, situacoes e
+    // destaca codigo de barras — sem depender do nome exato do campo.
+    const campos = camposDoObjeto(dados);
+
+    // Listas aninhadas (multas[], processos[], socios[]...) viram blocos
+    const listas = Object.entries(dados).filter(
+      ([, v]) => Array.isArray(v) && v.length > 0
+    ) as Array<[string, unknown[]]>;
+
+    if (campos.length === 0 && listas.length === 0) {
       return (
         <View style={s.emptyBox}>
           <Text style={s.emptyText}>Nenhum dado retornado</Text>
         </View>
       );
     }
-    return <KVList entries={entries.slice(0, 30)} />;
+
+    return (
+      <View>
+        {campos.length > 0 ? <CamposList campos={campos.slice(0, 30)} /> : null}
+        {listas.map(([nome, itens]) => (
+          <View key={nome} style={{ marginTop: 10 }}>
+            <Text style={s.itemHeader}>{`${humanize(nome)} · ${itens.length} registro(s)`}</Text>
+            {renderGeneric({ dados: itens })}
+          </View>
+        ))}
+      </View>
+    );
   }
 
   // scalar
