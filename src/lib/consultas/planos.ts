@@ -514,7 +514,24 @@ export function bonusCentavos(pacote: PacoteManada): number {
 // Margem alvo: >=60% B2C, idealmente >70%.
 // =========================================================================
 
-export type CategoriaProdutoAvulso = "veicular" | "leilao";
+export type CategoriaProdutoAvulso = "veicular" | "leilao" | "cpf" | "cnpj";
+
+/**
+ * Categoria que vai pro banco. `consultations.category` so aceita
+ * cpf|cnpj|veicular — produtos de leilao entram como "veicular".
+ */
+export function categoriaBanco(cat: CategoriaProdutoAvulso): CategoriaConsulta {
+  if (cat === "cpf") return "cpf";
+  if (cat === "cnpj") return "cnpj";
+  return "veicular";
+}
+
+/** Qual documento o cliente digita pra esse produto. */
+export function alvoDoProduto(cat: CategoriaProdutoAvulso): "placa" | "cpf" | "cnpj" {
+  if (cat === "cpf") return "cpf";
+  if (cat === "cnpj") return "cnpj";
+  return "placa";
+}
 
 export interface ProdutoAvulso {
   id: string;
@@ -863,6 +880,254 @@ export const PRODUTOS_LEILAO_AVULSO: ProdutoAvulso[] = [
   },
 ];
 
+
+// -------------------------------------------------------------------------
+// CPF (produtos individuais)
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_CPF_AVULSO: ProdutoAvulso[] = [
+  {
+    id: "cpf-avulso-processos",
+    categoria: "cpf",
+    nome: "Processos Judiciais",
+    descricao: "Ações judiciais em que a pessoa aparece como parte.",
+    bullets: [
+      "Tribunal e comarca",
+      "Assunto e classe processual",
+      "Partes envolvidas",
+      "Movimentações recentes",
+    ],
+    publicoAlvo: "Quem vai contratar, alugar ou fechar negócio e quer saber de processos.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["processos-judiciais-pf", "cpf-simples"],
+    custoApiReal_centavos: 42,
+    icon: "Scale",
+  },
+  {
+    id: "cpf-avulso-antecedentes",
+    categoria: "cpf",
+    nome: "Antecedentes Criminais",
+    descricao: "Certidão federal de antecedentes criminais.",
+    bullets: [
+      "Certidão oficial da Polícia Federal",
+      "Situação (nada consta ou com apontamento)",
+      "Data de emissão e validade",
+      "PDF do documento",
+    ],
+    publicoAlvo: "RH em contratação, condomínio, locação e credenciamento.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["antecedentes-criminais", "cpf-simples"],
+    custoApiReal_centavos: 127,
+    icon: "ShieldCheck",
+  },
+  {
+    id: "cpf-avulso-darkweb",
+    categoria: "cpf",
+    nome: "Exposição na Dark Web",
+    descricao: "Se os dados da pessoa apareceram em vazamentos conhecidos.",
+    bullets: [
+      "E-mails e telefones expostos",
+      "Vazamentos em que aparecem",
+      "Tipo de dado comprometido",
+      "Recomendação de ação",
+    ],
+    publicoAlvo: "Quem quer saber se foi vazado e precisa trocar senhas ou reforçar segurança.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["darkweb-pf", "cpf-simples"],
+    custoApiReal_centavos: 127,
+    icon: "Eye",
+  },
+  {
+    id: "cpf-avulso-financeiro",
+    categoria: "cpf",
+    nome: "Renda e Patrimônio",
+    descricao: "Estimativa de renda, patrimônio e classe social.",
+    bullets: [
+      "Faixa de renda estimada",
+      "Patrimônio estimado",
+      "Classe social",
+      "Capacidade financeira",
+    ],
+    publicoAlvo: "Locador avaliando inquilino, vendedor qualificando comprador.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["dados-financeiros-pf", "cpf-simples"],
+    custoApiReal_centavos: 152,
+    icon: "TrendingUp",
+  },
+  {
+    id: "cpf-avulso-vinculos",
+    categoria: "cpf",
+    nome: "Vínculos e Parentes",
+    descricao: "Familiares, sócios e pessoas relacionadas ao CPF.",
+    bullets: [
+      "Parentes diretos",
+      "Sócios e vínculos empresariais",
+      "Grau de relacionamento",
+      "Documentos relacionados",
+    ],
+    publicoAlvo: "Investigação patrimonial, análise de fraude e due diligence.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["pessoas-relacionadas", "cpf-simples"],
+    custoApiReal_centavos: 33,
+    icon: "Users",
+  },
+  {
+    id: "cpf-avulso-profissional",
+    categoria: "cpf",
+    nome: "Vida Profissional",
+    descricao: "Vínculos de trabalho, empregadores e ocupações.",
+    bullets: [
+      "Empregadores atuais e anteriores",
+      "Cargo e ocupação",
+      "Período do vínculo",
+      "Participações empresariais",
+    ],
+    publicoAlvo: "RH conferindo currículo e histórico profissional.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["dados-profissionais", "cpf-simples"],
+    custoApiReal_centavos: 55,
+    icon: "Briefcase",
+  },
+  {
+    id: "cpf-avulso-cnh",
+    categoria: "cpf",
+    nome: "CNH do Motorista",
+    descricao: "Situação da habilitação: categoria, validade e pontuação.",
+    bullets: [
+      "Número do registro e RENACH",
+      "Categoria da habilitação",
+      "Validade e situação",
+      "Filiação e dados do condutor",
+      "Débitos vinculados (quando houver)",
+    ],
+    publicoAlvo: "Locadora, transportadora e app de mobilidade antes de liberar o motorista.",
+    precoB2C_centavos: 1999,
+    precoB2B_centavos: 1099,
+    apisIncluidas: ["cnh", "cpf-simples"],
+    custoApiReal_centavos: 278,
+    icon: "IdCard",
+  },
+  {
+    id: "cpf-avulso-veiculos",
+    categoria: "cpf",
+    nome: "Veículos no CPF",
+    descricao: "Frota de veículos registrada no nome da pessoa.",
+    bullets: [
+      "Placa de cada veículo",
+      "Marca, modelo e RENAVAM",
+      "Data de atualização do registro",
+    ],
+    publicoAlvo: "Investigação patrimonial, execução de dívida e análise de crédito.",
+    precoB2C_centavos: 2499,
+    precoB2B_centavos: 1399,
+    apisIncluidas: ["veiculos-por-cpf", "cpf-simples"],
+    custoApiReal_centavos: 539,
+    icon: "Car",
+  },
+  {
+    id: "cpf-avulso-imoveis",
+    categoria: "cpf",
+    nome: "Imóveis no CPF",
+    descricao: "Imóveis registrados no nome da pessoa (capitais).",
+    bullets: [
+      "Endereço do imóvel",
+      "Tipo e matrícula",
+      "Cartório de registro",
+      "Cobertura: capitais de cada estado",
+    ],
+    publicoAlvo: "Execução de dívida, investigação patrimonial e análise de garantia.",
+    precoB2C_centavos: 3499,
+    precoB2B_centavos: 1899,
+    apisIncluidas: ["imoveis", "cpf-simples"],
+    custoApiReal_centavos: 781,
+    icon: "Home",
+  },
+];
+
+// -------------------------------------------------------------------------
+// CNPJ (produtos individuais)
+// -------------------------------------------------------------------------
+
+export const PRODUTOS_CNPJ_AVULSO: ProdutoAvulso[] = [
+  {
+    id: "cnpj-avulso-processos",
+    categoria: "cnpj",
+    nome: "Processos Judiciais da Empresa",
+    descricao: "Ações judiciais em que a empresa aparece como parte.",
+    bullets: [
+      "Tribunal e comarca",
+      "Assunto e classe processual",
+      "Partes envolvidas",
+      "Movimentações recentes",
+    ],
+    publicoAlvo: "Quem vai fechar contrato, parceria ou fornecer pra empresa.",
+    precoB2C_centavos: 1499,
+    precoB2B_centavos: 799,
+    apisIncluidas: ["processos-judiciais-pj", "cnpj-completo"],
+    custoApiReal_centavos: 38,
+    icon: "Scale",
+  },
+  {
+    id: "cnpj-avulso-socios",
+    categoria: "cnpj",
+    nome: "Quadro Societário",
+    descricao: "Quem são os sócios, com documento, qualificação e vínculo.",
+    bullets: [
+      "Nome e documento de cada sócio",
+      "Qualificação societária",
+      "Percentual de participação",
+      "Data de entrada",
+    ],
+    publicoAlvo: "Due diligence rápida antes de contratar ou fechar parceria.",
+    precoB2C_centavos: 999,
+    precoB2B_centavos: 599,
+    apisIncluidas: ["quadro-societario", "cnpj-completo"],
+    custoApiReal_centavos: 38,
+    icon: "Users",
+  },
+  {
+    id: "cnpj-avulso-veiculos",
+    categoria: "cnpj",
+    nome: "Frota da Empresa",
+    descricao: "Veículos registrados no CNPJ.",
+    bullets: [
+      "Placa de cada veículo",
+      "Marca, modelo e RENAVAM",
+      "Data de atualização do registro",
+    ],
+    publicoAlvo: "Análise de garantia, crédito e porte real da operação.",
+    precoB2C_centavos: 2499,
+    precoB2B_centavos: 1399,
+    apisIncluidas: ["veiculos-por-cnpj", "cnpj-completo"],
+    custoApiReal_centavos: 535,
+    icon: "Car",
+  },
+  {
+    id: "cnpj-avulso-sintegra",
+    categoria: "cnpj",
+    nome: "Sintegra",
+    descricao: "Inscrição estadual, situação cadastral e atividade econômica.",
+    bullets: [
+      "Inscrição estadual",
+      "Situação cadastral no estado",
+      "Atividade econômica",
+      "Endereço fiscal",
+    ],
+    publicoAlvo: "Emissão de nota, cadastro de fornecedor e conferência fiscal.",
+    precoB2C_centavos: 1299,
+    precoB2B_centavos: 699,
+    apisIncluidas: ["sintegra", "cnpj-completo"],
+    custoApiReal_centavos: 123,
+    icon: "ClipboardList",
+  },
+];
+
 // -------------------------------------------------------------------------
 // Combos LEILAO (planos especificos pra /consultar/leilao)
 // -------------------------------------------------------------------------
@@ -929,6 +1194,8 @@ export const COMBOS_LEILAO: Plano[] = [
 export const TODOS_PRODUTOS_AVULSO: ProdutoAvulso[] = [
   ...PRODUTOS_VEICULAR_AVULSO,
   ...PRODUTOS_LEILAO_AVULSO,
+  ...PRODUTOS_CPF_AVULSO,
+  ...PRODUTOS_CNPJ_AVULSO,
 ];
 
 export function findProdutoAvulso(id: string): ProdutoAvulso | undefined {

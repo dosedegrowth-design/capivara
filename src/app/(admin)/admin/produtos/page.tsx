@@ -7,11 +7,14 @@ import { formatBRL } from "@/lib/formatters";
 import {
   PRODUTOS_VEICULAR_AVULSO,
   PRODUTOS_LEILAO_AVULSO,
+  PRODUTOS_CPF_AVULSO,
+  PRODUTOS_CNPJ_AVULSO,
   PLANOS_VEICULAR,
   PLANOS_CPF,
   PLANOS_CNPJ,
   COMBOS_LEILAO,
   type ProdutoAvulso,
+  type CategoriaProdutoAvulso,
   type Plano,
 } from "@/lib/consultas/planos";
 import { cn } from "@/lib/utils";
@@ -29,6 +32,8 @@ export default async function AdminProdutosPage() {
   const avulsosOrdenados = [
     ...PRODUTOS_VEICULAR_AVULSO,
     ...PRODUTOS_LEILAO_AVULSO,
+    ...PRODUTOS_CPF_AVULSO,
+    ...PRODUTOS_CNPJ_AVULSO,
   ].sort((a, b) => {
     if (a.categoria !== b.categoria) return a.categoria.localeCompare(b.categoria);
     return margemB2C(b) - margemB2C(a);
@@ -319,18 +324,19 @@ function Th({
   return <th className={cn("px-3 py-2.5 font-medium", className)}>{children}</th>;
 }
 
-function CategoriaBadge({ categoria }: { categoria: "veicular" | "leilao" }) {
-  if (categoria === "leilao") {
-    return (
-      <Badge className="bg-fur/15 text-fur border-fur/30 font-mono text-xs">
-        Leilão
-      </Badge>
-    );
-  }
+function CategoriaBadge({ categoria }: { categoria: CategoriaProdutoAvulso }) {
+  const estilo: Record<CategoriaProdutoAvulso, { classe: string; label: string }> = {
+    leilao: { classe: "bg-fur/15 text-fur border-fur/30", label: "Leilão" },
+    veicular: {
+      classe: "bg-saffron/15 text-saffron border-saffron/30",
+      label: "Veicular",
+    },
+    cpf: { classe: "bg-info/15 text-info border-info/30", label: "CPF" },
+    cnpj: { classe: "bg-ok/15 text-ok border-ok/30", label: "CNPJ" },
+  };
+  const { classe, label } = estilo[categoria];
   return (
-    <Badge className="bg-saffron/15 text-saffron border-saffron/30 font-mono text-xs">
-      Veicular
-    </Badge>
+    <Badge className={`${classe} font-mono text-xs`}>{label}</Badge>
   );
 }
 

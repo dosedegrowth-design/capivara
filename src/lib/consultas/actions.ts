@@ -6,7 +6,12 @@ import { headers } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { findPlano, findProdutoAvulso } from "@/lib/consultas/planos";
+import {
+  findPlano,
+  findProdutoAvulso,
+  alvoDoProduto,
+  categoriaBanco,
+} from "@/lib/consultas/planos";
 import { normalizeCPF, normalizeCNPJ, normalizePlaca, isValidCPF, isValidCNPJ, isValidPlaca } from "@/lib/formatters";
 import {
   createOrGetCustomer,
@@ -403,12 +408,26 @@ export async function iniciarConsultaAvulsoAction(
     return { ok: false, error: "Produto nao encontrado." };
   }
 
-  // Produto avulso so eh veicular/leilao — target sempre placa
-  const targetNormalized = normalizePlaca(targetRaw);
-  if (!isValidPlaca(targetNormalized)) {
+  // O alvo depende da categoria do produto (placa, CPF ou CNPJ).
+  const alvo = alvoDoProduto(produto.categoria);
+  let targetNormalized: string;
+  let alvoValido = false;
+  if (alvo === "cpf") {
+    targetNormalized = normalizeCPF(targetRaw);
+    alvoValido = isValidCPF(targetNormalized);
+  } else if (alvo === "cnpj") {
+    targetNormalized = normalizeCNPJ(targetRaw);
+    alvoValido = isValidCNPJ(targetNormalized);
+  } else {
+    targetNormalized = normalizePlaca(targetRaw);
+    alvoValido = isValidPlaca(targetNormalized);
+  }
+
+  if (!alvoValido) {
+    const label = alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : "Placa";
     return {
       ok: false,
-      error: "Placa invalida.",
+      error: `${label} invalido.`,
       fieldErrors: { target: "Conferir digitos." },
     };
   }
@@ -508,12 +527,13 @@ export async function iniciarConsultaAvulsoAction(
   if (previousConsulta) return { ok: true, consultationId: previousConsulta.id };
 
   // ---- 5. Inserir consulta (status pending_payment) ----
-  // category fica 'veicular' (schema constraint); plan_tier identifica o avulso
+  // category segue a do produto (schema so aceita cpf|cnpj|veicular — leilao
+  // entra como veicular); plan_tier identifica o avulso
   const { data: consulta, error: insertError } = await admin
     .from("consultations")
     .insert({
       user_id: user.id,
-      category: "veicular",
+      category: categoriaBanco(produto.categoria),
       plan_tier: produto.id,
       target_value: targetRaw,
       target_normalized: targetNormalized,

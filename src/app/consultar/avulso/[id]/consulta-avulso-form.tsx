@@ -9,12 +9,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatPlaca, normalizePlaca } from "@/lib/formatters";
+import {
+  formatPlaca,
+  normalizePlaca,
+  formatCPF,
+  normalizeCPF,
+  formatCNPJ,
+  normalizeCNPJ,
+} from "@/lib/formatters";
 import {
   iniciarConsultaAvulsoAction,
   type IniciarConsultaResult,
 } from "@/lib/consultas/actions";
-import type { ProdutoAvulso } from "@/lib/consultas/planos";
+import { alvoDoProduto, type ProdutoAvulso } from "@/lib/consultas/planos";
 import { track } from "@/lib/analytics";
 
 const FINALIDADES_VEICULAR = [
@@ -31,6 +38,25 @@ const FINALIDADES_LEILAO = [
   { id: "pre_sale", label: "Antes de revender" },
   { id: "insurance_check", label: "Análise para seguro" },
   { id: "own_vehicle", label: "Veículo já meu" },
+  { id: "other", label: "Outros (descrever)" },
+];
+
+const FINALIDADES_CPF = [
+  { id: "credit_analysis", label: "Análise de crédito" },
+  { id: "rental_check", label: "Verificação para locação" },
+  { id: "employment_check", label: "Verificação para contratação (RH)" },
+  { id: "commercial_relation", label: "Estabelecer relação comercial" },
+  { id: "identity_verification", label: "Verificar identidade" },
+  { id: "self_check", label: "Consultar a mim mesmo" },
+  { id: "other", label: "Outros (descrever)" },
+];
+
+const FINALIDADES_CNPJ = [
+  { id: "credit_analysis", label: "Análise de crédito" },
+  { id: "due_diligence", label: "Due diligence / auditoria" },
+  { id: "supplier_check", label: "Homologação de fornecedor" },
+  { id: "partnership_check", label: "Avaliar parceria" },
+  { id: "self_check", label: "Minha própria empresa" },
   { id: "other", label: "Outros (descrever)" },
 ];
 
@@ -52,17 +78,37 @@ export function ConsultaAvulsoForm({
   const [paymentType, setPaymentType] = useState<"pix" | "boleto" | "cartao_avista">("pix");
   const [acceptResponsibility, setAcceptResponsibility] = useState(false);
 
-  // Produto avulso so existe pra veicular e leilao — sempre placa
+  // O alvo depende da categoria do produto: placa, CPF ou CNPJ.
+  const alvo = alvoDoProduto(produto.categoria);
+
   const finalidades =
-    produto.categoria === "leilao" ? FINALIDADES_LEILAO : FINALIDADES_VEICULAR;
-  const targetLabel = "Placa do veículo";
-  const targetPlaceholder = "AAA-0A00";
+    produto.categoria === "cpf"
+      ? FINALIDADES_CPF
+      : produto.categoria === "cnpj"
+      ? FINALIDADES_CNPJ
+      : produto.categoria === "leilao"
+      ? FINALIDADES_LEILAO
+      : FINALIDADES_VEICULAR;
+
+  const targetLabel =
+    alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : "Placa do veículo";
+  const targetPlaceholder =
+    alvo === "cpf"
+      ? "000.000.000-00"
+      : alvo === "cnpj"
+      ? "00.000.000/0000-00"
+      : "AAA-0A00";
+
+  const formatTarget =
+    alvo === "cpf" ? formatCPF : alvo === "cnpj" ? formatCNPJ : formatPlaca;
+  const normalizeTarget =
+    alvo === "cpf" ? normalizeCPF : alvo === "cnpj" ? normalizeCNPJ : normalizePlaca;
 
   function action(formData: FormData) {
     setErro(null);
     setFieldErrors({});
     formData.set("produtoId", produto.id);
-    formData.set("target", normalizePlaca(target));
+    formData.set("target", normalizeTarget(target));
     formData.set("finalidade", finalidade);
     formData.set("finalidadeDescricao", finalidadeDescricao);
     formData.set("paymentType", paymentType);
@@ -99,10 +145,10 @@ export function ConsultaAvulsoForm({
         <Input
           id="target"
           name="target"
-          value={formatPlaca(target)}
+          value={formatTarget(target)}
           onChange={(e) => setTarget(e.target.value)}
           placeholder={targetPlaceholder}
-          inputMode="text"
+          inputMode={alvo === "placa" ? "text" : "numeric"}
           autoComplete="off"
           required
           className="font-mono text-lg"

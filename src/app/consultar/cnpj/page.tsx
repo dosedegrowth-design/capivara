@@ -3,7 +3,8 @@ import { Building, FileSignature, Truck, Banknote } from "lucide-react";
 
 import { CategoriaLanding } from "@/components/marketing/categoria-landing";
 import { HeroConsultaInput } from "@/components/marketing/hero-consulta-input";
-import { PLANOS_CNPJ } from "@/lib/consultas/planos";
+import { PLANOS_CNPJ, PRODUTOS_CNPJ_AVULSO } from "@/lib/consultas/planos";
+import { ProdutosAvulsosSection } from "@/components/marketing/produtos-avulsos-section";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
@@ -43,6 +44,13 @@ export default function CNPJLandingPage() {
             badge="Consulta CNPJ · pessoa jurídica"
             h1="Puxe a capivara da empresa antes de assinar contrato."
             subtitle="Quadro de sócios, situação na Receita, certidões trabalhistas e fiscais, score empresarial. Tudo em PDF assinado, pronto em segundos. Sem mensalidade."
+          />
+        }
+        extraSection={
+          <ProdutosAvulsosSection
+            produtos={PRODUTOS_CNPJ_AVULSO}
+            titulo="Precisa de só um dado da empresa?"
+            subtitulo="Processos, quadro societário, frota ou Sintegra — consulta pontual, sem pagar o plano completo."
           />
         }
         content={{

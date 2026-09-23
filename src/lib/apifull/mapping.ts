@@ -278,6 +278,88 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     cacheTTLHours: 168, // 7d
   },
 
+  {
+    internal: "processos-judiciais-pf",
+    path: "pf-processos-judiciais",
+    nome: "Processos Judiciais (PF)",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 31,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "antecedentes-criminais",
+    path: "cert-pf-antecedentes-criminais",
+    nome: "Certidao de Antecedentes Criminais",
+    categoria: "juridico",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 24, // certidao tem validade curta
+  },
+  {
+    internal: "darkweb-pf",
+    path: "pf-darkweb",
+    nome: "Exposicao na Dark Web",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 116,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "dados-financeiros-pf",
+    path: "pf-dados-financeiros",
+    nome: "Renda e Patrimonio estimados",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 141,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "pessoas-relacionadas",
+    path: "pf-pessoas-relacionadas",
+    nome: "Vinculos e Parentes",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 22,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "dados-profissionais",
+    path: "pf-dados-profissionais",
+    nome: "Vida Profissional",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 44,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "cnh",
+    path: "pf-cnh-v2",
+    nome: "Carteira Nacional de Habilitacao",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 267,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "veiculos-por-cpf",
+    path: "pf-veiculos",
+    nome: "Veiculos no CPF",
+    categoria: "veicular",
+    paramType: "cpf",
+    custoCentavos: 528,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "imoveis",
+    path: "consulta-imoveis",
+    nome: "Imoveis (capitais)",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 770,
+    cacheTTLHours: 720, // 30d — registro de imovel muda devagar
+  },
+
   // ============= EMPRESA (CNPJ) =============
   {
     internal: "cnpj-completo",
@@ -287,6 +369,43 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     paramType: "cnpj",
     custoCentavos: 7,
     cacheTTLHours: 168, // 7d — dados cadastrais
+  },
+
+  {
+    internal: "processos-judiciais-pj",
+    path: "pj-processos-judiciais",
+    nome: "Processos Judiciais (PJ)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 31,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "quadro-societario",
+    path: "pj-quadro-societario",
+    nome: "Quadro Societario",
+    categoria: "empresa",
+    paramType: "cnpj",
+    custoCentavos: 31,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "veiculos-por-cnpj",
+    path: "pj-veiculos",
+    nome: "Frota da Empresa",
+    categoria: "veicular",
+    paramType: "cnpj",
+    custoCentavos: 528,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "sintegra",
+    path: "pj-sintegra",
+    nome: "Sintegra",
+    categoria: "empresa",
+    paramType: "cnpj",
+    custoCentavos: 116,
+    cacheTTLHours: 168,
   },
 
   // ============= CREDITO / DIVIDAS =============

@@ -33,7 +33,22 @@ export default async function ProdutoAvulsoPage({
   if (!produto) notFound();
 
   const backHref =
-    produto.categoria === "leilao" ? "/consultar/leilao" : "/consultar/veicular";
+    produto.categoria === "leilao"
+      ? "/consultar/leilao"
+      : produto.categoria === "cpf"
+      ? "/consultar/cpf"
+      : produto.categoria === "cnpj"
+      ? "/consultar/cnpj"
+      : "/consultar/veicular";
+
+  const categoriaLabel =
+    produto.categoria === "leilao"
+      ? "Leilão"
+      : produto.categoria === "cpf"
+      ? "CPF"
+      : produto.categoria === "cnpj"
+      ? "CNPJ"
+      : "Veicular";
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 py-12">
@@ -50,7 +65,7 @@ export default async function ProdutoAvulsoPage({
         <div className="space-y-6">
           <div>
             <Badge variant="outline" className="mb-3 font-mono">
-              Consulta avulsa · {produto.categoria === "leilao" ? "Leilão" : "Veicular"}
+              Consulta avulsa · {categoriaLabel}
             </Badge>
             <h1 className="font-display text-3xl md:text-4xl font-bold text-cocoa">
               {produto.nome}

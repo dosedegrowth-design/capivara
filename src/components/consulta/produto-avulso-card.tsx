@@ -19,6 +19,14 @@ import {
   Scale,
   FileSignature,
   Radar,
+  ShieldCheck,
+  Eye,
+  TrendingUp,
+  Users,
+  Briefcase,
+  IdCard,
+  Car,
+  Home,
   HelpCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -53,6 +61,14 @@ const ICONS: Record<string, LucideIcon> = {
   Scale,
   FileSignature,
   Radar,
+  ShieldCheck,
+  Eye,
+  TrendingUp,
+  Users,
+  Briefcase,
+  IdCard,
+  Car,
+  Home,
 };
 
 interface Props {

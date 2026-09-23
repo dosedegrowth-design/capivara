@@ -8,7 +8,8 @@ import {
 
 import { CategoriaLanding } from "@/components/marketing/categoria-landing";
 import { HeroConsultaInput } from "@/components/marketing/hero-consulta-input";
-import { PLANOS_CPF } from "@/lib/consultas/planos";
+import { PLANOS_CPF, PRODUTOS_CPF_AVULSO } from "@/lib/consultas/planos";
+import { ProdutosAvulsosSection } from "@/components/marketing/produtos-avulsos-section";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
 
@@ -48,6 +49,13 @@ export default function CPFLandingPage() {
             badge="Consulta CPF · pessoa física"
             h1="Puxe a capivara do CPF antes de fechar negócio."
             subtitle="Score, dívidas, protestos, vínculos, telefones e endereços. Tudo em um PDF assinado, pronto em segundos. Sem mensalidade — você só paga as consultas que fizer."
+          />
+        }
+        extraSection={
+          <ProdutosAvulsosSection
+            produtos={PRODUTOS_CPF_AVULSO}
+            titulo="Precisa de só um dado do CPF?"
+            subtitulo="Não precisa pagar o plano inteiro. Escolha a consulta exata que você precisa — processos, antecedentes, CNH, vínculos — e receba o PDF na hora."
           />
         }
         content={{
