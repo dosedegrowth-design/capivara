@@ -942,6 +942,28 @@ export const PRODUTOS_LEILAO_AVULSO: ProdutoAvulso[] = [
 
 export const PRODUTOS_CPF_AVULSO: ProdutoAvulso[] = [
   {
+    // Porta de entrada de credito: so o score, sem pagar o plano. Faltava no
+    // catalogo (score so existia dentro de plano, a partir de R$ 19,90) e e' o
+    // produto de maior volume da concorrencia (Mega Consultas: R$ 6,00).
+    id: "cpf-avulso-score",
+    categoria: "cpf",
+    nome: "Score de Crédito",
+    descricao: "Só o score, pra decidir rápido se vende a prazo.",
+    bullets: [
+      "Score de crédito Boa Vista",
+      "Indicação de pendências financeiras",
+      "Nome e situação do CPF na Receita",
+    ],
+    publicoAlvo: "Comércio e prestador que precisa decidir na hora se aceita parcelado.",
+    // R$ 9,99 = piso dos avulsos. A R$ 7,99 ficaria 33% acima da Mega (em vez
+    // de 66%) com margem 61%, mas fura o piso — decisao do Lucas.
+    precoB2C_centavos: 999,
+    precoB2B_centavos: 549,
+    apisIncluidas: ["boa-vista-essencial", "cpf-simples"],
+    custoApiReal_centavos: 314,
+    icon: "TrendingUp",
+  },
+  {
     id: "cpf-avulso-processos",
     categoria: "cpf",
     nome: "Processos Judiciais",

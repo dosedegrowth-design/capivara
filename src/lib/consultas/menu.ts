@@ -45,6 +45,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
       {
         titulo: "Só um dado",
         itens: [
+          { href: "/consultar/avulso/cpf-avulso-score", label: "Score de crédito" },
           { href: "/consultar/avulso/cpf-avulso-antecedentes", label: "Antecedentes criminais" },
           { href: "/consultar/avulso/cpf-avulso-processos", label: "Processos judiciais" },
           { href: "/consultar/avulso/cpf-avulso-financeiro", label: "Renda e patrimônio" },

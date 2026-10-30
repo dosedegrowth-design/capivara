@@ -886,6 +886,7 @@ const PLAN_API_MAP: Record<string, string[]> = {
   "certidao-fgts-pj": ["cert-fgts-pj", "cnpj-completo"],
   "certidao-pgfn-pj": ["cert-pgfn-pj", "cnpj-completo"],
   "certidao-situacao-cadastral-pj": ["cert-situacao-cadastral-pj", "cnpj-completo"],
+  "cpf-avulso-score": ["boa-vista-essencial", "cpf-simples"],
   "cpf-avulso-processos": ["processos-judiciais-pf", "cpf-simples"],
   "cpf-avulso-antecedentes": ["antecedentes-criminais", "cpf-simples"],
   "cpf-avulso-darkweb": ["darkweb-pf", "cpf-simples"],
