@@ -7,26 +7,26 @@ import { isValidCNPJ, isValidCPF, isValidPlaca } from "@/lib/formatters";
 
 export const cpfSchema = z
   .string()
-  .refine(isValidCPF, { message: "CPF invalido" });
+  .refine(isValidCPF, { message: "CPF inválido" });
 
 export const cnpjSchema = z
   .string()
-  .refine(isValidCNPJ, { message: "CNPJ invalido" });
+  .refine(isValidCNPJ, { message: "CNPJ inválido" });
 
 export const placaSchema = z
   .string()
-  .refine(isValidPlaca, { message: "Placa invalida (use AAA0000 ou AAA0A00)" });
+  .refine(isValidPlaca, { message: "Placa inválida (use AAA0000 ou AAA0A00)" });
 
-export const emailSchema = z.string().email("Email invalido");
+export const emailSchema = z.string().email("E-mail inválido");
 
 export const senhaSchema = z
   .string()
-  .min(8, "Minimo 8 caracteres")
-  .max(72, "Maximo 72 caracteres");
+  .min(8, "Mínimo 8 caracteres")
+  .max(72, "Máximo 72 caracteres");
 
 export const telefoneSchema = z
   .string()
-  .regex(/^\d{10,11}$/, "Telefone invalido (10 ou 11 digitos)");
+  .regex(/^\d{10,11}$/, "Telefone inválido (10 ou 11 dígitos)");
 
 // =========================================================================
 // Finalidades LGPD obrigatorias por categoria
@@ -137,12 +137,12 @@ export const cadastroSchema = z.object({
   telefone: telefoneSchema.optional(),
   lgpdAceito: z
     .boolean()
-    .refine((v) => v === true, { message: "Voce precisa aceitar os termos" }),
+    .refine((v) => v === true, { message: "Você precisa aceitar os termos" }),
 });
 
 export const loginSchema = z.object({
   email: emailSchema,
-  senha: z.string().min(1, "Senha obrigatoria"),
+  senha: z.string().min(1, "Senha obrigatória"),
 });
 
 export type IniciarConsultaCPFInput = z.infer<typeof iniciarConsultaCPFSchema>;
