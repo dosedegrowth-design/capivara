@@ -1,123 +1,90 @@
-# 🐾 Capivara — o que ainda depende de você
+# Capivara — o que falta
 
-> **Última atualização:** 2026-09-23
+> **Atualizado:** 30/10/2026
 > **Produção:** https://suacapivara.com.br
-> **Catálogo:** 67 consultas (14 planos · 3 combos · 50 avulsas) em 7 categorias
+> **Catálogo:** 68 consultas (14 planos · 3 combos · 51 avulsas)
 
-Este doc lista só o que **eu não consigo resolver sozinho**: credencial que não
-tenho, conta que precisa do seu CPF, decisão de negócio. Tudo que era código
-está feito e validado — ver o histórico de commits.
-
----
-
-## 🔴 Trava o faturamento
-
-### 1. Asaas em produção
-**Nada cobra de verdade hoje.** O ambiente é sandbox; os 8 pagamentos no banco
-são testes de maio. Todo o resto do fluxo (consulta, Edge, PDF, refund) está
-pronto e esperando pagamento real.
-
-Passos: conta Asaas com KYC aprovado → trocar `ASAAS_API_KEY` → `ASAAS_ENV=production`
-→ reconfigurar o webhook no painel de produção do Asaas.
-
-Enquanto isso não acontece, nada do catálogo gera receita — é a única pendência
-que segura dinheiro.
-
-### 2. Saldo na APIFULL
-Sem saldo, consulta paga entra e falha. O refund automático devolve, mas o
-cliente vive a falha. Confirmar saldo antes de ligar o Asaas em produção.
+Tudo que dependia só de código está feito. O que segue precisa de você:
+conta, credencial ou decisão de negócio.
 
 ---
 
-## 🟠 Legal e confiança
+## Trava o faturamento
 
-### 3. `NEXT_PUBLIC_CAPIVARA_CNPJ`
-Conferido hoje: o site mostra a razão social **sem o CNPJ**. A LGPD (Art. 9º)
-pede identificação do controlador. O site degrada com elegância (esconde a
-linha), mas resolver antes de tráfego pago.
+**1. Asaas em produção.** Nada cobra de verdade: o ambiente é sandbox, o
+último pagamento no banco é de 22/05 (teste). Conta Asaas com KYC aprovado →
+trocar `ASAAS_API_KEY` → `ASAAS_ENV=production` → cadastrar o webhook no
+painel de produção do Asaas.
 
-```bash
-cd ~/Antigravity/capivara
-~/.npm-global/bin/vercel env add NEXT_PUBLIC_CAPIVARA_CNPJ production --value "XX.XXX.XXX/0001-XX" --yes
-```
-
-### 4. Canais de contato
-`NEXT_PUBLIC_CAPIVARA_WA_URL` e `NEXT_PUBLIC_CAPIVARA_TEL` estão vazios, então
-WhatsApp e telefone **não aparecem** na página de contato. Só o e-mail aparece.
-
-### 5. `RESEND_FROM_EMAIL`
-Confirmar que usa `@suacapivara.com.br` (domínio verificado no Resend), não o
-`@capivara.app` antigo. Se estiver errado, nenhum e-mail chega.
+**2. Saldo na APIFULL.** Sem saldo, a consulta paga falha e o reembolso
+automático devolve o dinheiro — mas o cliente vive a falha. Conferir antes
+de ligar o Asaas.
 
 ---
 
-## 🟡 Um comando seu
+## Sem isso não dá pra saber se alguém visita
 
-### 6. Deploy da Edge Function
-O encadeamento de sócio (planos CNPJ) está no repo e validado, mas **não subiu**:
-o deploy precisa do seu Personal Access Token do Supabase, que não fica no
-ambiente. A função em produção ainda é a v34.
+**3. Medição de tráfego.** Hoje o site não mede nada. Duas opções:
+- **Vercel (mais simples):** Vercel → projeto capivara → Analytics → Enable.
+  Depois me avisa, que eu coloco `NEXT_PUBLIC_VERCEL_ANALYTICS=1` e subo. O
+  código já está pronto.
+- **Plausible:** criar a conta e me passar o domínio.
 
-```bash
-SUPABASE_ACCESS_TOKEN=sbp_xxx ./scripts/deploy-edge.sh
-```
-(Token em supabase.com/dashboard/account/tokens. O script roda `npm run check`
-antes de subir.)
-
-Sem esse deploy, 15 chamadas dos planos CNPJ Sócios/Premium/Total continuam
-saindo com o CNPJ no campo `cpf` e voltando vazias.
+**4. Search Console.** Cadastrar `suacapivara.com.br` na sua conta do Google.
+Sem isso não dá pra ver se o site aparece nas buscas nem enviar o sitemap.
 
 ---
 
-## 🔵 Decisão de produto (não é código)
+## Legal e confiança
 
-### 7. Busca reversa por nome/telefone
-A APIFULL tem `busca-por-documentos` (R$ 0,90) mapeada e **não vendida**.
-Encontrar alguém a partir do nome ou telefone é o uso mais sensível do catálogo
-inteiro: a finalidade legítima é muito mais estreita e o risco de uso pra
-perseguição é real.
+**5. CNPJ no site** (`NEXT_PUBLIC_CAPIVARA_CNPJ`). O rodapé mostra a razão
+social sem o CNPJ. A LGPD pede identificação do controlador.
 
-Não implementei por decisão sua, não por dificuldade. Se quiser, o caminho é:
-finalidades próprias (mais restritas que as atuais), aceite específico, e
-provavelmente restrito a B2B com contrato.
+**6. WhatsApp e telefone** (`NEXT_PUBLIC_CAPIVARA_WA_URL`,
+`NEXT_PUBLIC_CAPIVARA_TEL`). Vazios: a página de contato mostra só o e-mail.
 
-### 8. Margem abaixo do alvo em 6 avulsos
-Passam o piso de 60% mas ficam abaixo do alvo de 70%:
-Recall (69%), Rastreamento (65%), CRLV (63%), Histórico de Leilão (68%),
-Foto do Leilão (67%), Vip Car (62%).
-São os produtos de custo alto da APIFULL. Subir preço ou aceitar margem menor
-nesses — `npm run validar` lista eles a cada rodada.
-
-### 9. Planos CNPJ: quantos sócios consultar
-O encadeamento consulta **um** sócio (o administrador, ou o primeiro da lista).
-Consultar todos multiplicaria o custo da APIFULL por sócio, e o preço atual
-assume uma chamada. Se quiser cobrir o quadro inteiro, vira um SKU novo com
-preço por sócio.
-
-### 10. Rate limit externo (Upstash)
-O `checkRateLimit` atual vale por instância serverless e zera em cold start.
-Com tráfego real, plugar Upstash Redis. Precisa de conta — não tenho.
-
-### 11. NF-e
-O marketing fala em "recibo baixável", não em NF-e. Implementar de verdade
-(via `/invoices` da Asaas) é uma sprint dedicada. Só vale se um cliente
-empresa exigir.
+**7. Remetente de e-mail** (`RESEND_FROM_EMAIL`). Confirmar que usa
+`@suacapivara.com.br`, não o `@capivara.app` antigo.
 
 ---
 
-## ✅ Resolvido nesta rodada (23/09)
+## Decisões suas
 
-- Catálogo completo no site: página "Tudo" com as 67 consultas, busca e filtro;
-  7 categorias na home (carrossel no celular).
-- **3 combos de leilão davam 404 em produção** — os CTAs da landing de leilão e
-  de /precos caíam em página inexistente.
-- Os 3 links de direito do titular em /lgpd apontavam pra rota que não existe.
-- `<title>` com "Capivara" duas vezes em 44 páginas.
-- Revisão antes de pagar (LGPD Art. 8º §4º) — era a última pendência aberta da
-  auditoria de julho.
-- API B2B aceitava só 14 dos 67 SKUs.
-- Preços errados no marketing (CPF Premium dizia R$ 89,90 e custa 79,90;
-  "Veicular R$ 49,90" não existia; Leilão "a partir de R$ 12,99" e o mínimo é
-  29,99). Agora todo preço sai do catálogo.
-- Anti-fraude saiu do zero: blocklist e varredura por IP.
-- `npm run check` roda typecheck + invariantes do catálogo + 41 testes.
+**8. Score avulso a R$ 7,99?** Lançado a R$ 9,99 porque esse é o piso dos
+avulsos. A R$ 7,99 a margem fica 61% (dentro da regra de 60%) e o preço fica
+33% acima da Mega Consultas (R$ 6) em vez de 66%. É só trocar o número.
+
+**9. Laranja da marca como texto pequeno.** É o que segura a acessibilidade
+em 96. O laranja (#C46A3F) tem contraste 3,56:1 em texto pequeno; o mínimo é
+4,5. Proposta: um tom mais escuro (#A75A36, 4,69:1) só para texto e selos,
+mantendo o laranja atual em botões, ícones e títulos grandes.
+
+**10. Gravame e leilão caros frente à concorrência.** Gravame R$ 14,99 contra
+R$ 8 da Mega; leilão R$ 29,99 contra R$ 16. Ambos cabem na regra de margem se
+quiser baixar.
+
+**11. Busca reversa por nome/telefone.** Endpoint mapeado e não vendido. É o
+uso mais sensível do catálogo; se quiser, sai com finalidades mais restritas
+e, provavelmente, só para empresa.
+
+**12. Quantos sócios consultar nos planos CNPJ.** Hoje é um (o
+administrador). Consultar todos multiplica o custo da APIFULL por sócio.
+
+**13. Rate limit externo (Upstash).** O limite atual zera quando o servidor
+reinicia. Precisa de conta.
+
+**14. NF-e.** O site fala em recibo. NF-e de verdade é uma sprint; só vale
+se cliente empresa pedir.
+
+---
+
+## Feito em 30/10
+
+- Next 16.4.3 e zod 4: 0 vulnerabilidades (havia 1 crítica)
+- Cabeçalhos de segurança (antes só HSTS)
+- Edge v43 no ar com o encadeamento de sócio — conferida byte a byte
+- Score de Crédito avulso
+- Documentação da API e playground com as 68 consultas
+- Contraste, acentos (inclusive nos rótulos do PDF) e áreas de toque:
+  acessibilidade da home de 87 pra 96
+- Analytics da Vercel pronto, esperando o item 3
