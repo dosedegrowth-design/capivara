@@ -6,24 +6,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { TODOS_PLANOS } from "@/lib/consultas/planos";
+import {
+  CATALOGO_COMPLETO,
+  GRUPOS_CATALOGO,
+  type GrupoCatalogo,
+} from "@/lib/consultas/planos";
 import { formatBRL } from "@/lib/formatters";
 
-const PLANOS_POR_CAT = {
-  cpf: TODOS_PLANOS.filter((p) => p.categoria === "cpf"),
-  cnpj: TODOS_PLANOS.filter((p) => p.categoria === "cnpj"),
-  veicular: TODOS_PLANOS.filter((p) => p.categoria === "veicular"),
-};
+// Todas as consultas que a API aceita, agrupadas como no site.
+const PLANOS_POR_CAT = Object.fromEntries(
+  GRUPOS_CATALOGO.map((g) => [g.id, CATALOGO_COMPLETO.filter((i) => i.grupo === g.id)])
+) as Record<GrupoCatalogo, typeof CATALOGO_COMPLETO>;
 
-const PLACEHOLDERS = {
+const PLACEHOLDERS: Record<string, string> = {
   cpf: "12345678900",
   cnpj: "12345678000190",
-  veicular: "ABC1D23",
+  placa: "ABC1D23",
+  cep: "01310100",
 };
+
+const LABEL_ALVO: Record<string, string> = { cpf: "CPF", cnpj: "CNPJ", placa: "placa", cep: "CEP" };
 
 export function PlaygroundClient() {
   const [apiKey, setApiKey] = useState("");
-  const [categoria, setCategoria] = useState<"cpf" | "cnpj" | "veicular">("cpf");
+  const [categoria, setCategoria] = useState<GrupoCatalogo>("cpf");
   const [planoId, setPlanoId] = useState("cpf-investigacao");
   const [target, setTarget] = useState("");
   const [externalRef, setExternalRef] = useState("");
@@ -41,6 +47,8 @@ export function PlaygroundClient() {
   const [copiedCurl, setCopiedCurl] = useState(false);
 
   const planos = PLANOS_POR_CAT[categoria];
+  // O que vai no target depende do item escolhido, nao da aba (Certidoes tem PF e PJ).
+  const alvo = CATALOGO_COMPLETO.find((i) => i.id === planoId)?.alvo ?? "cpf";
 
   function buildPayload() {
     const p: Record<string, unknown> = {
@@ -151,14 +159,16 @@ export function PlaygroundClient() {
               }}
               className="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-cocoa mt-1"
             >
-              <option value="cpf">CPF</option>
-              <option value="cnpj">CNPJ</option>
-              <option value="veicular">Veicular</option>
+              {GRUPOS_CATALOGO.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.label}
+                </option>
+              ))}
             </select>
           </div>
 
           <div>
-            <Label>Plano</Label>
+            <Label>Consulta</Label>
             <select
               value={planoId}
               onChange={(e) => setPlanoId(e.target.value)}
@@ -175,13 +185,13 @@ export function PlaygroundClient() {
 
         <div>
           <Label htmlFor="target">
-            Target ({categoria === "veicular" ? "placa" : categoria.toUpperCase()})
+            Target ({LABEL_ALVO[alvo]})
           </Label>
           <Input
             id="target"
             value={target}
             onChange={(e) => setTarget(e.target.value)}
-            placeholder={PLACEHOLDERS[categoria]}
+            placeholder={PLACEHOLDERS[alvo]}
             className="font-mono"
             required
           />

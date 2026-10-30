@@ -4,7 +4,9 @@ import { ArrowLeft, ArrowRight, Book, ChevronRight, Webhook } from "lucide-react
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TODOS_PLANOS } from "@/lib/consultas/planos";
+import { CATALOGO_COMPLETO, GRUPOS_CATALOGO } from "@/lib/consultas/planos";
+
+const LABEL_ALVO: Record<string, string> = { placa: "placa", cpf: "CPF", cnpj: "CNPJ", cep: "CEP" };
 import { formatBRL } from "@/lib/formatters";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://suacapivara.com.br";
@@ -50,7 +52,7 @@ export default function ApiDocsPage() {
         <div className="grid lg:grid-cols-[200px_1fr] gap-8">
           {/* TOC */}
           <nav className="lg:sticky lg:top-20 lg:self-start text-sm space-y-1">
-            <p className="font-mono uppercase tracking-wider text-tabaco/70 text-[10px] mb-2">
+            <p className="font-mono uppercase tracking-wider text-tabaco text-[10px] mb-2">
               Nesta página
             </p>
             {TOC.map((t) => (
@@ -328,8 +330,9 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
             <section id="plan-ids" className="scroll-mt-20">
               <H2>IDs de plano e preço B2B</H2>
               <P>
-                Cada chamada da API debita o <Code>precoB2B</Code> do plano
-                consultado direto do saldo da empresa em <Code>balance_cents</Code>.
+                A API aceita todas as {CATALOGO_COMPLETO.length} consultas do catálogo: planos,
+                combos e avulsas. Cada chamada debita o <Code>precoB2B</Code> do item
+                direto do saldo da empresa em <Code>balance_cents</Code>.
                 Para reduzir o custo efetivo, escolha pacotes Manada maiores
                 (mais bônus em saldo).
               </P>
@@ -338,18 +341,28 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                   <thead>
                     <tr>
                       <Th>plan_id</Th>
-                      <Th>Categoria</Th>
+                      <Th>Consulta</Th>
+                      <Th>target</Th>
                       <Th>Preço B2B (R$)</Th>
                     </tr>
                   </thead>
                   <tbody>
-                    {TODOS_PLANOS.map((p) => (
+                    {GRUPOS_CATALOGO.flatMap((g) => [
+                      <tr key={`g-${g.id}`} className="border-t border-line bg-paper-2/60">
+                        <td colSpan={4} className="px-4 py-2 font-mono text-[10px] uppercase tracking-wider text-tabaco">
+                          {g.label}
+                        </td>
+                      </tr>,
+                      ...CATALOGO_COMPLETO.filter((p) => p.grupo === g.id).map((p) => (
                       <tr key={p.id} className="border-t border-line/40">
                         <td className="px-4 py-2 font-mono text-xs text-fur whitespace-nowrap">
                           {p.id}
                         </td>
+                        <td className="px-4 py-2 text-xs text-cocoa">
+                          {p.nome}
+                        </td>
                         <td className="px-4 py-2 font-mono text-xs text-tabaco">
-                          {p.categoria}
+                          {LABEL_ALVO[p.alvo]}
                         </td>
                         <td className="px-4 py-2 text-xs text-cocoa whitespace-nowrap">
                           <strong className="text-fur font-mono">
@@ -357,7 +370,8 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
                           </strong>
                         </td>
                       </tr>
-                    ))}
+                      )),
+                    ])}
                   </tbody>
                 </table>
               </div>
