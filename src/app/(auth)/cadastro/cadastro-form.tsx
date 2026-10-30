@@ -94,7 +94,7 @@ export function CadastroForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">E-mail</Label>
         <Input
           id="email"
           name="email"
@@ -162,7 +162,7 @@ export function CadastroForm({
           <Link
             href="/termos"
             target="_blank"
-            className="text-fur underline-offset-4 hover:underline"
+            className="text-fur underline underline-offset-4 hover:no-underline"
           >
             Termos de Uso
           </Link>
@@ -182,7 +182,7 @@ export function CadastroForm({
           <Link
             href="/privacidade"
             target="_blank"
-            className="text-fur underline-offset-4 hover:underline"
+            className="text-fur underline underline-offset-4 hover:no-underline"
           >
             Política de Privacidade
           </Link>

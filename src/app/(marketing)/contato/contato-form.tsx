@@ -62,9 +62,9 @@ export function ContatoForm() {
         </div>
       )}
 
-      <p className="text-xs text-tabaco/70 font-mono text-center pt-2">
+      <p className="text-xs text-tabaco font-mono text-center pt-2">
         Ao enviar, você concorda com nossos{" "}
-        <Link href="/lgpd" className="text-fur underline-offset-4 hover:underline">
+        <Link href="/lgpd" className="text-fur underline underline-offset-4 hover:no-underline">
           termos de privacidade
         </Link>
         .

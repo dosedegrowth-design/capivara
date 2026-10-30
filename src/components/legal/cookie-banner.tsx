@@ -66,7 +66,7 @@ export function CookieBanner() {
             <p className="text-xs text-tabaco mt-1 leading-relaxed">
               Pra manter você logada e o site funcionar. Sem tracking de
               terceiros, sem Google Analytics, sem perfil.{" "}
-              <Link href="/cookies" className="text-fur hover:underline">
+              <Link href="/cookies" className="text-fur underline underline-offset-2 hover:no-underline">
                 Saber mais
               </Link>
               .
@@ -84,7 +84,7 @@ export function CookieBanner() {
           </div>
           <button
             onClick={accept}
-            className="text-tabaco/60 hover:text-cocoa transition-colors shrink-0"
+            className="text-tabaco hover:text-cocoa transition-colors shrink-0"
             aria-label="Fechar"
           >
             <X className="size-4" />

@@ -35,7 +35,7 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
     | "cartao_avista";
 
   const pacote = PACOTES_MANADA.find((p) => p.id === pacoteId);
-  if (!pacote) return { ok: false, error: "Pacote nao encontrado." };
+  if (!pacote) return { ok: false, error: "Pacote não encontrado." };
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -50,7 +50,7 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
     .maybeSingle();
 
   if (!profile?.active_company_id) {
-    return { ok: false, error: "Empresa nao configurada." };
+    return { ok: false, error: "Empresa não configurada." };
   }
 
   // Verifica role admin
@@ -73,7 +73,7 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
     .eq("id", profile.active_company_id)
     .maybeSingle();
 
-  if (!empresa) return { ok: false, error: "Empresa nao encontrada." };
+  if (!empresa) return { ok: false, error: "Empresa não encontrada." };
 
   try {
     // 1. Cria/reaproveita customer Asaas
@@ -129,7 +129,7 @@ export async function iniciarRecargaAction(formData: FormData): Promise<RecargaR
         error: txErr ?? undefined,
         userId: user.id,
       });
-      return { ok: false, error: "Falha ao registrar cobranca." };
+      return { ok: false, error: "Falha ao registrar cobrança." };
     }
 
     // 3. Cria payment Asaas com externalReference incluindo tx.id

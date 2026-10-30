@@ -92,7 +92,7 @@ export async function mudarEmailAction(formData: FormData): Promise<SettingsResu
   const novoEmail = String(formData.get("novoEmail") ?? "").trim().toLowerCase();
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(novoEmail)) {
-    return { ok: false, error: "Email inválido." };
+    return { ok: false, error: "E-mail inválido." };
   }
 
   const supabase = await createClient();
@@ -100,7 +100,7 @@ export async function mudarEmailAction(formData: FormData): Promise<SettingsResu
   if (!user) redirect("/login");
 
   if (user.email === novoEmail) {
-    return { ok: false, error: "Este já é o email atual." };
+    return { ok: false, error: "Este já é o e-mail atual." };
   }
 
   const { error } = await supabase.auth.updateUser({ email: novoEmail });
@@ -108,7 +108,7 @@ export async function mudarEmailAction(formData: FormData): Promise<SettingsResu
 
   return {
     ok: true,
-    message: `Email de confirmação enviado pra ${novoEmail}. Clique no link pra confirmar a mudança.`,
+    message: `E-mail de confirmação enviado pra ${novoEmail}. Clique no link pra confirmar a mudança.`,
   };
 }
 
@@ -218,7 +218,7 @@ export async function deletarContaAction(formData: FormData): Promise<SettingsRe
 
   // Re-auth via senha (LGPD Art. 18 exige garantir que e' o titular)
   if (!user.email) {
-    return { ok: false, error: "Conta sem email — nao da pra confirmar identidade." };
+    return { ok: false, error: "Conta sem e-mail — não dá pra confirmar identidade." };
   }
   const { error: reAuthErr } = await supabase.auth.signInWithPassword({
     email: user.email,
@@ -248,7 +248,7 @@ export async function deletarContaAction(formData: FormData): Promise<SettingsRe
         return {
           ok: false,
           error:
-            "Voce e o unico admin de uma empresa. Promova outro admin ou delete a empresa antes.",
+            "Você é o único admin de uma empresa. Promova outro admin ou delete a empresa antes.",
         };
       }
     }

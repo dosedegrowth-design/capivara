@@ -569,7 +569,7 @@ export default async function AdminFinanceiroPage() {
                   <td className="px-4 py-2 text-xs uppercase font-mono text-tabaco hidden md:table-cell">
                     {t.payment_method}
                   </td>
-                  <td className="px-4 py-2 text-[10px] font-mono text-tabaco/70 hidden lg:table-cell truncate max-w-[160px]">
+                  <td className="px-4 py-2 text-[10px] font-mono text-tabaco hidden lg:table-cell truncate max-w-[160px]">
                     {(t.asaas_response as Record<string, unknown>)?._admin_adjustment ? (
                       <span className="text-saffron">[ajuste manual]</span>
                     ) : (

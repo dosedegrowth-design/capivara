@@ -153,7 +153,7 @@ export function WebhooksClient({ endpoints, deliveries }: Props) {
             Webhook criado
           </p>
           <p className="text-xs text-tabaco mt-1">
-            Salva o secret agora pra validar assinatura HMAC do seu lado. Nao vamos mostrar de
+            Salve o secret agora pra validar assinatura HMAC do seu lado. Não vamos mostrar de
             novo.
           </p>
           <div className="mt-3 space-y-2">
@@ -180,7 +180,7 @@ export function WebhooksClient({ endpoints, deliveries }: Props) {
             </div>
           </div>
           <Button size="sm" variant="ghost" className="mt-3" onClick={() => setRevealed(null)}>
-            Ja salvei
+            Já salvei
           </Button>
         </div>
       )}
@@ -396,7 +396,7 @@ export function WebhooksClient({ endpoints, deliveries }: Props) {
                           {d.last_status_code}
                         </code>
                       ) : (
-                        <span className="text-tabaco/50">—</span>
+                        <span className="text-tabaco">—</span>
                       )}
                     </td>
                     <td className="p-3 text-xs">{d.attempts}</td>

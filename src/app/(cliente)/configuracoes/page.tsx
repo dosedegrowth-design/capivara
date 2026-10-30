@@ -60,7 +60,7 @@ export default async function ConfiguracoesPage() {
       {/* Email */}
       <section className="rounded-lg border border-line bg-card p-6 space-y-4">
         <div>
-          <h2 className="font-display text-xl font-bold text-cocoa">Email de acesso</h2>
+          <h2 className="font-display text-xl font-bold text-cocoa">E-mail de acesso</h2>
           <p className="text-sm text-tabaco mt-1">
             Atual: <code className="font-mono text-fur">{user?.email}</code>
           </p>

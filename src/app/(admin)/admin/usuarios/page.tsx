@@ -29,7 +29,7 @@ export default async function AdminUsuariosPage() {
           <thead className="bg-cream/40 text-xs uppercase tracking-wider text-tabaco">
             <tr>
               <th className="text-left px-4 py-3 font-display">Nome</th>
-              <th className="text-left px-4 py-3 font-display">Email</th>
+              <th className="text-left px-4 py-3 font-display">E-mail</th>
               <th className="text-left px-4 py-3 font-display">CPF</th>
               <th className="text-left px-4 py-3 font-display">Tipo</th>
               <th className="text-left px-4 py-3 font-display">Cadastrado</th>

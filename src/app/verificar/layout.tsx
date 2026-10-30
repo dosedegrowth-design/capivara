@@ -12,7 +12,7 @@ import type { Metadata } from "next";
  */
 
 export const metadata: Metadata = {
-  title: "Verificacao de relatorio",
+  title: "Verificação de relatório",
   robots: {
     index: false,
     follow: false,

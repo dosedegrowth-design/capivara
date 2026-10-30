@@ -120,7 +120,7 @@ export function CatalogoExplorer() {
 
       {/* Filtro por tipo */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-tabaco/70">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-tabaco">
           Formato
         </span>
         {TIPOS.map((t) => (

@@ -37,7 +37,7 @@ export function RecuperarSenhaForm() {
   return (
     <form action={action} className="mt-6 space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">E-mail</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-tabaco" />
           <Input

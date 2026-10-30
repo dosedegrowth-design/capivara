@@ -154,7 +154,7 @@ function Localizacao() {
           <MapPin className="size-4 text-fur" />
           São Paulo · Brasil
         </div>
-        <p className="text-xs text-tabaco/70 font-mono mt-2">
+        <p className="text-xs text-tabaco font-mono mt-2">
           Operado pela {identificacaoControladora()}
         </p>
       </div>

@@ -195,7 +195,7 @@ export default async function CreditosPage() {
                             +{formatBRL(saldoCreditado)}
                           </span>
                         ) : (
-                          <span className="text-tabaco/60">—</span>
+                          <span className="text-tabaco">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-tabaco text-xs uppercase font-mono hidden sm:table-cell">

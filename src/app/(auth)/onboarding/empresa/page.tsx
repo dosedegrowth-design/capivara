@@ -36,7 +36,7 @@ export default async function OnboardingEmpresaPage() {
         <CriarEmpresaForm companyTermsVersion={COMPANY_TERMS.version} />
       </div>
 
-      <p className="text-center text-xs font-mono text-tabaco/70 mt-6">
+      <p className="text-center text-xs font-mono text-tabaco mt-6">
         Recibo baixável a cada recarga. Sem mensalidade.
       </p>
     </div>

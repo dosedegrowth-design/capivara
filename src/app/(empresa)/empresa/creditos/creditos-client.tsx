@@ -117,7 +117,7 @@ export function CreditosClient({ isAdmin }: Props) {
             </Button>
 
             {!isAdmin && (
-              <p className="text-[10px] text-tabaco/70 mt-2 text-center">
+              <p className="text-[10px] text-tabaco mt-2 text-center">
                 Só admin pode recarregar
               </p>
             )}

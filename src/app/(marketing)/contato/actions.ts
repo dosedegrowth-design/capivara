@@ -24,7 +24,7 @@ export async function enviarContatoAction(formData: FormData): Promise<ContatoRe
   const mensagem = String(formData.get("mensagem") ?? "").trim();
 
   if (nome.length < 2) return { ok: false, error: "Nome muito curto." };
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: "Email invalido." };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: "E-mail inválido." };
   if (assunto.length < 3) return { ok: false, error: "Assunto muito curto." };
   if (mensagem.length < 10) return { ok: false, error: "Mensagem muito curta (min 10 chars)." };
   if (mensagem.length > 5000) return { ok: false, error: "Mensagem grande demais (max 5000 chars)." };
@@ -51,7 +51,7 @@ export async function enviarContatoAction(formData: FormData): Promise<ContatoRe
       subject: `[Contato Capivara] ${assunto}`,
       html: `<h2>Nova mensagem via formulário de contato</h2>
 <p><strong>Nome:</strong> ${escape(nome)}<br>
-<strong>Email:</strong> ${escape(email)}<br>
+<strong>E-mail:</strong> ${escape(email)}<br>
 <strong>Assunto:</strong> ${escape(assunto)}<br>
 <strong>IP:</strong> ${escape(ip)}<br>
 <strong>User-Agent:</strong> ${escape(ua)}</p>
@@ -69,7 +69,7 @@ export async function enviarContatoAction(formData: FormData): Promise<ContatoRe
         message: "sendEmail falhou no form de contato",
         metadata: { nome, email, assunto },
       });
-      return { ok: false, error: "Nao conseguimos enviar agora. Tente pelo WhatsApp ou email direto." };
+      return { ok: false, error: "Não conseguimos enviar agora. Tente pelo WhatsApp ou e-mail direto." };
     }
 
     return { ok: true };

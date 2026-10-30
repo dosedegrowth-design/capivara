@@ -86,7 +86,7 @@ function Hero() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-2 sm:pt-4 text-[11px] sm:text-xs font-mono text-tabaco/80">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-2 sm:pt-4 text-[11px] sm:text-xs font-mono text-tabaco">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="size-4 text-ok" /> LGPD compliant
               </span>
@@ -226,7 +226,7 @@ function Categorias() {
               <Icon className="size-7" strokeWidth={2} />
             </div>
             <div className="text-right">
-              <div className="text-[10px] font-mono text-tabaco/70 uppercase tracking-wider">
+              <div className="text-[10px] font-mono text-tabaco uppercase tracking-wider">
                 A partir de
               </div>
               <div className="text-cocoa font-bold font-mono">
@@ -239,7 +239,7 @@ function Categorias() {
             <h3 className="font-display text-2xl font-bold text-cocoa leading-tight">
               {g.label}
             </h3>
-            <p className="text-xs font-mono text-tabaco/70 mt-0.5 uppercase tracking-wider">
+            <p className="text-xs font-mono text-tabaco mt-0.5 uppercase tracking-wider">
               {cat.subtitle}
             </p>
           </div>
@@ -507,7 +507,7 @@ function PlanosDestaque() {
           </h2>
           <p className="mt-3 text-tabaco">
             Ou veja o{" "}
-            <Link href="/precos" className="text-fur underline-offset-4 hover:underline">
+            <Link href="/precos" className="text-fur underline underline-offset-4 hover:no-underline">
               catálogo completo
             </Link>
             {" "}com todas as opções e detalhes.
@@ -674,7 +674,7 @@ function CTAFinal() {
         </div>
 
         {/* LGPD reassurance */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-xs font-mono text-tabaco/70">
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs font-mono text-tabaco">
           <Lock className="size-3.5" />
           Dados protegidos · LGPD · Toda consulta exige finalidade declarada
         </div>

@@ -49,7 +49,7 @@ export async function novaConsultaB2BAction(
   const externalRef = String(formData.get("externalReference") ?? "").trim() || null;
 
   const plano = findPlano(planoId);
-  if (!plano) return { ok: false, error: "Plano nao encontrado." };
+  if (!plano) return { ok: false, error: "Plano não encontrado." };
 
   let targetNormalized: string;
   let valid = false;
@@ -67,7 +67,7 @@ export async function novaConsultaB2BAction(
   if (!valid) {
     return {
       ok: false,
-      error: `${plano.categoria.toUpperCase()} invalido.`,
+      error: `${plano.categoria.toUpperCase()} inválido.`,
       fieldErrors: { target: "Conferir digitos." },
     };
   }
@@ -99,7 +99,7 @@ export async function novaConsultaB2BAction(
     .maybeSingle();
 
   if (!profile?.active_company_id) {
-    return { ok: false, error: "Empresa nao configurada." };
+    return { ok: false, error: "Empresa não configurada." };
   }
 
   // Verifica role (admin ou operator podem consultar; viewer nao)
@@ -111,7 +111,7 @@ export async function novaConsultaB2BAction(
     .maybeSingle();
 
   if (!member || member.role === "viewer") {
-    return { ok: false, error: "Sem permissao pra criar consulta." };
+    return { ok: false, error: "Sem permissão pra criar consulta." };
   }
 
   const admin = createAdminClient();
@@ -122,7 +122,7 @@ export async function novaConsultaB2BAction(
     .eq("id", profile.active_company_id)
     .maybeSingle();
 
-  if (!empresa) return { ok: false, error: "Empresa nao encontrada." };
+  if (!empresa) return { ok: false, error: "Empresa não encontrada." };
 
   if ((empresa.balance_cents ?? 0) < plano.precoB2B_centavos) {
     const saldoReais = ((empresa.balance_cents ?? 0) / 100).toFixed(2);
@@ -178,7 +178,7 @@ export async function novaConsultaB2BAction(
     const precoReais = (plano.precoB2B_centavos / 100).toFixed(2);
     return {
       ok: false,
-      error: `Saldo insuficiente pra consulta de R$ ${precoReais}. Recarregue em /empresa/creditos.`,
+      error: `Saldo insuficiente pra consulta de R$ ${precoReais}. Recarregue em Créditos.`,
     };
   }
 

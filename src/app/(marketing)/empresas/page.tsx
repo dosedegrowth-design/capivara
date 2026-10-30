@@ -373,7 +373,7 @@ function ComparativoEconomia() {
             })}
           </div>
 
-          <p className="text-center mt-8 text-xs text-tabaco/70 font-mono">
+          <p className="text-center mt-8 text-xs text-tabaco font-mono">
             * Preço B2B debitado do saldo da empresa. Bônus de pacote Manada
             estica ainda mais o saldo (até +50%).
           </p>

@@ -92,7 +92,7 @@ export default async function AceitarConvitePage({
   if (!emailMatches) {
     return (
       <ShellMessage
-        title="Email não bate"
+        title="E-mail não bate"
         message={`Este convite é pra ${invite.email}, mas você está logado como ${userEmail}. Faça logout e entre com o email certo.`}
         ctaHref="/logout"
         ctaLabel="Sair"
@@ -166,7 +166,7 @@ function friendlyError(code: string): string {
   switch (code) {
     case "invite_expired": return "Convite expirado.";
     case "invite_already_accepted": return "Você já aceitou esse convite.";
-    case "email_mismatch": return "Email não bate com o convite.";
+    case "email_mismatch": return "E-mail não bate com o convite.";
     case "invite_not_found": return "Convite não encontrado.";
     case "auth_required": return "Faça login primeiro.";
     default: return "Não deu pra aceitar. Tente novamente ou fale com quem te convidou.";

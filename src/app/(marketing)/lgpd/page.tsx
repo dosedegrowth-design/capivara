@@ -42,7 +42,7 @@ function Header() {
           Como tratamos seus dados pessoais e os dados que você puxa de
           outras pessoas, empresas e veículos.
         </p>
-        <p className="mt-2 font-mono text-xs text-tabaco/60">
+        <p className="mt-2 font-mono text-xs text-tabaco">
           Última atualização: 21 de maio de 2026
         </p>
       </div>
@@ -329,7 +329,7 @@ function DPO() {
 
               <div className="mt-5 space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-mono text-tabaco/70">E-mail:</span>
+                  <span className="font-mono text-tabaco">E-mail:</span>
                   <a
                     href="mailto:dpo@suacapivara.com.br"
                     className="font-mono text-fur hover:underline underline-offset-4"
@@ -338,7 +338,7 @@ function DPO() {
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="font-mono text-tabaco/70">SLA:</span>
+                  <span className="font-mono text-tabaco">SLA:</span>
                   <span className="text-cocoa">15 dias úteis</span>
                 </div>
               </div>
@@ -357,7 +357,7 @@ function DPO() {
           </div>
         </div>
 
-        <p className="text-xs text-tabaco/70 mt-8 text-center font-mono leading-relaxed">
+        <p className="text-xs text-tabaco mt-8 text-center font-mono leading-relaxed">
           {`Capivara é mantida pela ${identificacaoControladora()}`}
           <br />
           Em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709/2018).

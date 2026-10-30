@@ -187,7 +187,7 @@ export default async function EmpresaDashboard() {
                 className="flex-1 flex flex-col items-center gap-1 group"
                 title={`${d.count} consultas em ${d.day}`}
               >
-                <div className="text-[9px] font-mono text-tabaco/40 group-hover:text-fur transition-colors">
+                <div className="text-[9px] font-mono text-tabaco group-hover:text-fur transition-colors">
                   {d.count > 0 ? d.count : ""}
                 </div>
                 <div

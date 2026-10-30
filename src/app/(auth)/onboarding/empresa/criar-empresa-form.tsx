@@ -43,7 +43,7 @@ export function CriarEmpresaForm({ companyTermsVersion }: { companyTermsVersion:
 
       <div className="space-y-2">
         <Label htmlFor="nomeFantasia">
-          Nome fantasia <span className="text-tabaco/60 font-normal">(opcional)</span>
+          Nome fantasia <span className="text-tabaco font-normal">(opcional)</span>
         </Label>
         <Input
           id="nomeFantasia"
@@ -66,7 +66,7 @@ export function CriarEmpresaForm({ companyTermsVersion }: { companyTermsVersion:
 
       <div className="space-y-2">
         <Label htmlFor="emailBilling">
-          E-mail de cobrança <span className="text-tabaco/60 font-normal">(opcional)</span>
+          E-mail de cobrança <span className="text-tabaco font-normal">(opcional)</span>
         </Label>
         <Input
           id="emailBilling"
@@ -74,7 +74,7 @@ export function CriarEmpresaForm({ companyTermsVersion }: { companyTermsVersion:
           type="email"
           placeholder="financeiro@empresa.com"
         />
-        <p className="text-xs text-tabaco/70">
+        <p className="text-xs text-tabaco">
           Pra onde as NF-e e recibos serão enviados. Se vazio, usamos seu email pessoal.
         </p>
       </div>

@@ -152,7 +152,7 @@ export default async function AdminAceitesPage({
                         {context}
                       </Badge>
                     ) : (
-                      <span className="text-tabaco/50 text-xs">—</span>
+                      <span className="text-tabaco text-xs">—</span>
                     )}
                   </td>
                 </tr>
@@ -162,7 +162,7 @@ export default async function AdminAceitesPage({
         </table>
       </div>
 
-      <p className="text-xs font-mono text-tabaco/70">
+      <p className="text-xs font-mono text-tabaco">
         Mostrando {logs?.length ?? 0} de {count ?? 0} aceites.
         {(count ?? 0) > limitN && ` Aumente o limit via ?limit=500.`}
       </p>

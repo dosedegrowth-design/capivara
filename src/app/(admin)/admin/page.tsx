@@ -270,7 +270,7 @@ function KPI({
       </p>
       <p className="font-display text-2xl font-bold text-cocoa mt-1">{value}</p>
       {sublabel && (
-        <p className="text-[10px] text-tabaco/70 font-mono mt-1">{sublabel}</p>
+        <p className="text-[10px] text-tabaco font-mono mt-1">{sublabel}</p>
       )}
     </div>
   );

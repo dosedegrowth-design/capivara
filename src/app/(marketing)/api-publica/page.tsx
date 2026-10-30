@@ -145,7 +145,7 @@ export default function APILandingPage() {
                 </Button>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco/80">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco">
                 <span className="flex items-center gap-1.5">
                   <Code2 className="size-4 text-info" /> REST · JSON
                 </span>
@@ -295,7 +295,7 @@ x-capivara-event: consultation.completed
             </p>
           </div>
 
-          <p className="text-xs font-mono text-tabaco/70 mt-4 text-center">
+          <p className="text-xs font-mono text-tabaco mt-4 text-center">
             * Coluna <strong className="text-cocoa">"Preço B2B"</strong> é o valor
             debitado do seu saldo a cada consulta via API.
           </p>
@@ -345,7 +345,7 @@ x-capivara-event: consultation.completed
                 </div>
               ))}
             </div>
-            <p className="text-center text-xs font-mono text-tabaco/70 mt-6">
+            <p className="text-center text-xs font-mono text-tabaco mt-6">
               Volume acima de 10k consultas/mês:{" "}
               <Link href="/contato" className="text-fur hover:underline">
                 fale com a gente

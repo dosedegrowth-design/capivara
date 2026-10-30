@@ -62,7 +62,7 @@ export default function LegalIndexPage() {
                       v{doc.version} · vigência{" "}
                       {new Date(doc.effectiveDate).toLocaleDateString("pt-BR")}
                     </p>
-                    <p className="text-[10px] font-mono text-tabaco/60 mt-1 truncate">
+                    <p className="text-[10px] font-mono text-tabaco mt-1 truncate">
                       SHA-256: {hashDocument(doc).slice(0, 32)}…
                     </p>
                   </div>

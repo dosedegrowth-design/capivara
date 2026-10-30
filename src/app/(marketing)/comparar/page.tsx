@@ -180,7 +180,7 @@ export default function CompararPage() {
             tradicionais brasileiros. Sem fingir que somos perfeitos — os pontos
             onde eles ganham também estão aqui.
           </p>
-          <p className="mt-3 text-xs font-mono text-tabaco/70">
+          <p className="mt-3 text-xs font-mono text-tabaco">
             Atualizado em maio/2026. Sugestões de correção:{" "}
             <Link href="/contato" className="text-fur hover:underline">
               /contato

@@ -118,7 +118,7 @@ export function EquipeClient({
         >
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
@@ -272,7 +272,7 @@ function roleLabel(r: string): string {
 }
 
 function traduzErro(e: string): string {
-  if (e === "email_invalido") return "Email inválido.";
+  if (e === "email_invalido") return "E-mail inválido.";
   if (e === "ja_e_membro") return "Essa pessoa já é membro da equipe.";
   if (e === "admin_required") return "Apenas administradores podem convidar.";
   if (e === "role_invalida") return "Função inválida.";

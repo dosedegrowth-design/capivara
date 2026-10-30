@@ -135,7 +135,7 @@ export async function signInAction(formData: FormData): Promise<AuthResult> {
   const parsed = loginSchema.safeParse(raw);
   if (!parsed.success) {
     return {
-      error: "Email ou senha invalidos.",
+      error: "E-mail ou senha inválidos.",
     };
   }
 
@@ -173,7 +173,7 @@ export async function recoverPasswordAction(formData: FormData): Promise<AuthRes
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: "Email invalido." };
+    return { error: "E-mail inválido." };
   }
 
   const supabase = await createClient();
@@ -204,11 +204,11 @@ export async function criarEmpresaAction(formData: FormData): Promise<AuthResult
   }
 
   if (!cnpjRaw || cnpjRaw.length !== 14) {
-    return { error: "CNPJ invalido." };
+    return { error: "CNPJ inválido." };
   }
 
   if (!acceptCompanyTerms) {
-    return { error: "Voce precisa aceitar os Termos B2B pra criar a empresa." };
+    return { error: "Você precisa aceitar os Termos B2B pra criar a empresa." };
   }
 
   const supabase = await createClient();
@@ -233,7 +233,7 @@ export async function criarEmpresaAction(formData: FormData): Promise<AuthResult
 
   if (createErr || !empresa) {
     if (createErr?.code === "23505") {
-      return { error: "Este CNPJ ja esta cadastrado." };
+      return { error: "Este CNPJ já está cadastrado." };
     }
     return { error: "Falha ao criar empresa. Tente novamente." };
   }
@@ -277,11 +277,11 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthResul
   const confirmacao = String(formData.get("confirmacao") ?? "");
 
   if (senha.length < 8) {
-    return { error: "A senha precisa ter no minimo 8 caracteres." };
+    return { error: "A senha precisa ter no mínimo 8 caracteres." };
   }
 
   if (senha !== confirmacao) {
-    return { error: "As senhas nao conferem." };
+    return { error: "As senhas não conferem." };
   }
 
   const supabase = await createClient();
@@ -300,8 +300,8 @@ export async function resetPasswordAction(formData: FormData): Promise<AuthResul
 // =========================================================================
 
 function traduzirErroAuth(msg: string): string {
-  if (msg.includes("Invalid login credentials")) return "Email ou senha incorretos.";
-  if (msg.includes("Email not confirmed")) return "Confirme seu email antes de entrar.";
+  if (msg.includes("Invalid login credentials")) return "E-mail ou senha incorretos.";
+  if (msg.includes("Email not confirmed")) return "Confirme seu e-mail antes de entrar.";
   if (msg.includes("User already registered")) return "Este email ja esta cadastrado.";
   if (msg.includes("Password should be")) return "Senha muito curta (minimo 8 caracteres).";
   if (msg.includes("rate limit")) return "Muitas tentativas. Aguarde 1 minuto.";

@@ -116,7 +116,7 @@ export default async function ResultadoPage({
               Pedido de reembolso já foi aberto automaticamente. Em até 7 dias úteis o
               valor volta para você.
             </p>
-            <p className="text-xs font-mono text-tabaco/60 mt-3">
+            <p className="text-xs font-mono text-tabaco mt-3">
               ID: {consulta.id}
             </p>
           </div>

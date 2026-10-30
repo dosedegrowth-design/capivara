@@ -337,7 +337,7 @@ export async function removerMembroAction(formData: FormData): Promise<EquipeAct
     if ((count ?? 0) <= 1) {
       return {
         ok: false,
-        error: "Voce e o unico admin. Promova outro antes de sair.",
+        error: "Você é o único admin. Promova outro antes de sair.",
       };
     }
   }

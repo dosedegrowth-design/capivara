@@ -126,13 +126,13 @@ function KVTable({ data }: { data: Record<string, string | null> }) {
     <dl className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
       {entries.map(([key, value]) => (
         <div key={key} className="flex flex-col">
-          <dt className="text-xs font-mono uppercase tracking-wider text-tabaco/70">
+          <dt className="text-xs font-mono uppercase tracking-wider text-tabaco">
             {key}
           </dt>
           <dd
             className={cn(
               "text-sm font-medium mt-0.5",
-              value === null ? "text-tabaco/60 italic" : "text-cocoa",
+              value === null ? "text-tabaco italic" : "text-cocoa",
               isStatusValue(value) && getStatusColor(value)
             )}
           >
@@ -213,7 +213,7 @@ function ScoreCard({
             style={{ width: `${percent}%` }}
           />
         </div>
-        <div className="flex justify-between text-[10px] font-mono text-tabaco/70 mt-1.5">
+        <div className="flex justify-between text-[10px] font-mono text-tabaco mt-1.5">
           <span>0</span>
           <span>{Math.floor(section.max / 2)}</span>
           <span>{section.max}</span>
@@ -416,7 +416,7 @@ function DividasTable({ items }: { items: DividaItem[] }) {
   return (
     <div>
       <table className="w-full text-sm">
-        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco/70">
+        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco">
           <tr>
             <th className="text-left py-2">Credor</th>
             <th className="text-left py-2">Origem</th>
@@ -460,7 +460,7 @@ function DividasTable({ items }: { items: DividaItem[] }) {
 function ProtestosTable({ items }: { items: ProtestoItem[] }) {
   return (
     <table className="w-full text-sm">
-      <thead className="text-xs font-mono uppercase tracking-wider text-tabaco/70">
+      <thead className="text-xs font-mono uppercase tracking-wider text-tabaco">
         <tr>
           <th className="text-left py-2">Cartório</th>
           <th className="text-left py-2">Cidade</th>
@@ -501,7 +501,7 @@ function ScrTable({ items }: { items: ScrItem[] }) {
   return (
     <div>
       <table className="w-full text-sm">
-        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco/70">
+        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco">
           <tr>
             <th className="text-left py-2">Instituição</th>
             <th className="text-left py-2">Modalidade</th>
@@ -552,7 +552,7 @@ function MultasTable({ items }: { items: MultaItem[] }) {
   return (
     <div>
       <table className="w-full text-sm">
-        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco/70">
+        <thead className="text-xs font-mono uppercase tracking-wider text-tabaco">
           <tr>
             <th className="text-left py-2">Descrição</th>
             <th className="text-left py-2">Data</th>

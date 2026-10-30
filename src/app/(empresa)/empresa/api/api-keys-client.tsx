@@ -96,7 +96,7 @@ export function ApiKeysClient({ keys }: Props) {
                   Chave criada: <span className="font-mono">{revealed.name}</span>
                 </p>
                 <p className="text-xs text-tabaco mt-1">
-                  Copia agora. Por seguranca, nao vamos mostrar essa chave de novo.
+                  Copie agora. Por segurança, não vamos mostrar essa chave de novo.
                 </p>
                 <div className="mt-3 flex items-center gap-2 rounded bg-cocoa text-cream font-mono text-xs p-3 overflow-x-auto">
                   <code className="break-all">{revealed.fullKey}</code>
@@ -111,7 +111,7 @@ export function ApiKeysClient({ keys }: Props) {
                     Copiar
                   </Button>
                   <Button size="sm" variant="ghost" onClick={() => setRevealed(null)}>
-                    Ja salvei
+                    Já salvei
                   </Button>
                 </div>
               </div>
@@ -152,7 +152,7 @@ export function ApiKeysClient({ keys }: Props) {
               required
             />
             <p className="text-xs text-tabaco mt-1">
-              So pra voce identificar. Nao aparece pra outros sistemas.
+              Só pra você identificar. Não aparece pra outros sistemas.
             </p>
           </div>
 
@@ -205,7 +205,7 @@ export function ApiKeysClient({ keys }: Props) {
           <div className="rounded-lg border border-dashed border-line bg-card p-8 text-center">
             <Key className="size-8 text-tabaco/40 mx-auto mb-2" />
             <p className="text-sm text-tabaco">Nenhuma chave ativa.</p>
-            <p className="text-xs text-tabaco/70 mt-1">
+            <p className="text-xs text-tabaco mt-1">
               Crie uma pra comecar a usar a API.
             </p>
           </div>
@@ -271,7 +271,7 @@ export function ApiKeysClient({ keys }: Props) {
             {revogadas.map((k) => (
               <div
                 key={k.id}
-                className="text-xs text-tabaco/70 flex items-center gap-2 py-1"
+                className="text-xs text-tabaco flex items-center gap-2 py-1"
               >
                 <Key className="size-3" />
                 <span className="line-through">{k.name}</span>

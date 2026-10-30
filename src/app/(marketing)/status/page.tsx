@@ -202,7 +202,7 @@ export default async function StatusPage() {
                     </p>
                     <p className="text-xs text-tabaco mt-0.5">{service.description}</p>
                     {service.detail && (
-                      <p className="text-[10px] font-mono text-tabaco/70 mt-1">
+                      <p className="text-[10px] font-mono text-tabaco mt-1">
                         {service.detail}
                       </p>
                     )}

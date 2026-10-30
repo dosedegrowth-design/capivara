@@ -76,7 +76,7 @@ export async function iniciarConsultaAction(
 
   // Validacao estrita de payment_type (whitelist B2C — bloqueia burla via 'folhas')
   if (!PAYMENT_TYPES_B2C.has(paymentTypeRaw)) {
-    return { ok: false, error: "Metodo de pagamento invalido." };
+    return { ok: false, error: "Método de pagamento inválido." };
   }
   const paymentType = paymentTypeRaw as "pix" | "boleto" | "cartao_avista";
 
@@ -86,7 +86,7 @@ export async function iniciarConsultaAction(
 
   const plano = findPlano(planoId);
   if (!plano) {
-    return { ok: false, error: "Plano nao encontrado." };
+    return { ok: false, error: "Plano não encontrado." };
   }
 
   let targetNormalized: string;
@@ -105,7 +105,7 @@ export async function iniciarConsultaAction(
   if (!valid) {
     return {
       ok: false,
-      error: `${plano.categoria.toUpperCase()} invalido.`,
+      error: `${plano.categoria.toUpperCase()} inválido.`,
       fieldErrors: { target: "Conferir digitos." },
     };
   }
@@ -375,7 +375,7 @@ export async function iniciarConsultaAction(
     await logError({
       context: "iniciarConsulta.asaas",
       severity: "critical",
-      message: "Falha ao criar cobranca Asaas",
+      message: "Falha ao criar cobrança Asaas",
       error: asaasErr instanceof Error ? asaasErr : new Error(String(asaasErr)),
       userId: user.id,
       consultationId: consulta.id,
@@ -416,7 +416,7 @@ export async function iniciarConsultaAvulsoAction(
   const responsibilityVersionClient = String(formData.get("responsibilityVersion") ?? "");
 
   if (!PAYMENT_TYPES_B2C.has(paymentTypeRaw)) {
-    return { ok: false, error: "Metodo de pagamento invalido." };
+    return { ok: false, error: "Método de pagamento inválido." };
   }
   const paymentType = paymentTypeRaw as "pix" | "boleto" | "cartao_avista";
 
@@ -425,7 +425,7 @@ export async function iniciarConsultaAvulsoAction(
 
   const produto = findProdutoAvulso(produtoId);
   if (!produto) {
-    return { ok: false, error: "Produto nao encontrado." };
+    return { ok: false, error: "Produto não encontrado." };
   }
 
   // O alvo depende da categoria do produto (placa, CPF ou CNPJ).
@@ -451,7 +451,7 @@ export async function iniciarConsultaAvulsoAction(
       alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : alvo === "cep" ? "CEP" : "Placa";
     return {
       ok: false,
-      error: `${label} invalido.`,
+      error: `${label} inválido.`,
       fieldErrors: { target: "Conferir digitos." },
     };
   }
@@ -702,7 +702,7 @@ export async function iniciarConsultaAvulsoAction(
     await logError({
       context: "iniciarConsultaAvulso.asaas",
       severity: "critical",
-      message: "Falha ao criar cobranca Asaas (avulso)",
+      message: "Falha ao criar cobrança Asaas (avulso)",
       error: asaasErr instanceof Error ? asaasErr : new Error(String(asaasErr)),
       userId: user.id,
       consultationId: consulta.id,

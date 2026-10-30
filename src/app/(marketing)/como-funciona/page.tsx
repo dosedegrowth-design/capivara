@@ -98,7 +98,7 @@ function TresPassos() {
         {PASSOS.map(({ n, icon: Icon, title, description, bullets }, i) => (
           <div key={n} className="grid items-center gap-10 md:grid-cols-2">
             <div className={i % 2 === 1 ? "md:order-2" : ""}>
-              <span className="font-mono text-xs tracking-widest text-tabaco/70">
+              <span className="font-mono text-xs tracking-widest text-tabaco">
                 PASSO {n}
               </span>
               <h2 className="mt-2 font-display text-3xl font-bold text-cocoa">

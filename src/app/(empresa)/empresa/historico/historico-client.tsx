@@ -104,7 +104,7 @@ export function HistoricoClient({ consultas }: { consultas: ConsultaRow[] }) {
               Buscar target
             </label>
             <div className="relative mt-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-tabaco/50" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-tabaco" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

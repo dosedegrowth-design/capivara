@@ -168,7 +168,7 @@ export default async function FaturamentoPage() {
                     ) : tx.status === "paid" ? (
                       <span className="text-[10px] text-tabaco font-mono">processando</span>
                     ) : (
-                      <span className="text-[10px] text-tabaco/50">—</span>
+                      <span className="text-[10px] text-tabaco">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -198,7 +198,7 @@ export default async function FaturamentoPage() {
         </div>
       )}
 
-      <p className="text-[11px] font-mono text-tabaco/70 leading-relaxed">
+      <p className="text-[11px] font-mono text-tabaco leading-relaxed">
         Recibo baixável em PDF após confirmação do pagamento.
         Emissão de NF-e sob demanda — fale com <Link href="/contato" className="text-fur hover:underline">o suporte</Link>.
       </p>

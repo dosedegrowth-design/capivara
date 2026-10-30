@@ -59,7 +59,7 @@ export function EmpresasAdminClient({ empresas }: Props) {
       {/* Busca */}
       <div className="rounded-lg border border-line bg-card p-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-tabaco/50" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-tabaco" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -60,8 +60,8 @@ export default async function WebhooksPage() {
           <div>
             <h1 className="font-display text-3xl font-bold text-cocoa">Webhooks</h1>
             <p className="mt-2 text-tabaco">
-              Receba notificacoes em tempo real quando suas consultas ficam prontas.
-              POST direto pra sua URL, com assinatura HMAC pra voce validar a origem.
+              Receba notificações em tempo real quando suas consultas ficam prontas.
+              POST direto pra sua URL, com assinatura HMAC pra você validar a origem.
             </p>
           </div>
 
@@ -116,8 +116,8 @@ function verify(rawBody, sigHeader, secret) {
             </h3>
             <p className="text-xs text-tabaco leading-relaxed">
               Tentamos entregar 6 vezes com backoff exponencial:{" "}
-              <strong>1m, 5m, 30m, 2h, 6h, 24h</strong>. Se nao for 2xx em todas,
-              marcamos como esgotada — voce pode reenviar manualmente.
+              <strong>1m, 5m, 30m, 2h, 6h, 24h</strong>. Se não for 2xx em todas,
+              marcamos como esgotada — você pode reenviar manualmente.
             </p>
           </div>
         </aside>

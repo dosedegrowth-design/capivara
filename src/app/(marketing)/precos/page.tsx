@@ -312,14 +312,14 @@ function ChamadaFinal() {
           Dúvidas sobre qual plano escolher?{" "}
           <Link
             href="/como-funciona"
-            className="text-fur underline-offset-4 hover:underline"
+            className="text-fur underline underline-offset-4 hover:no-underline"
           >
             Veja como funciona
           </Link>
           {" "}ou{" "}
           <Link
             href="/contato"
-            className="text-fur underline-offset-4 hover:underline"
+            className="text-fur underline underline-offset-4 hover:no-underline"
           >
             entre em contato
           </Link>

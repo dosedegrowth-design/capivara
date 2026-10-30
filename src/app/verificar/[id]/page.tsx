@@ -16,8 +16,8 @@ import { formatDateTimeBR, maskCPF, maskCNPJ } from "@/lib/formatters";
 // =========================================================================
 
 export const metadata: Metadata = {
-  title: "Verificacao de relatorio",
-  description: "Confirme se um relatorio Capivara e autentico.",
+  title: "Verificação de relatório",
+  description: "Confirme se um relatório Capivara é autêntico.",
   robots: {
     index: false,
     follow: false,
@@ -141,9 +141,9 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       <footer className="border-t border-line/60 py-6 bg-paper/40">
         <div className="mx-auto max-w-2xl px-4 text-center">
-          <p className="text-[11px] font-mono text-tabaco/80 leading-relaxed">
-            Esta pagina confirma apenas a autenticidade do documento.
-            Nao compartilhe relatorios PDF de outras pessoas — Lei Geral
+          <p className="text-[11px] font-mono text-tabaco leading-relaxed">
+            Esta página confirma apenas a autenticidade do documento.
+            Não compartilhe relatórios PDF de outras pessoas — Lei Geral
             de Protecao de Dados (LGPD).
           </p>
         </div>
@@ -200,11 +200,11 @@ function AuthenticCard({ consulta }: { consulta: ConsultaInfo }) {
         </Badge>
 
         <h1 className="font-display text-2xl md:text-3xl font-bold text-cocoa mt-3">
-          Relatorio verificado
+          Relatório verificado
         </h1>
         <p className="text-tabaco text-sm mt-2 max-w-md mx-auto">
-          Este codigo QR foi gerado pela Capivara e aponta pra um
-          relatorio real emitido pela plataforma.
+          Este código QR foi gerado pela Capivara e aponta pra um
+          relatório real emitido pela plataforma.
         </p>
       </div>
 
@@ -226,7 +226,7 @@ function AuthenticCard({ consulta }: { consulta: ConsultaInfo }) {
           <Field label="Fontes consultadas">
             {totalFontes} {totalFontes === 1 ? "fonte" : "fontes"}
           </Field>
-          <Field label="Com dados disponiveis">
+          <Field label="Com dados disponíveis">
             {fontesOk} de {totalFontes}
           </Field>
         </dl>
@@ -236,7 +236,7 @@ function AuthenticCard({ consulta }: { consulta: ConsultaInfo }) {
           <div className="flex items-start gap-2 mb-3">
             <ShieldCheck className="size-4 text-ok mt-0.5 shrink-0" />
             <h2 className="font-display text-base font-semibold text-cocoa">
-              Como validar este relatorio
+              Como validar este relatório
             </h2>
           </div>
           <ul className="space-y-2 text-xs font-mono text-tabaco">
@@ -275,7 +275,7 @@ function AuthenticCard({ consulta }: { consulta: ConsultaInfo }) {
           <div className="text-xs text-tabaco leading-relaxed">
             <p className="font-semibold text-cocoa mb-1">Privacidade</p>
             <p>
-              Por seguranca, esta pagina nao expoe o conteudo do relatorio.
+              Por segurança, esta página não expõe o conteúdo do relatório.
               Quem precisa dos detalhes deve baixar o PDF original na area
               logada do titular da consulta.
             </p>
@@ -312,22 +312,22 @@ function NotFoundShell() {
         </div>
 
         <Badge variant="err" className="mb-3">
-          Documento nao encontrado
+          Documento não encontrado
         </Badge>
 
         <h1 className="font-display text-2xl md:text-3xl font-bold text-cocoa">
-          Nao achamos esse relatorio
+          Não achamos esse relatório
         </h1>
         <p className="text-tabaco mt-3 max-w-md mx-auto leading-relaxed">
-          Este ID nao corresponde a nenhum relatorio Capivara concluido.
+          Este ID não corresponde a nenhum relatório Capivara concluído.
           Pode ser um QR Code danificado, um documento falso ou uma
-          consulta que ainda nao foi finalizada.
+          consulta que ainda não foi finalizada.
         </p>
 
         <div className="mt-6 rounded-lg bg-paper-2/60 border border-line/60 p-3 flex items-start gap-2 text-left max-w-md mx-auto">
           <Info className="size-4 text-info mt-0.5 shrink-0" />
           <p className="text-xs text-tabaco">
-            Se voce esperava ver um relatorio aqui, pode pedir pro titular
+            Se você esperava ver um relatório aqui, pode pedir pro titular
             reemitir o documento — o QR Code novo tem que apontar pra um
             ID valido do sistema Capivara.
           </p>
@@ -359,7 +359,7 @@ function Field({
 }) {
   return (
     <div>
-      <dt className="text-[10px] font-mono uppercase tracking-wider text-tabaco/70">
+      <dt className="text-[10px] font-mono uppercase tracking-wider text-tabaco">
         {label}
       </dt>
       <dd className={`mt-1 text-cocoa ${mono ? "font-mono" : ""}`}>

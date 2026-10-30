@@ -24,7 +24,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
   return (
     <form action={action} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-cream/80">Email</Label>
+        <Label htmlFor="email" className="text-cream/80">E-mail</Label>
         <Input
           id="email"
           name="email"

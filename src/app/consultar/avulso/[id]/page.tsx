@@ -114,7 +114,7 @@ export default async function ProdutoAvulsoPage({
               </div>
             </dl>
 
-            <p className="text-xs font-mono text-tabaco/70 mt-4 leading-relaxed">
+            <p className="text-xs font-mono text-tabaco mt-4 leading-relaxed">
               PIX confirma em segundos. Boleto leva até 2 dias úteis.
             </p>
           </div>
@@ -146,7 +146,7 @@ export default async function ProdutoAvulsoPage({
                 </li>
               ))}
             </ul>
-            <p className="text-[10px] font-mono text-tabaco/70 mt-4 leading-relaxed pt-3 border-t border-line/60">
+            <p className="text-[10px] font-mono text-tabaco mt-4 leading-relaxed pt-3 border-t border-line/60">
               Relatório em PDF + visualização web. Acesso por 90 dias.
               Cache 24h se você consultar de novo.
             </p>

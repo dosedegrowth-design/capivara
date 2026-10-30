@@ -149,7 +149,7 @@ export function ProdutoAvulsoCard({ produto, className }: Props) {
         {/* Publico alvo + CTA */}
         <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-line/60">
           <div className="text-xs text-tabaco">
-            <span className="font-mono uppercase tracking-widest text-tabaco/70 mr-1">
+            <span className="font-mono uppercase tracking-widest text-tabaco mr-1">
               Pra quem:
             </span>
             {produto.publicoAlvo}

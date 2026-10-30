@@ -226,14 +226,56 @@ const s = StyleSheet.create({
 // Helpers
 // ============================================================
 
-/** UPPER_SNAKE_CASE / camelCase -> "Title Case". */
+/**
+ * Palavras que chegam sem acento nas chaves da APIFULL (`situacao_cadastral`)
+ * e siglas que o Title Case estragaria (`Cpf`). Sem isso o PDF — que e' o
+ * produto — sai com "Situacao Cadastral" e "Razao Social".
+ */
+const PALAVRAS_PDF: Record<string, string> = {
+  situacao: "Situação", razao: "Razão", endereco: "Endereço", enderecos: "Endereços",
+  numero: "Número", codigo: "Código", descricao: "Descrição", informacao: "Informação",
+  informacoes: "Informações", data: "Data", abertura: "Abertura", ultima: "Última",
+  ultimo: "Último", ultimas: "Últimas", restricao: "Restrição", restricoes: "Restrições",
+  pendencia: "Pendência", pendencias: "Pendências", divida: "Dívida", dividas: "Dívidas",
+  debito: "Débito", debitos: "Débitos", credito: "Crédito", veiculo: "Veículo",
+  veiculos: "Veículos", proprietario: "Proprietário", municipio: "Município",
+  telefone: "Telefone", eletronico: "Eletrônico", socio: "Sócio", socios: "Sócios",
+  natureza: "Natureza", juridica: "Jurídica", juridico: "Jurídico", qualificacao: "Qualificação",
+  atividade: "Atividade", economica: "Econômica", inicio: "Início", emissao: "Emissão",
+  validade: "Validade", certidao: "Certidão", processo: "Processo", acao: "Ação",
+  acoes: "Ações", orgao: "Órgão", periodo: "Período", historico: "Histórico",
+  ocorrencia: "Ocorrência", ocorrencias: "Ocorrências", relacao: "Relação",
+  nascimento: "Nascimento", mae: "Mãe", pai: "Pai", genero: "Gênero",
+  obito: "Óbito", renda: "Renda", patrimonio: "Patrimônio", combustivel: "Combustível",
+  categoria: "Categoria", especie: "Espécie", cambio: "Câmbio", potencia: "Potência",
+  ano: "Ano", modelo: "Modelo", fabricacao: "Fabricação", leilao: "Leilão",
+  leiloeiro: "Leiloeiro", condicao: "Condição", infracao: "Infração", infracoes: "Infrações",
+  orgaos: "Órgãos", operacao: "Operação", operacoes: "Operações", vencimento: "Vencimento",
+  cpf: "CPF", cnpj: "CNPJ", cep: "CEP", uf: "UF", rg: "RG", cnh: "CNH",
+  fipe: "FIPE", renavam: "RENAVAM", chassi: "Chassi", crlv: "CRLV", csv: "CSV",
+  pep: "PEP", scr: "SCR", cnae: "CNAE", ie: "IE", id: "ID", url: "URL",
+  bin: "BIN", renajud: "RENAJUD", renainf: "RENAINF", pgfn: "PGFN", cndt: "CNDT",
+  fgts: "FGTS", qsa: "QSA", pld: "PLD", mei: "MEI",
+};
+
+/** Preposicoes ficam minusculas no meio do rotulo ("Data de Abertura"). */
+const MINUSCULAS = new Set(["de", "da", "do", "das", "dos", "e", "em", "por", "para", "a", "o"]);
+
+/** UPPER_SNAKE_CASE / camelCase -> "Title Case" com acento e siglas. */
 function humanize(key: string): string {
   if (!key) return "";
   return key
     .replace(/[_-]+/g, " ")
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .toLowerCase()
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w, i) => {
+      if (PALAVRAS_PDF[w]) return PALAVRAS_PDF[w];
+      if (i > 0 && MINUSCULAS.has(w)) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    })
+    .join(" ");
 }
 
 function isPlainObject(v: unknown): v is Record<string, unknown> {
@@ -1056,3 +1098,7 @@ export function sortedApiPaths(sections: Record<string, ApifullSection>): string
   indexed.sort((a, b) => a.idx - b.idx || a.k.localeCompare(b.k));
   return indexed.map((x) => x.k);
 }
+
+
+/** Exportado so pra teste. */
+export { humanize };

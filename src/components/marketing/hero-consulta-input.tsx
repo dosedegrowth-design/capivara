@@ -164,7 +164,7 @@ export function HeroConsultaInput({
             <div
               className={cn(
                 "flex flex-wrap items-center gap-3 sm:gap-4 pt-2 text-[11px] sm:text-xs font-mono",
-                isLeilao ? "text-cream/70" : "text-tabaco/80"
+                isLeilao ? "text-cream/70" : "text-tabaco"
               )}
             >
               <span className="flex items-center gap-1.5">
@@ -213,7 +213,7 @@ export function HeroConsultaInput({
                           setErro(null);
                         }}
                       />
-                      <p className="text-[11px] font-mono text-tabaco/70 text-center">
+                      <p className="text-[11px] font-mono text-tabaco text-center">
                         Mercosul (AAA-1B23) ou antiga (AAA-1234)
                       </p>
                     </TabsContent>
@@ -267,7 +267,7 @@ export function HeroConsultaInput({
                     {submitting ? "Buscando..." : "CONSULTAR"}
                   </Button>
 
-                  <p className="text-[11px] text-tabaco/70 text-center leading-relaxed">
+                  <p className="text-[11px] text-tabaco text-center leading-relaxed">
                     Ao consultar você concorda com os{" "}
                     <Link
                       href="/termos"

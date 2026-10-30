@@ -94,7 +94,7 @@ export function CategoriaLanding({
                   </Button>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco/80">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-4 pt-3 text-[11px] sm:text-xs font-mono text-tabaco">
                   <span className="flex items-center gap-1.5">
                     <ShieldCheck className="size-4 text-ok" /> LGPD compliant
                   </span>
