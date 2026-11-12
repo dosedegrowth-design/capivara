@@ -46,6 +46,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
         titulo: "Só um dado",
         itens: [
           { href: "/consultar/avulso/cpf-avulso-score", label: "Score de crédito" },
+          { href: "/consultar/avulso/cpf-avulso-credito-completa", label: "Análise de crédito completa" },
           { href: "/consultar/avulso/cpf-avulso-antecedentes", label: "Antecedentes criminais" },
           { href: "/consultar/avulso/cpf-avulso-processos", label: "Processos judiciais" },
           { href: "/consultar/avulso/cpf-avulso-financeiro", label: "Renda e patrimônio" },
@@ -69,6 +70,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
       {
         titulo: "Só um dado",
         itens: [
+          { href: "/consultar/avulso/cnpj-avulso-define-limite", label: "Limite de crédito sugerido" },
           { href: "/consultar/avulso/cnpj-avulso-socios", label: "Quadro societário" },
           { href: "/consultar/avulso/cnpj-avulso-processos", label: "Processos da empresa" },
           { href: "/consultar/avulso/cnpj-avulso-sintegra", label: "Sintegra" },
@@ -116,6 +118,7 @@ export const MENU_PRINCIPAL: EntradaMenu[] = [
       {
         titulo: "Avulsas",
         itens: [
+          { href: "/consultar/avulso/certidao-estadual-pj", label: "Débitos estaduais" },
           { href: "/consultar/avulso/certidao-pgfn-pj", label: "PGFN (empresa)" },
           { href: "/consultar/avulso/certidao-fgts-pj", label: "FGTS / CRF" },
           { href: "/consultar/avulso/certidao-cndt-pf", label: "CNDT (pessoa)" },

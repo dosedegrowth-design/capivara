@@ -24,6 +24,7 @@ import {
   centavosToReal,
   dueDate,
 } from "@/lib/asaas/client";
+import { pedeUfEscolhida, UFS_BRASIL } from "@/lib/apifull/mapping";
 import { logError } from "@/lib/log";
 import { sendEmail } from "@/lib/email/client";
 import { emailPagamentoAguardando } from "@/lib/email/templates";
@@ -446,6 +447,19 @@ export async function iniciarConsultaAvulsoAction(
     alvoValido = isValidPlaca(targetNormalized);
   }
 
+  // Certidao estadual: o cliente escolhe o estado. Validado contra a lista
+  // fechada de UFs — vai direto pro body da APIFULL.
+  const ufRaw = String(formData.get("uf") ?? "").trim().toUpperCase();
+  const pedeUf = pedeUfEscolhida(produto.apisIncluidas);
+  if (pedeUf && !(UFS_BRASIL as readonly string[]).includes(ufRaw)) {
+    return {
+      ok: false,
+      error: "Escolha o estado da certidão.",
+      fieldErrors: { uf: "Obrigatório" },
+    };
+  }
+  const targetUf = pedeUf ? ufRaw : null;
+
   if (!alvoValido) {
     const label =
       alvo === "cpf" ? "CPF" : alvo === "cnpj" ? "CNPJ" : alvo === "cep" ? "CEP" : "Placa";
@@ -559,6 +573,8 @@ export async function iniciarConsultaAvulsoAction(
     .eq("user_id", user.id)
     .eq("target_hash", targetHash)
     .eq("plan_tier", produto.id)
+    // Mesmo CPF em outro estado e' outra certidao: nao reaproveita.
+    .filter("target_uf", targetUf ? "eq" : "is", targetUf ?? "null")
     .eq("status", "completed")
     .gt("completed_at", cacheWindowStart)
     .order("completed_at", { ascending: false })
@@ -578,6 +594,7 @@ export async function iniciarConsultaAvulsoAction(
       target_value: targetRaw,
       target_normalized: targetNormalized,
       target_hash: targetHash,
+      target_uf: targetUf,
       finality: finalidade,
       finality_description: finalidade === "other" ? finalidadeDesc : null,
       payment_type: paymentType,

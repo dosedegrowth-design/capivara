@@ -7,7 +7,8 @@ import {
   extractApiKeyFromRequest,
   touchApiKey,
 } from "@/lib/api-keys";
-import { findItemCatalogo } from "@/lib/consultas/planos";
+import { findItemCatalogo, findPlano, findProdutoAvulso } from "@/lib/consultas/planos";
+import { pedeUfEscolhida, UFS_BRASIL } from "@/lib/apifull/mapping";
 import {
   normalizeCPF,
   normalizeCNPJ,
@@ -42,6 +43,8 @@ export const dynamic = "force-dynamic";
 
 interface CreateBody {
   plan_id?: string;
+  /** Sigla da UF — obrigatoria nas certidoes estaduais. */
+  uf?: string;
   target?: string;
   external_reference?: string;
   callback_url?: string;
@@ -126,6 +129,16 @@ export async function POST(req: NextRequest) {
     targetNormalized = normalizePlaca(body.target);
     valid = isValidPlaca(targetNormalized);
   }
+
+  // Certidao estadual exige a UF; nos outros itens o campo e' ignorado.
+  const fonteApis =
+    findProdutoAvulso(plano.id)?.apisIncluidas ?? findPlano(plano.id)?.apisIncluidas ?? [];
+  const pedeUf = pedeUfEscolhida(fonteApis);
+  const ufBody = String(body.uf ?? "").trim().toUpperCase();
+  if (pedeUf && !(UFS_BRASIL as readonly string[]).includes(ufBody)) {
+    return errResponse(422, "uf_required", { plan_id: plano.id, uf: body.uf ?? null });
+  }
+  const targetUf = pedeUf ? ufBody : null;
 
   if (!valid) {
     return errResponse(422, "invalid_target", {
@@ -248,6 +261,7 @@ export async function POST(req: NextRequest) {
       target_value: body.target,
       target_normalized: targetNormalized,
       target_hash: targetHash,
+      target_uf: targetUf,
       finality: body.finality ?? FINALITY_DEFAULT_API,
       payment_type: "folhas", // legado: tipo "saldo da empresa" (nao via Asaas)
       amount_cents: plano.precoB2B_centavos,

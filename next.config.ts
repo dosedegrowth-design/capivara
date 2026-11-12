@@ -23,6 +23,18 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  // Produtos retirados do catalogo: a URL ja foi indexada, entao leva pra
+  // categoria em vez de deixar 404.
+  async redirects() {
+    return [
+      // ATPV-e saiu da conta APIFULL (12/11/2026)
+      {
+        source: "/consultar/avulso/veicular-avulso-atpve",
+        destination: "/consultar/veicular",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];
   },

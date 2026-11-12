@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { pedeUfEscolhida, UFS_BRASIL } from "@/lib/apifull/mapping";
 import {
+  findPlano,
+  findProdutoAvulso,
   CATALOGO_COMPLETO,
   GRUPOS_CATALOGO,
   type GrupoCatalogo,
@@ -35,6 +38,7 @@ export function PlaygroundClient() {
   const [externalRef, setExternalRef] = useState("");
   const [costCenter, setCostCenter] = useState("");
   const [finality, setFinality] = useState("due_diligence");
+  const [uf, setUf] = useState("SP");
 
   const [response, setResponse] = useState<{
     status: number;
@@ -49,6 +53,9 @@ export function PlaygroundClient() {
   const planos = PLANOS_POR_CAT[categoria];
   // O que vai no target depende do item escolhido, nao da aba (Certidoes tem PF e PJ).
   const alvo = CATALOGO_COMPLETO.find((i) => i.id === planoId)?.alvo ?? "cpf";
+  const pedeUf = pedeUfEscolhida(
+    findProdutoAvulso(planoId)?.apisIncluidas ?? findPlano(planoId)?.apisIncluidas ?? []
+  );
 
   function buildPayload() {
     const p: Record<string, unknown> = {
@@ -56,6 +63,7 @@ export function PlaygroundClient() {
       target,
       finality,
     };
+    if (pedeUf) p.uf = uf;
     if (externalRef) p.external_reference = externalRef;
     if (costCenter) p.cost_center = costCenter;
     return p;
@@ -196,6 +204,22 @@ export function PlaygroundClient() {
             required
           />
         </div>
+
+        {pedeUf && (
+          <div>
+            <Label htmlFor="uf">uf (obrigatório nesta consulta)</Label>
+            <select
+              id="uf"
+              value={uf}
+              onChange={(e) => setUf(e.target.value)}
+              className="w-full rounded-md border border-line bg-card px-3 py-2 text-sm text-cocoa mt-1 font-mono"
+            >
+              {UFS_BRASIL.map((sigla) => (
+                <option key={sigla} value={sigla}>{sigla}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="grid sm:grid-cols-2 gap-3">
           <div>

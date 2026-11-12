@@ -332,7 +332,10 @@ curl 'https://suacapivara.com.br/api/v1/consultations/a1b2c3d4-...?include=resul
               <P>
                 A API aceita todas as {CATALOGO_COMPLETO.length} consultas do catálogo: planos,
                 combos e avulsas. Cada chamada debita o <Code>precoB2B</Code> do item
-                direto do saldo da empresa em <Code>balance_cents</Code>.
+                direto do saldo da empresa em <Code>balance_cents</Code>.{" "}
+                As certidões de débitos estaduais exigem também o campo{" "}
+                <Code>uf</Code> (sigla, ex.: <Code>"SP"</Code>); sem ele a API
+                responde <Code>422 uf_required</Code>.
                 Para reduzir o custo efetivo, escolha pacotes Manada maiores
                 (mais bônus em saldo).
               </P>

@@ -19,6 +19,7 @@ export function RevisaoConsulta({
   nomeProduto,
   alvoLabel,
   alvoFormatado,
+  uf,
   finalidadeLabel,
   finalidadeDescricao,
   pagamentoLabel,
@@ -31,6 +32,8 @@ export function RevisaoConsulta({
   nomeProduto: string;
   alvoLabel: string;
   alvoFormatado: string;
+  /** Estado escolhido (certidao estadual). */
+  uf?: string;
   finalidadeLabel: string;
   finalidadeDescricao?: string;
   pagamentoLabel: string;
@@ -61,6 +64,7 @@ export function RevisaoConsulta({
       <dl className="rounded-lg border border-line bg-card divide-y divide-line/60">
         <Linha rotulo="Consulta" valor={nomeProduto} />
         <Linha rotulo={alvoLabel} valor={alvoFormatado} destaque />
+        {uf ? <Linha rotulo="Estado" valor={uf} /> : null}
         <Linha
           rotulo="Finalidade declarada"
           valor={

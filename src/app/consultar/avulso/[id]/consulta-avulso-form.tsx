@@ -25,6 +25,7 @@ import {
 } from "@/lib/consultas/actions";
 import { alvoDoProduto, type ProdutoAvulso } from "@/lib/consultas/planos";
 import { track } from "@/lib/analytics";
+import { pedeUfEscolhida, UFS_BRASIL } from "@/lib/apifull/mapping";
 import { RevisaoConsulta } from "@/components/consulta/revisao-consulta";
 
 const LABEL_PAGAMENTO: Record<string, string> = {
@@ -91,6 +92,9 @@ export function ConsultaAvulsoForm({
   const [target, setTarget] = useState("");
   const [finalidade, setFinalidade] = useState("");
   const [finalidadeDescricao, setFinalidadeDescricao] = useState("");
+  const [uf, setUf] = useState("");
+  // Certidao estadual: o cliente escolhe de qual estado quer a certidao.
+  const pedeUf = pedeUfEscolhida(produto.apisIncluidas);
   const [paymentType, setPaymentType] = useState<"pix" | "boleto" | "cartao_avista">("pix");
   const [acceptResponsibility, setAcceptResponsibility] = useState(false);
   // Passo de conferencia antes de gerar a cobranca (LGPD Art. 8 §4 + evita
@@ -155,6 +159,12 @@ export function ConsultaAvulsoForm({
       return;
     }
 
+    if (pedeUf && !uf) {
+      setFieldErrors({ uf: "Obrigatório" });
+      setErro("Escolha o estado da certidão.");
+      return;
+    }
+
     track("consulta_revisao_avulso", {
       categoria: produto.categoria,
       produto_id: produto.id,
@@ -168,6 +178,7 @@ export function ConsultaAvulsoForm({
     const formData = new FormData();
     formData.set("produtoId", produto.id);
     formData.set("target", normalizeTarget(target));
+    if (pedeUf) formData.set("uf", uf);
     formData.set("finalidade", finalidade);
     formData.set("finalidadeDescricao", finalidadeDescricao);
     formData.set("paymentType", paymentType);
@@ -199,6 +210,7 @@ export function ConsultaAvulsoForm({
         nomeProduto={produto.nome}
         alvoLabel={targetLabel}
         alvoFormatado={formatTarget(target)}
+        uf={pedeUf ? uf : undefined}
         finalidadeLabel={
           finalidades.find((f) => f.id === finalidade)?.label ?? finalidade
         }
@@ -235,6 +247,30 @@ export function ConsultaAvulsoForm({
           <p className="text-xs text-err">{fieldErrors.target}</p>
         )}
       </div>
+
+      {pedeUf && (
+        <div className="space-y-2">
+          <Label htmlFor="uf">Estado da certidão</Label>
+          <select
+            id="uf"
+            value={uf}
+            onChange={(e) => setUf(e.target.value)}
+            required
+            className="flex h-11 w-full rounded-md border border-line bg-paper-2 px-3 text-sm text-cocoa focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+          >
+            <option value="">Selecionar estado...</option>
+            {UFS_BRASIL.map((sigla) => (
+              <option key={sigla} value={sigla}>
+                {sigla}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-tabaco">
+            A certidão sai da Fazenda do estado escolhido.
+          </p>
+          {fieldErrors.uf && <p className="text-xs text-err">{fieldErrors.uf}</p>}
+        </div>
+      )}
 
       {/* Finalidade LGPD */}
       <div className="space-y-2">
