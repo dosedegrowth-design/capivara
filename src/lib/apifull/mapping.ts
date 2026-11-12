@@ -23,7 +23,20 @@
 export const APIFULL_BASE = "https://api.apifull.com.br/api";
 
 /** Tipo do parametro principal de cada API. */
-export type ApiParamType = "placa" | "cpf" | "cnpj" | "cep" | "nome" | "documentos";
+/**
+ * Parametro principal enviado a APIFULL.
+ * - `parametro`: endpoints V2 que aceitam placa OU chassi no campo `parametro`.
+ */
+export type ApiParamType = "placa" | "parametro" | "cpf" | "cnpj" | "cep" | "nome" | "documentos";
+
+/**
+ * Endpoints que exigem estado (UF):
+ * - `escolhida`: o cliente escolhe no formulario (certidao estadual).
+ * - `do-veiculo`: a Edge descobre a UF de registro pela consulta basica da
+ *   placa (fase 2) e manda o codigo numerico que o endpoint `crlv` espera.
+ *   Exige `placa-basica` no mesmo produto (o validador confere).
+ */
+export type ApiUf = "escolhida" | "do-veiculo";
 
 export interface ApiFullEndpoint {
   /** Nome interno usado em apisIncluidas[]. */
@@ -36,7 +49,9 @@ export interface ApiFullEndpoint {
   categoria: "veicular" | "pessoa" | "empresa" | "leilao" | "credito" | "juridico" | "local";
   /** Parametro principal que precisa ser enviado. */
   paramType: ApiParamType;
-  /** Custo em centavos (tabela Nivel 1 APIFULL, 22/09/2026). */
+  /** Se o endpoint exige UF e de onde ela vem. */
+  uf?: ApiUf;
+  /** Custo em centavos (Nivel 1 — conta APIFULL, conferido em 12/11/2026). */
   custoCentavos: number;
   /**
    * TTL do cache (horas). Define quanto tempo o resultado vive em
@@ -64,7 +79,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Placa Super Basica",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 168, // 7d — dados de identificacao estaveis
   },
   {
@@ -73,7 +88,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Placa Basica (propria)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 11,
+    custoCentavos: 10,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -82,7 +97,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Tabela FIPE",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 12,
+    custoCentavos: 11,
     cacheTTLHours: 720, // 30d — tabela FIPE atualiza mensalmente
   },
   {
@@ -91,7 +106,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "BIN Nacional",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 330,
+    custoCentavos: 300,
     cacheTTLHours: 168, // 7d — dados estaveis
   },
   {
@@ -100,7 +115,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "BIN Estadual",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 304,
+    custoCentavos: 276,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -109,16 +124,18 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Recall pendente",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 396,
+    custoCentavos: 360,
     cacheTTLHours: 24, // 1d — pode aparecer recall novo
   },
   {
+    // `gravame` (v1) exige CHASSI e falhava com placa em todo produto.
+    // V2 aceita placa ou chassi no campo `parametro` e custa menos.
     internal: "gravame",
-    path: "gravame",
+    path: "gravame-v2",
     nome: "Gravame / Alienacao",
     categoria: "veicular",
-    paramType: "placa",
-    custoCentavos: 242,
+    paramType: "parametro",
+    custoCentavos: 153,
     cacheTTLHours: 6, // 6h — pode mudar rapido (quitacao, novo financiamento)
   },
   {
@@ -127,7 +144,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Proprietario atual",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 376,
+    custoCentavos: 228,
     cacheTTLHours: 6, // 6h — pode mudar via transferencia
   },
   {
@@ -136,7 +153,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Historico Roubo/Furto",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 396,
+    custoCentavos: 360,
     cacheTTLHours: 24, // 1d
   },
   {
@@ -145,7 +162,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Historico de Leilao",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 964,
+    custoCentavos: 876,
     cacheTTLHours: 24, // 1d
   },
   {
@@ -154,7 +171,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Foto do Leilao",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 1320,
+    custoCentavos: 1200,
     cacheTTLHours: 720, // 30d — imagens nao mudam
   },
   {
@@ -163,16 +180,19 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CSV Completo (CSV+RENAJUD+RENAINF+Recall+BIN+Proprietario)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 495,
+    custoCentavos: 450,
     cacheTTLHours: 12, // 12h — combina multas que mudam rapido
   },
   {
+    // Exige `state` (codigo da UF). Sem ele falhava sempre. A Edge tira a
+    // UF de registro da consulta basica da placa. Estados aceitos: CRLV_UF_CODIGO.
     internal: "crlv",
     path: "crlv",
     nome: "CRLV digital",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 2231,
+    uf: "do-veiculo",
+    custoCentavos: 2028,
     cacheTTLHours: 168, // 7d — CRLV digital anual
   },
   {
@@ -181,7 +201,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Vip Car (analise tecnica)",
     categoria: "leilao",
     paramType: "placa",
-    custoCentavos: 3432,
+    custoCentavos: 3120,
     cacheTTLHours: 24, // 1d
   },
 
@@ -191,7 +211,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Rastreamento de Veiculo (passagens e patios)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 8712,
+    custoCentavos: 7920,
     cacheTTLHours: 12,
   },
   {
@@ -200,7 +220,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Multas e Debitos do Veiculo",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 297,
+    custoCentavos: 389,
     cacheTTLHours: 12, // 12h — debito muda rapido (pagamento, autuacao nova)
   },
   {
@@ -209,7 +229,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "RENAINF (infracoes nacionais)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 396,
+    custoCentavos: 360,
     cacheTTLHours: 12, // 12h
   },
   {
@@ -218,17 +238,8 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "RENAJUD (restricoes judiciais)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 396,
+    custoCentavos: 360,
     cacheTTLHours: 24, // 1d — restricao judicial muda devagar
-  },
-  {
-    internal: "atpv-e",
-    path: "atpv-e",
-    nome: "ATPV-e (2a via)",
-    categoria: "veicular",
-    paramType: "placa",
-    custoCentavos: 240,
-    cacheTTLHours: 168, // 7d — documento emitido
   },
   {
     internal: "placa-radar",
@@ -236,7 +247,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Placa Radar (passagens)",
     categoria: "veicular",
     paramType: "placa",
-    custoCentavos: 83,
+    custoCentavos: 75,
     cacheTTLHours: 24, // 1d
   },
 
@@ -247,7 +258,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Simples",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 11,
+    custoCentavos: 10,
     cacheTTLHours: 168, // 7d — dados cadastrais
   },
   {
@@ -256,7 +267,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Completo",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 66,
+    custoCentavos: 60,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -265,7 +276,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Ultra Completo",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 292,
+    custoCentavos: 265,
     cacheTTLHours: 168, // 7d
   },
   {
@@ -274,16 +285,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CPF Ultra dos socios",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 292,
-    cacheTTLHours: 168, // 7d
-  },
-  {
-    internal: "busca-por-documentos",
-    path: "busca-documentos",
-    nome: "Busca reversa por documentos",
-    categoria: "pessoa",
-    paramType: "documentos",
-    custoCentavos: 90,
+    custoCentavos: 265,
     cacheTTLHours: 168, // 7d
   },
 
@@ -293,7 +295,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Processos Judiciais (PF)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 31,
+    custoCentavos: 28,
     cacheTTLHours: 24,
   },
   {
@@ -302,7 +304,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao de Antecedentes Criminais",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta
   },
   {
@@ -311,7 +313,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Exposicao na Dark Web",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 168,
   },
   {
@@ -320,7 +322,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Renda e Patrimonio estimados",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 141,
+    custoCentavos: 128,
     cacheTTLHours: 168,
   },
   {
@@ -329,7 +331,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Vinculos e Parentes",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 22,
+    custoCentavos: 20,
     cacheTTLHours: 168,
   },
   {
@@ -338,7 +340,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Vida Profissional",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 44,
+    custoCentavos: 40,
     cacheTTLHours: 168,
   },
   {
@@ -347,7 +349,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Carteira Nacional de Habilitacao",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 267,
+    custoCentavos: 243,
     cacheTTLHours: 168,
   },
   {
@@ -356,7 +358,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Veiculos no CPF",
     categoria: "veicular",
     paramType: "cpf",
-    custoCentavos: 528,
+    custoCentavos: 480,
     cacheTTLHours: 168,
   },
   {
@@ -365,7 +367,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Imoveis (capitais)",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 770,
+    custoCentavos: 700,
     cacheTTLHours: 720, // 30d — registro de imovel muda devagar
   },
 
@@ -376,7 +378,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CNPJ Completo",
     categoria: "empresa",
     paramType: "cnpj",
-    custoCentavos: 7,
+    custoCentavos: 6,
     cacheTTLHours: 168, // 7d — dados cadastrais
   },
 
@@ -386,7 +388,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Processos Judiciais (PJ)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 31,
+    custoCentavos: 28,
     cacheTTLHours: 24,
   },
   {
@@ -395,7 +397,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Quadro Societario",
     categoria: "empresa",
     paramType: "cnpj",
-    custoCentavos: 31,
+    custoCentavos: 28,
     cacheTTLHours: 168,
   },
   {
@@ -404,7 +406,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Frota da Empresa",
     categoria: "veicular",
     paramType: "cnpj",
-    custoCentavos: 528,
+    custoCentavos: 480,
     cacheTTLHours: 168,
   },
   {
@@ -413,7 +415,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Sintegra",
     categoria: "empresa",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 168,
   },
 
@@ -424,7 +426,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Boa Vista Essencial",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 303,
+    custoCentavos: 275,
     cacheTTLHours: 4, // 4h — score/dividas mudam
   },
   {
@@ -433,7 +435,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Serasa Basico",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 304,
+    custoCentavos: 276,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -442,7 +444,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Serasa Premium",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 739,
+    custoCentavos: 672,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -451,7 +453,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "SPC Brasil",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 840,
+    custoCentavos: 764,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -460,7 +462,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "SCR BACEN",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 628,
+    custoCentavos: 571,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -469,7 +471,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "SCR BACEN dos socios",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 628,
+    custoCentavos: 571,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -478,7 +480,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "QUOD",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 526,
+    custoCentavos: 478,
     cacheTTLHours: 4, // 4h
   },
   {
@@ -487,7 +489,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Cred Completa Plus",
     categoria: "credito",
     paramType: "cpf",
-    custoCentavos: 274,
+    custoCentavos: 249,
     cacheTTLHours: 4, // 4h
   },
 
@@ -498,7 +500,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CNDT (Certidao Nacional de Debitos Trabalhistas)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // 1d
   },
 
@@ -509,7 +511,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao PGFN (Receita/PGFN)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -518,7 +520,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao de Acoes Trabalhistas",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -527,7 +529,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa CNJ",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -536,7 +538,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa CGU",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -545,7 +547,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Judicial Nada Consta",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -554,7 +556,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Divida Ativa PGFN",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -563,7 +565,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa IBAMA",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -572,7 +574,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao FGTS (CRF)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -581,7 +583,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao PGFN (Receita/PGFN)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -590,7 +592,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao de Situacao Cadastral",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -599,7 +601,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CNDT (Debitos Trabalhistas)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -608,7 +610,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao de Acoes Trabalhistas",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -617,7 +619,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa CNJ",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -626,7 +628,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa CGU",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -635,7 +637,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao de Contratacao de PCD",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
   {
@@ -644,7 +646,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Certidao Negativa IBAMA",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 116,
+    custoCentavos: 105,
     cacheTTLHours: 24, // certidao tem validade curta — nao cachear muito
   },
 
@@ -655,7 +657,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Compliance PLD (PEP, sancoes, risco)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 225,
+    custoCentavos: 205,
     cacheTTLHours: 24,
   },
   {
@@ -664,7 +666,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Compliance PLD da Empresa",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 675,
+    custoCentavos: 614,
     cacheTTLHours: 24,
   },
   {
@@ -673,7 +675,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Compliance PLD dos Socios (QSA)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 675,
+    custoCentavos: 614,
     cacheTTLHours: 24,
   },
   {
@@ -682,7 +684,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Dados de Obito",
     categoria: "pessoa",
     paramType: "cpf",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 168,
   },
   {
@@ -691,7 +693,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Mandados de Prisao (BNMP)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 22,
+    custoCentavos: 20,
     cacheTTLHours: 24,
   },
   {
@@ -700,7 +702,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Protesto Nacional",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 376,
+    custoCentavos: 342,
     cacheTTLHours: 24,
   },
   {
@@ -709,7 +711,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Protesto Nacional (empresa)",
     categoria: "juridico",
     paramType: "cnpj",
-    custoCentavos: 376,
+    custoCentavos: 342,
     cacheTTLHours: 24,
   },
   {
@@ -718,16 +720,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "CADIN (dividas federais)",
     categoria: "juridico",
     paramType: "cpf",
-    custoCentavos: 88,
-    cacheTTLHours: 24,
-  },
-  {
-    internal: "acoes-processos",
-    path: "r-acoes-e-processos-judiciais",
-    nome: "Acoes e Processos Judiciais",
-    categoria: "juridico",
-    paramType: "cpf",
-    custoCentavos: 198,
+    custoCentavos: 80,
     cacheTTLHours: 24,
   },
 
@@ -738,7 +731,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Perfil sociodemografico do CEP",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 33,
+    custoCentavos: 30,
     cacheTTLHours: 720,
   },
   {
@@ -747,7 +740,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Indice de infraestrutura urbana",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 18,
+    custoCentavos: 17,
     cacheTTLHours: 720,
   },
   {
@@ -756,7 +749,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Indicadores macroeconomicos",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 33,
+    custoCentavos: 30,
     cacheTTLHours: 720,
   },
   {
@@ -765,7 +758,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Score de concorrencia",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 33,
+    custoCentavos: 30,
     cacheTTLHours: 720,
   },
   {
@@ -774,7 +767,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Risco geografico",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 33,
+    custoCentavos: 30,
     cacheTTLHours: 720,
   },
   {
@@ -783,7 +776,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Propensao a seguro",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 18,
+    custoCentavos: 17,
     cacheTTLHours: 720,
   },
   {
@@ -792,7 +785,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com alimentacao",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -801,7 +794,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com consumo",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -810,7 +803,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com diversos",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -819,7 +812,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com educacao",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -828,16 +821,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com habitacao",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
-    cacheTTLHours: 720,
-  },
-  {
-    internal: "mercado-gastos-higiene",
-    path: "mercado-gastos-higiene",
-    nome: "Gastos com higiene",
-    categoria: "local",
-    paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -846,7 +830,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com recreacao",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -855,7 +839,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com saude",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -864,7 +848,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com servicos",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -873,7 +857,7 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com transporte",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
   {
@@ -882,7 +866,163 @@ export const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
     nome: "Gastos com vestuario",
     categoria: "local",
     paramType: "cep",
-    custoCentavos: 9,
+    custoCentavos: 8,
+    cacheTTLHours: 720,
+  },
+  // ============= NOVOS (lista da conta, 12/11/2026) =============
+  {
+    internal: "pf-credito-essencial",
+    path: "pf-credito-essencial",
+    nome: "Analise de Credito Boa Vista - Essencial",
+    categoria: "credito",
+    paramType: "cpf",
+    custoCentavos: 1627,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "pf-credito-mais",
+    path: "pf-credito-mais",
+    nome: "Analise de Credito Boa Vista - Mais",
+    categoria: "credito",
+    paramType: "cpf",
+    custoCentavos: 1808,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "pf-credito-completo",
+    path: "pf-credito-completo",
+    nome: "Analise de Credito Boa Vista - Completa",
+    categoria: "credito",
+    paramType: "cpf",
+    custoCentavos: 2134,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "beneficio-inss",
+    path: "beneficio-inss",
+    nome: "Beneficios do INSS e Consignados",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 216,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "servidor-publico",
+    path: "pf-servidor-publico",
+    nome: "Vinculo com o Servico Publico",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 20,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "conselhos-classe",
+    path: "pf-conselhos-classe",
+    nome: "Registro em Conselho de Classe",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 20,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "corretor-seguros-pf",
+    path: "pf-corretor-seguros",
+    nome: "Registro de Corretor de Seguros (SUSEP)",
+    categoria: "pessoa",
+    paramType: "cpf",
+    custoCentavos: 105,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "define-risco-pj",
+    path: "pj-define-risco",
+    nome: "Define Risco Positivo (Boa Vista)",
+    categoria: "credito",
+    paramType: "cnpj",
+    custoCentavos: 1509,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "define-negocio-pj",
+    path: "pj-define-negocio",
+    nome: "Define Negocio Positivo (Boa Vista)",
+    categoria: "credito",
+    paramType: "cnpj",
+    custoCentavos: 2464,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "define-limite-pj",
+    path: "pj-define-limite",
+    nome: "Define Limite Positivo (Boa Vista)",
+    categoria: "credito",
+    paramType: "cnpj",
+    custoCentavos: 2907,
+    cacheTTLHours: 4,
+  },
+  {
+    internal: "participacao-societaria",
+    path: "pj-participacao-societaria",
+    nome: "Percentual de Participacao Societaria",
+    categoria: "empresa",
+    paramType: "cnpj",
+    custoCentavos: 513,
+    cacheTTLHours: 168,
+  },
+  {
+    internal: "cert-debitos-estaduais-pf",
+    path: "cert-pf-debitos-estaduais",
+    nome: "Certidao de Debitos Estaduais (PF)",
+    categoria: "juridico",
+    paramType: "cpf",
+    uf: "escolhida",
+    custoCentavos: 105,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "cert-debitos-estaduais-pj",
+    path: "cert-pj-debitos-estaduais",
+    nome: "Certidao de Debitos Estaduais (PJ)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    uf: "escolhida",
+    custoCentavos: 105,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "cert-embargos-ibama-pj",
+    path: "cert-pj-embargos-ibama",
+    nome: "Certidao de Embargos IBAMA (PJ)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 105,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "cert-regularidade-ibama-pj",
+    path: "cert-pj-regularidade-ibama",
+    nome: "Certidao de Regularidade IBAMA (PJ)",
+    categoria: "juridico",
+    paramType: "cnpj",
+    custoCentavos: 105,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "veiculo-rntrc",
+    path: "veiculo-combo-rntrc",
+    nome: "Dados, Debitos e ANTT/RNTRC do Veiculo",
+    categoria: "veicular",
+    paramType: "placa",
+    custoCentavos: 463,
+    cacheTTLHours: 24,
+  },
+  {
+    internal: "mercado-outras-despesas",
+    path: "mercado-outras-despesas",
+    nome: "Gastos com outras despesas",
+    categoria: "local",
+    paramType: "cep",
+    custoCentavos: 8,
     cacheTTLHours: 720,
   },
 ];
@@ -910,6 +1050,26 @@ export function resolveEndpoints(internals: string[]): ApiFullEndpoint[] {
     console.warn("[apifull/mapping] APIs sem mapping APIFULL:", notFound);
   }
   return resolved;
+}
+
+/**
+ * Codigo numerico que o endpoint `crlv` espera em `state`. So esses estados
+ * tem CRLV pela APIFULL; fora deles a consulta e pulada sem cobranca.
+ */
+export const CRLV_UF_CODIGO: Record<string, string> = {
+  AL: "1345", AP: "1696", BA: "1747", GO: "1697", MA: "1698", MG: "1680",
+  MT: "1700", PA: "1701", PR: "1703", PI: "1702", RO: "1769", RR: "1750",
+  SP: "1704", SE: "1348", TO: "1705",
+};
+
+export const UFS_BRASIL = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
+  "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+] as const;
+
+/** O cliente precisa escolher o estado pra esse conjunto de APIs? */
+export function pedeUfEscolhida(internals: string[]): boolean {
+  return internals.some((i) => findEndpoint(i)?.uf === "escolhida");
 }
 
 /** Soma do custo APIFULL (em centavos) pra um plano. */

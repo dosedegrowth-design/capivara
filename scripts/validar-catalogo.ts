@@ -39,13 +39,16 @@ function aviso(regra: string, detalhe: string) {
 // ---------------------------------------------------------------------------
 // 1. Todo SKU vendido tem receita na Edge (senao a consulta paga nao processa)
 // ---------------------------------------------------------------------------
+// A Edge importa catalogo.ts, GERADO do site (npm run gerar:edge). Aqui
+// conferimos o arquivo gerado — o --check do `npm run check` garante que ele
+// esta em dia com planos.ts/mapping.ts.
 const edgeSrc = readFileSync(
-  resolve(__dirname, "../supabase/functions/process-consultation/index.ts"),
+  resolve(__dirname, "../supabase/functions/process-consultation/catalogo.ts"),
   "utf-8"
 );
 const blocoMap = edgeSrc.slice(
-  edgeSrc.indexOf("const PLAN_API_MAP"),
-  edgeSrc.indexOf("\n};", edgeSrc.indexOf("const PLAN_API_MAP"))
+  edgeSrc.indexOf("export const PLAN_API_MAP"),
+  edgeSrc.indexOf("};", edgeSrc.indexOf("export const PLAN_API_MAP"))
 );
 const idsNaEdge = new Set(
   [...blocoMap.matchAll(/^\s*"([^"]+)":\s*\[/gm)].map((m) => m[1])
@@ -125,6 +128,8 @@ for (const item of CATALOGO_COMPLETO) {
     if (!ep) continue;
     // documentos/nome aceitam CPF ou CNPJ — nao trava
     if (ep.paramType === "documentos" || ep.paramType === "nome") continue;
+    // V2 aceita placa ou chassi no campo `parametro`
+    if (ep.paramType === "parametro" && item.alvo === "placa") continue;
     if (ep.paramType !== item.alvo) {
       const ehSocio = item.alvo === "cnpj" && ep.paramType === "cpf" && APIS_SOBRE_SOCIO.has(api);
       if (ehSocio) {
@@ -243,6 +248,24 @@ for (const nome of semanticas) {
       "tokens",
       `--${nome} existe em :root mas nao vira utilitario (falta --color-${nome} no @theme inline)`
     );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 10. UF: CRLV tira a UF de registro da consulta basica da placa. Produto
+//     com endpoint `uf: do-veiculo` sem `placa-basica` nunca consegue a UF.
+// ---------------------------------------------------------------------------
+for (const item of CATALOGO_COMPLETO) {
+  const fonte = item.tipo === "avulso" ? findProdutoAvulso(item.id) : findPlano(item.id);
+  const apis = fonte?.apisIncluidas ?? [];
+  const precisaUfVeiculo = apis.some((a) => findEndpoint(a)?.uf === "do-veiculo");
+  if (precisaUfVeiculo && !apis.includes("placa-basica")) {
+    erro("uf", `"${item.id}" usa CRLV mas nao inclui placa-basica (de onde sai a UF)`);
+  }
+  // UF escolhida so existe no fluxo avulso/API (planos e combos nao tem o campo)
+  const precisaUfEscolhida = apis.some((a) => findEndpoint(a)?.uf === "escolhida");
+  if (precisaUfEscolhida && item.tipo !== "avulso") {
+    erro("uf", `"${item.id}" pede UF escolhida mas so avulsos tem o campo de estado`);
   }
 }
 

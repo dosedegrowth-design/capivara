@@ -1,0 +1,2436 @@
+{
+ "acerta-essencial-positivo": {
+  "id": "297",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Acerta Essencial e Define Risco",
+  "n1": 224,
+  "n2": 187,
+  "add": "05/10/2026"
+ },
+ "processos-judiciais": {
+  "id": "167",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Ações e processos judiciais",
+  "n1": 180,
+  "n2": 150,
+  "add": "19/08/2026"
+ },
+ "pf-credito-completo": {
+  "id": "174",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Análise de Crédito Completa",
+  "n1": 2134,
+  "n2": 1779,
+  "add": "27/08/2026"
+ },
+ "pf-credito-essencial": {
+  "id": "175",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Análise de Crédito Essencial",
+  "n1": 1627,
+  "n2": 1356,
+  "add": "27/08/2026"
+ },
+ "pf-credito-mais": {
+  "id": "176",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Análise de Crédito Mais",
+  "n1": 1808,
+  "n2": 1507,
+  "add": "27/08/2026"
+ },
+ "captcha-funcaptcha": {
+  "id": "303",
+  "campos": [
+   "body",
+   "textinstructions",
+   "formato"
+  ],
+  "nome": "Arkose FunCAPTCHA por imagem",
+  "n1": 108,
+  "n2": 81,
+  "add": "14/10/2026"
+ },
+ "pf-assistencia-social": {
+  "id": "173",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Assistência Social",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "captcha-aws": {
+  "id": "308",
+  "campos": [
+   "body",
+   "textinstructions"
+  ],
+  "nome": "AWS WAF por imagem",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "beneficio-inss": {
+  "id": "296",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Benefício do INSS e Consignados",
+  "n1": 216,
+  "n2": 180,
+  "add": "29/09/2026"
+ },
+ "ic-bin-estadual": {
+  "id": "83",
+  "campos": [
+   "placa"
+  ],
+  "nome": "BIN Estadual",
+  "n1": 276,
+  "n2": 230,
+  "add": "26/04/2025"
+ },
+ "bin-estadual": {
+  "id": "320",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "BIN Estadual V2",
+  "n1": 144,
+  "n2": 120,
+  "add": "27/10/2026"
+ },
+ "ic-bin-nacional": {
+  "id": "82",
+  "campos": [
+   "placa"
+  ],
+  "nome": "BIN Nacional",
+  "n1": 300,
+  "n2": 180,
+  "add": "26/04/2025"
+ },
+ "bin-nacional-motor": {
+  "id": "319",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "BIN Nacional com Motor",
+  "n1": 108,
+  "n2": 90,
+  "add": "27/10/2026"
+ },
+ "bin-nacional": {
+  "id": "317",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "BIN Nacional V2",
+  "n1": 99,
+  "n2": 83,
+  "add": "27/10/2026"
+ },
+ "bin-nacional-v3": {
+  "id": "318",
+  "campos": [
+   "pdf",
+   "parametro",
+   "tipo"
+  ],
+  "nome": "BIN Nacional V3",
+  "n1": 99,
+  "n2": 83,
+  "add": "27/10/2026"
+ },
+ "captcha-binance": {
+  "id": "306",
+  "campos": [
+   "body",
+   "textinstructions",
+   "formato"
+  ],
+  "nome": "Binance por imagem",
+  "n1": 80,
+  "n2": 60,
+  "add": "14/10/2026"
+ },
+ "captcha-bitget": {
+  "id": "309",
+  "campos": [
+   "body"
+  ],
+  "nome": "Bitget por imagem",
+  "n1": 80,
+  "n2": 60,
+  "add": "14/10/2026"
+ },
+ "scpc-boavista": {
+  "id": "143",
+  "campos": [
+   "pdf",
+   "document",
+   "model_pdf"
+  ],
+  "nome": "Boa vista Essencial Positivo",
+  "n1": 275,
+  "n2": 229,
+  "add": "26/02/2026"
+ },
+ "nfe-resumo": {
+  "id": "298",
+  "campos": [
+   "pdf",
+   "chave"
+  ],
+  "nome": "Busca de NF-e por chave",
+  "n1": 100,
+  "n2": 50,
+  "add": "06/10/2026"
+ },
+ "ic-nome": {
+  "id": "107",
+  "campos": [
+   "name",
+   "state"
+  ],
+  "nome": "Busca pelo nome",
+  "n1": 150,
+  "n2": 100,
+  "add": "25/07/2024"
+ },
+ "pessoa-telefone": {
+  "id": "170",
+  "campos": [
+   "pdf",
+   "telefone"
+  ],
+  "nome": "Busca por telefone",
+  "n1": 45,
+  "n2": 30,
+  "add": "25/08/2026"
+ },
+ "busca-reputacao": {
+  "id": "125",
+  "campos": [
+   "name",
+   "variations",
+   "contacts",
+   "document",
+   "brands",
+   "keys",
+   "time"
+  ],
+  "nome": "Buscar reputação",
+  "n1": 70,
+  "n2": 50,
+  "add": "19/09/2025"
+ },
+ "captcha-buxmoney": {
+  "id": "310",
+  "campos": [
+   "body"
+  ],
+  "nome": "Bux.money / Payup.video por imagem",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "cadin": {
+  "id": "155",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "CADIN",
+  "n1": 80,
+  "n2": 50,
+  "add": "16/06/2026"
+ },
+ "captcha-texto": {
+  "id": "300",
+  "campos": [
+   "body",
+   "vernet"
+  ],
+  "nome": "CAPTCHA de texto",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "pf-carteira-idoso": {
+  "id": "179",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Carteira da Pessoa Idosa",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "pf-cnh": {
+  "id": "177",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Carteira Nacional de Habilitação",
+  "n1": 285,
+  "n2": 190,
+  "add": "27/08/2026"
+ },
+ "pf-cnh-v2": {
+  "id": "178",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Carteira Nacional de Habilitação V2",
+  "n1": 243,
+  "n2": 202,
+  "add": "27/08/2026"
+ },
+ "pf-celulares-hot": {
+  "id": "180",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Celulares Hot",
+  "n1": 26,
+  "n2": 17,
+  "add": "27/08/2026"
+ },
+ "cert-pf-acoes-trabalhistas": {
+  "id": "219",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão de Ações Trabalhistas - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-acoes-trabalhistas": {
+  "id": "257",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Ações Trabalhistas - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-antecedentes-criminais": {
+  "id": "218",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão de Antecedentes Criminais",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-contratacao-pcd": {
+  "id": "258",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Contratação de PCD",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-debitos-estaduais": {
+  "id": "220",
+  "campos": [
+   "pdf",
+   "cpf",
+   "uf"
+  ],
+  "nome": "Certidão de Débitos Estaduais - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-debitos-estaduais": {
+  "id": "259",
+  "campos": [
+   "pdf",
+   "cnpj",
+   "uf"
+  ],
+  "nome": "Certidão de Débitos Estaduais - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-debitos-trabalhistas": {
+  "id": "226",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão de Débitos Trabalhistas - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-debitos-trabalhistas": {
+  "id": "265",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Débitos Trabalhistas - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-embargos-ibama": {
+  "id": "221",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão de Embargos IBAMA - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-embargos-ibama": {
+  "id": "260",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Embargos IBAMA - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-regularidade-ibama": {
+  "id": "222",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão de Regularidade IBAMA - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-regularidade-ibama": {
+  "id": "261",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Regularidade IBAMA - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-situacao-cadastral": {
+  "id": "268",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão de Situação Cadastral",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-fgts": {
+  "id": "262",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão FGTS",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-judicial-nada-consta": {
+  "id": "223",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão Judicial Nada Consta - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "ic-cndt": {
+  "id": "73",
+  "campos": [
+   "document"
+  ],
+  "nome": "Certidão Nacional de Débitos Trabalhistas",
+  "n1": 720,
+  "n2": 600,
+  "add": "26/04/2025"
+ },
+ "cert-pf-negativa-cgu": {
+  "id": "224",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão Negativa CGU - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-negativa-cgu": {
+  "id": "263",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão Negativa CGU - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-negativa-cnj": {
+  "id": "225",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão Negativa CNJ - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-negativa-cnj": {
+  "id": "264",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão Negativa CNJ - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-negativa-ibama": {
+  "id": "227",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão Negativa IBAMA - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-negativa-ibama": {
+  "id": "266",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão Negativa IBAMA - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pj-pgfn": {
+  "id": "267",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Certidão PGFN - Empresa",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "cert-pf-pgfn": {
+  "id": "228",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Certidão PGFN - Pessoa Física",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "csv-renainf-renajud-recall-bin-proprietario": {
+  "id": "137",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Certificado de Segurança Veicular",
+  "n1": 450,
+  "n2": 375,
+  "add": "13/01/2026"
+ },
+ "csv-v2": {
+  "id": "171",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Certificado de Segurança Veicular V2",
+  "n1": 456,
+  "n2": 380,
+  "add": "26/08/2026"
+ },
+ "captcha-turnstile": {
+  "id": "316",
+  "campos": [
+   "sitekey",
+   "pageurl",
+   "action",
+   "cdata"
+  ],
+  "nome": "Cloudflare Turnstile",
+  "n1": 368,
+  "n2": 276,
+  "add": "14/10/2026"
+ },
+ "cnh-completa": {
+  "id": "328",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "CNH Completa por CPF ou Registro",
+  "n1": 207,
+  "n2": 173,
+  "add": "27/10/2026"
+ },
+ "cnh": {
+  "id": "327",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "CNH por CPF ou Registro",
+  "n1": 144,
+  "n2": 120,
+  "add": "27/10/2026"
+ },
+ "cnpj": {
+  "id": "5",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "CNPJ Completo",
+  "n1": 6,
+  "n2": 4,
+  "add": "25/07/2024"
+ },
+ "veiculo-combo-rntrc": {
+  "id": "269",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Combo de Veículos RNTRC",
+  "n1": 463,
+  "n2": 386,
+  "add": "27/08/2026"
+ },
+ "pj-compliance-pld-qsa-v3": {
+  "id": "233",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Compliance PLD QSA V3",
+  "n1": 614,
+  "n2": 512,
+  "add": "27/08/2026"
+ },
+ "pj-compliance-pld-v3": {
+  "id": "232",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Compliance PLD V3 - Empresa",
+  "n1": 614,
+  "n2": 512,
+  "add": "27/08/2026"
+ },
+ "pf-compliance-pld-v3": {
+  "id": "183",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Compliance PLD V3 - Pessoa Física",
+  "n1": 205,
+  "n2": 171,
+  "add": "27/08/2026"
+ },
+ "pf-conselhos-classe": {
+  "id": "186",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Conselhos de Classe",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "veiculo-antt": {
+  "id": "270",
+  "campos": [
+   "pdf",
+   "placa",
+   "documento"
+  ],
+  "nome": "Consulta ANTT por Veículo",
+  "n1": 109,
+  "n2": 73,
+  "add": "27/08/2026"
+ },
+ "cert-pf-divida-ativa-pgfn": {
+  "id": "229",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Consulta de Dívida Ativa PGFN - PF",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "consulta-imoveis": {
+  "id": "161",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Consulta de imóveis",
+  "n1": 700,
+  "n2": 500,
+  "add": "21/07/2026"
+ },
+ "pf-corretor-seguros": {
+  "id": "184",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Corretor de Seguros de Danos",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "pj-corretor-seguros": {
+  "id": "231",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Corretor de Seguros de Danos - PJ",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "ic-cpf-completo": {
+  "id": "100",
+  "campos": [
+   "cpf"
+  ],
+  "nome": "CPF Completo",
+  "n1": 60,
+  "n2": 40,
+  "add": "25/07/2024"
+ },
+ "pf-dadosbasicos": {
+  "id": "9",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "CPF Simples",
+  "n1": 10,
+  "n2": 5,
+  "add": "25/07/2024"
+ },
+ "cpf-ultra": {
+  "id": "166",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "CPF Ultra Premium",
+  "n1": 265,
+  "n2": 225,
+  "add": "19/08/2026"
+ },
+ "e-boavista": {
+  "id": "132",
+  "campos": [
+   "pdf",
+   "document",
+   "cenprot"
+  ],
+  "nome": "Cred Completa Plus",
+  "n1": 249,
+  "n2": 229,
+  "add": "18/12/2025"
+ },
+ "credito-positivo": {
+  "id": "168",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Crédito Positivo Real Time",
+  "n1": 1620,
+  "n2": 1350,
+  "add": "20/08/2026"
+ },
+ "crlv": {
+  "id": "134",
+  "campos": [
+   "placa",
+   "state"
+  ],
+  "nome": "CRLV",
+  "n1": 2028,
+  "n2": 1690,
+  "add": "26/04/2025"
+ },
+ "crlv-ap": {
+  "id": "335",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e AP",
+  "n1": 882,
+  "n2": 735,
+  "add": "27/10/2026"
+ },
+ "crlv-go": {
+  "id": "336",
+  "campos": [
+   "pdf",
+   "placa",
+   "renavam",
+   "documento"
+  ],
+  "nome": "CRLV-e GO",
+  "n1": 731,
+  "n2": 609,
+  "add": "27/10/2026"
+ },
+ "crlv-ma": {
+  "id": "337",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e MA",
+  "n1": 882,
+  "n2": 735,
+  "add": "27/10/2026"
+ },
+ "crlv-mg": {
+  "id": "338",
+  "campos": [
+   "pdf",
+   "placa",
+   "renavam",
+   "documento"
+  ],
+  "nome": "CRLV-e MG",
+  "n1": 1242,
+  "n2": 1035,
+  "add": "27/10/2026"
+ },
+ "crlv-mt": {
+  "id": "339",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e MT",
+  "n1": 882,
+  "n2": 735,
+  "add": "27/10/2026"
+ },
+ "crlv-pa": {
+  "id": "340",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e PA",
+  "n1": 882,
+  "n2": 735,
+  "add": "27/10/2026"
+ },
+ "crlv-pi": {
+  "id": "341",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e PI",
+  "n1": 731,
+  "n2": 609,
+  "add": "27/10/2026"
+ },
+ "crlv-pr": {
+  "id": "342",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e PR",
+  "n1": 1125,
+  "n2": 938,
+  "add": "27/10/2026"
+ },
+ "crlv-ro": {
+  "id": "343",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e RO",
+  "n1": 1602,
+  "n2": 1335,
+  "add": "27/10/2026"
+ },
+ "crlv-rr": {
+  "id": "344",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e RR",
+  "n1": 731,
+  "n2": 609,
+  "add": "27/10/2026"
+ },
+ "crlv-sp": {
+  "id": "333",
+  "campos": [
+   "pdf",
+   "placa",
+   "renavam",
+   "documento"
+  ],
+  "nome": "CRLV-e SP",
+  "n1": 1080,
+  "n2": 900,
+  "add": "27/10/2026"
+ },
+ "crlv-sp-v2": {
+  "id": "334",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e SP V2",
+  "n1": 1008,
+  "n2": 840,
+  "add": "27/10/2026"
+ },
+ "crlv-to": {
+  "id": "345",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "CRLV-e TO",
+  "n1": 731,
+  "n2": 609,
+  "add": "27/10/2026"
+ },
+ "veiculo-dados-basicos": {
+  "id": "271",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Dados Básicos do Veículo",
+  "n1": 266,
+  "n2": 222,
+  "add": "27/08/2026"
+ },
+ "veiculo-dados-debitos": {
+  "id": "272",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Dados Básicos e Débitos do Veículo",
+  "n1": 389,
+  "n2": 324,
+  "add": "27/08/2026"
+ },
+ "pf-dados-cadastrais": {
+  "id": "187",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Dados Cadastrais Básicos",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "pj-dados-cadastrais": {
+  "id": "234",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Dados Cadastrais da Empresa",
+  "n1": 34,
+  "n2": 22,
+  "add": "27/08/2026"
+ },
+ "pf-dados-contato": {
+  "id": "185",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Dados Cadastrais e Contato",
+  "n1": 52,
+  "n2": 35,
+  "add": "27/08/2026"
+ },
+ "r-cadastrais-score-dividas": {
+  "id": "123",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Dados cadastrais, score e dívidas",
+  "n1": 276,
+  "n2": 230,
+  "add": "26/04/2025"
+ },
+ "cp-cadastrais-score-dividas": {
+  "id": "115",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Dados cadastrais, score e dívidas CP",
+  "n1": 299,
+  "n2": 249,
+  "add": "26/04/2025"
+ },
+ "pj-dados-contato": {
+  "id": "235",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Dados de Contato da Empresa",
+  "n1": 25,
+  "n2": 17,
+  "add": "27/08/2026"
+ },
+ "pf-obito": {
+  "id": "188",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Dados de Óbito",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "pf-dados-financeiros": {
+  "id": "189",
+  "campos": [
+   "pdf",
+   "cpf",
+   "cep"
+  ],
+  "nome": "Dados Financeiros",
+  "n1": 128,
+  "n2": 86,
+  "add": "27/08/2026"
+ },
+ "pf-dados-profissionais": {
+  "id": "190",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Dados Profissionais",
+  "n1": 40,
+  "n2": 27,
+  "add": "27/08/2026"
+ },
+ "mercado-sociodemografico": {
+  "id": "275",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Dados Sociodemográficos por CEP",
+  "n1": 30,
+  "n2": 20,
+  "add": "27/08/2026"
+ },
+ "debitos-veicular": {
+  "id": "157",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Débitos de veículo",
+  "n1": 270,
+  "n2": 225,
+  "add": "06/07/2026"
+ },
+ "debitos-veicular-v2": {
+  "id": "326",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Débitos Veiculares V2",
+  "n1": 171,
+  "n2": 143,
+  "add": "27/10/2026"
+ },
+ "pj-define-limite": {
+  "id": "238",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Define Limite Positivo",
+  "n1": 2907,
+  "n2": 2423,
+  "add": "27/08/2026"
+ },
+ "pj-define-negocio": {
+  "id": "239",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Define Negócio Positivo",
+  "n1": 2464,
+  "n2": 2053,
+  "add": "27/08/2026"
+ },
+ "pj-define-risco": {
+  "id": "240",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Define Risco Positivo",
+  "n1": 1509,
+  "n2": 1258,
+  "add": "27/08/2026"
+ },
+ "rating-credito-bancario": {
+  "id": "159",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Diagnóstico Financeiro 360",
+  "n1": 1765,
+  "n2": 1640,
+  "add": "02/03/2026"
+ },
+ "pf-emails": {
+  "id": "193",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "E-mails - Pessoa Física",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "pf-empresas-societarias": {
+  "id": "194",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Empresas Societárias - Pessoa Física",
+  "n1": 28,
+  "n2": 19,
+  "add": "27/08/2026"
+ },
+ "pj-empresas-societarias": {
+  "id": "242",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Empresas Societárias - PJ",
+  "n1": 28,
+  "n2": 19,
+  "add": "27/08/2026"
+ },
+ "pf-enderecos": {
+  "id": "195",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Endereços - Pessoa Física",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "sms-send": {
+  "id": "124",
+  "campos": [
+   "number",
+   "content"
+  ],
+  "nome": "Envio de SMS",
+  "n1": 38,
+  "n2": 19,
+  "add": "16/09/2024"
+ },
+ "pj-darkweb": {
+  "id": "237",
+  "campos": [
+   "pdf",
+   "telefone",
+   "email"
+  ],
+  "nome": "Exposição na Dark Web - Empresa",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "pf-darkweb": {
+  "id": "191",
+  "campos": [
+   "pdf",
+   "cpf",
+   "telefone",
+   "email"
+  ],
+  "nome": "Exposição na Dark Web - Pessoa Física",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "pj-financas": {
+  "id": "243",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Finanças da Empresa",
+  "n1": 36000,
+  "n2": 30000,
+  "add": "27/08/2026"
+ },
+ "fipe": {
+  "id": "22",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Fipe",
+  "n1": 11,
+  "n2": 7,
+  "add": "25/07/2024"
+ },
+ "veiculo-fipe": {
+  "id": "273",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "FIPE Estimada",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "ic-foto-leilao": {
+  "id": "85",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Foto Leilão",
+  "n1": 1200,
+  "n2": 1000,
+  "add": "26/04/2025"
+ },
+ "mercado-gastos-alimentacao": {
+  "id": "276",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Alimentação por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-saude": {
+  "id": "277",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Assistência à Saúde",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-consumo": {
+  "id": "278",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Consumo por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-diversos": {
+  "id": "279",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Despesas Diversas",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-educacao": {
+  "id": "280",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Educação por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-habitacao": {
+  "id": "281",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Habitação por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-outras-despesas": {
+  "id": "283",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Outras Despesas",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-recreacao": {
+  "id": "284",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Recreação e Cultura",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-servicos": {
+  "id": "285",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Serviços por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-transporte": {
+  "id": "286",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Transporte por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "mercado-gastos-vestuario": {
+  "id": "287",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Gastos com Vestuário por CEP",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "captcha-geetest": {
+  "id": "304",
+  "campos": [
+   "body",
+   "textinstructions"
+  ],
+  "nome": "GeeTest por imagem",
+  "n1": 80,
+  "n2": 60,
+  "add": "14/10/2026"
+ },
+ "ai-generate-image": {
+  "id": "46",
+  "campos": [
+   "prompt"
+  ],
+  "nome": "Gerador de imagens por IA",
+  "n1": 21,
+  "n2": 14,
+  "add": "25/07/2024"
+ },
+ "tool-qrcode": {
+  "id": "45",
+  "campos": [
+   "content"
+  ],
+  "nome": "Gerador de QR Code",
+  "n1": 3,
+  "n2": 2,
+  "add": "25/07/2024"
+ },
+ "gravame": {
+  "id": "136",
+  "campos": [
+   "chassi"
+  ],
+  "nome": "Gravame",
+  "n1": 220,
+  "n2": 200,
+  "add": "13/01/2026"
+ },
+ "gravame-v2": {
+  "id": "325",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Gravame V2",
+  "n1": 153,
+  "n2": 128,
+  "add": "27/10/2026"
+ },
+ "captcha-hcaptcha-imagem": {
+  "id": "302",
+  "campos": [
+   "body",
+   "textinstructions",
+   "formato"
+  ],
+  "nome": "hCaptcha por imagem",
+  "n1": 600,
+  "n2": 450,
+  "add": "14/10/2026"
+ },
+ "roubo-furto": {
+  "id": "138",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Histórico de roubo e furto",
+  "n1": 360,
+  "n2": 300,
+  "add": "13/01/2026"
+ },
+ "ic-historico-roubo-furto": {
+  "id": "87",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Histórico de roubo ou furto",
+  "n1": 936,
+  "n2": 780,
+  "add": "26/04/2025"
+ },
+ "pf-jovem-id": {
+  "id": "197",
+  "campos": [
+   "pdf",
+   "documento"
+  ],
+  "nome": "Identidade Jovem",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "caixa-imoveis": {
+  "id": "299",
+  "campos": [
+   "pdf",
+   "estado",
+   "cidade",
+   "modalidade",
+   "tipo_imovel",
+   "financiamento",
+   "quartos",
+   "vagas",
+   "area_util",
+   "faixa_valor",
+   "pagina"
+  ],
+  "nome": "Imóveis em Leilão da Caixa Econômica Federal",
+  "n1": 100,
+  "n2": 50,
+  "add": "14/10/2026"
+ },
+ "mercado-macroeconomicos": {
+  "id": "288",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Indicadores Macroeconômicos",
+  "n1": 30,
+  "n2": 20,
+  "add": "27/08/2026"
+ },
+ "mercado-infraestrutura-urbana": {
+  "id": "289",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Índice de Infraestrutura Urbana",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "mercado-precos-saude": {
+  "id": "291",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Índice de Preços de Serviços de Saúde",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "mercado-propensao-seguro": {
+  "id": "292",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Índice de Propensão a Seguro",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "mercado-seguro-patologia": {
+  "id": "290",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Índice de Seguro por Patologia",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "curtidas-instagram-mundiais-cem": {
+  "id": "44",
+  "campos": [
+   "campo"
+  ],
+  "nome": "Instagram 100 Curtidas Mundiais",
+  "n1": 118,
+  "n2": 98,
+  "add": "25/07/2024"
+ },
+ "seguidores-instagram-mundiais-cem": {
+  "id": "31",
+  "campos": [
+   "perfil"
+  ],
+  "nome": "Instagram 100 Seguidores Mundiais",
+  "n1": 357,
+  "n2": 298,
+  "add": "25/07/2024"
+ },
+ "curtidas-instagram-mundiais": {
+  "id": "43",
+  "campos": [
+   "campo"
+  ],
+  "nome": "Instagram 1000 Curtidas Mundiais",
+  "n1": 1176,
+  "n2": 980,
+  "add": "25/07/2024"
+ },
+ "seguidores-instagram-mundiais": {
+  "id": "30",
+  "campos": [
+   "perfil"
+  ],
+  "nome": "Instagram 1000 Seguidores Mundiais",
+  "n1": 3572,
+  "n2": 2977,
+  "add": "25/07/2024"
+ },
+ "leilao": {
+  "id": "135",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Leilão",
+  "n1": 876,
+  "n2": 730,
+  "add": "13/01/2026"
+ },
+ "leilao-remarketing": {
+  "id": "332",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Leilão e Remarketing",
+  "n1": 585,
+  "n2": 488,
+  "add": "27/10/2026"
+ },
+ "leilao-varejo": {
+  "id": "331",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Leilão Varejo",
+  "n1": 567,
+  "n2": 473,
+  "add": "27/10/2026"
+ },
+ "captcha-linkvertise": {
+  "id": "312",
+  "campos": [
+   "body",
+   "textinstructions"
+  ],
+  "nome": "Linkvertise por imagem",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "pj-localizacao": {
+  "id": "236",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Localização da Empresa",
+  "n1": 22,
+  "n2": 15,
+  "add": "27/08/2026"
+ },
+ "pf-mandados-prisao": {
+  "id": "198",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Mandados de Prisão",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "pf-nome-social": {
+  "id": "199",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Nome Social",
+  "n1": 8,
+  "n2": 6,
+  "add": "27/08/2026"
+ },
+ "pf-passe-livre": {
+  "id": "200",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Passe Livre",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "pj-participacao-societaria": {
+  "id": "244",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Percentual de Participação Societária",
+  "n1": 513,
+  "n2": 428,
+  "add": "27/08/2026"
+ },
+ "pf-pessoas-relacionadas": {
+  "id": "202",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Pessoas Relacionadas",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "pf-relacionamentos-grafo": {
+  "id": "203",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Pessoas Relacionadas em Grafo",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "agregados-propria": {
+  "id": "17",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Placa Básica (própria)",
+  "n1": 10,
+  "n2": 5,
+  "add": "25/07/2024"
+ },
+ "placa-radar": {
+  "id": "172",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Placa Radar",
+  "n1": 75,
+  "n2": 60,
+  "add": "26/08/2026"
+ },
+ "placa-basica": {
+  "id": "105",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Placa Super Básica",
+  "n1": 8,
+  "n2": 5,
+  "add": "25/07/2024"
+ },
+ "pj-processos-judiciais": {
+  "id": "245",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Processos Judiciais - Empresa",
+  "n1": 28,
+  "n2": 19,
+  "add": "27/08/2026"
+ },
+ "pf-processos-judiciais": {
+  "id": "204",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Processos Judiciais - Pessoa Física",
+  "n1": 28,
+  "n2": 19,
+  "add": "27/08/2026"
+ },
+ "products-brand": {
+  "id": "106",
+  "campos": [
+   "text"
+  ],
+  "nome": "Produtos por dados do veículo",
+  "n1": 8,
+  "n2": 5,
+  "add": "25/07/2024"
+ },
+ "proprietario-atual": {
+  "id": "321",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Proprietário Atual V2",
+  "n1": 54,
+  "n2": 45,
+  "add": "27/10/2026"
+ },
+ "ic-proprietario-atual": {
+  "id": "91",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Proprietário placa",
+  "n1": 228,
+  "n2": 190,
+  "add": "26/04/2025"
+ },
+ "pessoas-cep": {
+  "id": "164",
+  "campos": [
+   "pdf",
+   "cep",
+   "page"
+  ],
+  "nome": "Prospecção de clientes por CEP",
+  "n1": 108,
+  "n2": 90,
+  "add": "17/08/2026"
+ },
+ "protesto-nacional": {
+  "id": "295",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Protesto Nacional",
+  "n1": 342,
+  "n2": 285,
+  "add": "01/09/2026"
+ },
+ "pj-quadro-societario": {
+  "id": "246",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Quadro Societário",
+  "n1": 28,
+  "n2": 19,
+  "add": "27/08/2026"
+ },
+ "ic-quod": {
+  "id": "80",
+  "campos": [
+   "document"
+  ],
+  "nome": "QUOD",
+  "n1": 478,
+  "n2": 398,
+  "add": "26/04/2025"
+ },
+ "pj-quod-consulta": {
+  "id": "247",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "QUOD Consulta - Empresa",
+  "n1": 1273,
+  "n2": 1061,
+  "add": "27/08/2026"
+ },
+ "pf-quod-consulta": {
+  "id": "207",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "QUOD Consulta - Pessoa Física",
+  "n1": 979,
+  "n2": 816,
+  "add": "27/08/2026"
+ },
+ "pj-quod-negativo-detalhe": {
+  "id": "248",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "QUOD Negativo Detalhe - Empresa",
+  "n1": 637,
+  "n2": 531,
+  "add": "27/08/2026"
+ },
+ "pf-quod-negativo-detalhe": {
+  "id": "206",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "QUOD Negativo Detalhe - Pessoa Física",
+  "n1": 389,
+  "n2": 325,
+  "add": "27/08/2026"
+ },
+ "pj-quod-negativo-flag": {
+  "id": "249",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "QUOD Negativo Flag - Empresa",
+  "n1": 383,
+  "n2": 319,
+  "add": "27/08/2026"
+ },
+ "pf-quod-negativo-flag": {
+  "id": "205",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "QUOD Negativo Flag - Pessoa Física",
+  "n1": 291,
+  "n2": 243,
+  "add": "27/08/2026"
+ },
+ "pf-quod-score": {
+  "id": "208",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "QUOD Score de Crédito",
+  "n1": 626,
+  "n2": 522,
+  "add": "27/08/2026"
+ },
+ "pj-quod-score": {
+  "id": "250",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "QUOD Score de Crédito - Empresa",
+  "n1": 816,
+  "n2": 680,
+  "add": "27/08/2026"
+ },
+ "veiculo-rastreamento": {
+  "id": "274",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Rastreamento de Veículos",
+  "n1": 7920,
+  "n2": 6600,
+  "add": "27/08/2026"
+ },
+ "rating-score": {
+  "id": "156",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Rating Score",
+  "n1": 1062,
+  "n2": 885,
+  "add": "02/03/2026"
+ },
+ "ic-recall": {
+  "id": "92",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Recall",
+  "n1": 360,
+  "n2": 300,
+  "add": "26/04/2025"
+ },
+ "recall": {
+  "id": "322",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Recall V2",
+  "n1": 54,
+  "n2": 45,
+  "add": "27/10/2026"
+ },
+ "captcha-recaptcha-imagem": {
+  "id": "301",
+  "campos": [
+   "body",
+   "textinstructions",
+   "formato"
+  ],
+  "nome": "reCAPTCHA por imagem",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "captcha-recaptcha-v2": {
+  "id": "314",
+  "campos": [
+   "sitekey",
+   "pageurl",
+   "data-s",
+   "userAgent",
+   "cookies",
+   "proxy",
+   "proxytype"
+  ],
+  "nome": "reCAPTCHA v2 / Invisible",
+  "n1": 220,
+  "n2": 165,
+  "add": "14/10/2026"
+ },
+ "captcha-recaptcha-v3": {
+  "id": "315",
+  "campos": [
+   "sitekey",
+   "pageurl",
+   "min_score",
+   "userAgent",
+   "cookies",
+   "proxy",
+   "proxytype"
+  ],
+  "nome": "reCAPTCHA v3",
+  "n1": 220,
+  "n2": 165,
+  "add": "14/10/2026"
+ },
+ "renainf": {
+  "id": "153",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Renainf",
+  "n1": 360,
+  "n2": 300,
+  "add": "28/05/2025"
+ },
+ "renainf-v2": {
+  "id": "323",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Renainf V2",
+  "n1": 153,
+  "n2": 128,
+  "add": "27/10/2026"
+ },
+ "renajud": {
+  "id": "152",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Renajud",
+  "n1": 360,
+  "n2": 300,
+  "add": "28/05/2025"
+ },
+ "renajud-v2": {
+  "id": "324",
+  "campos": [
+   "pdf",
+   "placa"
+  ],
+  "nome": "Renajud V2",
+  "n1": 162,
+  "n2": 135,
+  "add": "27/10/2026"
+ },
+ "pf-restituicao-ir": {
+  "id": "209",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Restituição de Imposto de Renda",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "mercado-risco-geografico": {
+  "id": "293",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Risco Geográfico",
+  "n1": 30,
+  "n2": 20,
+  "add": "27/08/2026"
+ },
+ "roubo-furto-v2": {
+  "id": "329",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Roubo e Furto V2",
+  "n1": 126,
+  "n2": 105,
+  "add": "27/10/2026"
+ },
+ "roubo-furto-v3": {
+  "id": "330",
+  "campos": [
+   "pdf",
+   "parametro"
+  ],
+  "nome": "Roubo e Furto V3",
+  "n1": 144,
+  "n2": 120,
+  "add": "27/10/2026"
+ },
+ "mercado-concorrencia": {
+  "id": "294",
+  "campos": [
+   "pdf",
+   "cep"
+  ],
+  "nome": "Score de Concorrência",
+  "n1": 30,
+  "n2": 20,
+  "add": "27/08/2026"
+ },
+ "pf-score-cadastral": {
+  "id": "211",
+  "campos": [
+   "pdf",
+   "cpf",
+   "nome",
+   "data_nascimento"
+  ],
+  "nome": "Score de Dados Cadastrais",
+  "n1": 17,
+  "n2": 11,
+  "add": "27/08/2026"
+ },
+ "pj-score-cadastral": {
+  "id": "252",
+  "campos": [
+   "pdf",
+   "cnpj",
+   "razao_social"
+  ],
+  "nome": "Score de Dados Cadastrais - Empresa",
+  "n1": 34,
+  "n2": 22,
+  "add": "27/08/2026"
+ },
+ "bacen": {
+  "id": "151",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "SCR e Score (BACEN)",
+  "n1": 630,
+  "n2": 525,
+  "add": "25/01/2025"
+ },
+ "ic-bacen": {
+  "id": "130",
+  "campos": [
+   "document"
+  ],
+  "nome": "SCR e Score (BACEN) V2",
+  "n1": 936,
+  "n2": 780,
+  "add": "25/01/2025"
+ },
+ "scr-premium": {
+  "id": "169",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "SCR Premium",
+  "n1": 571,
+  "n2": 476,
+  "add": "25/08/2026"
+ },
+ "captcha-seofast": {
+  "id": "311",
+  "campos": [
+   "body",
+   "textinstructions"
+  ],
+  "nome": "Seo-fast / Profitcentr / Seotime por imagem",
+  "n1": 40,
+  "n2": 30,
+  "add": "14/10/2026"
+ },
+ "serasa-premium": {
+  "id": "146",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Serasa Premium",
+  "n1": 672,
+  "n2": 560,
+  "add": "02/03/2026"
+ },
+ "serasa-premium-v2": {
+  "id": "163",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Serasa Premium V2",
+  "n1": 690,
+  "n2": 590,
+  "add": "13/08/2026"
+ },
+ "serasa-basica": {
+  "id": "346",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "Serasa Relatório básico e score",
+  "n1": 588,
+  "n2": 490,
+  "add": "10/11/2026"
+ },
+ "pf-servidor-publico": {
+  "id": "212",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Servidor Público",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "pj-sintegra": {
+  "id": "253",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Sintegra",
+  "n1": 105,
+  "n2": 70,
+  "add": "27/08/2026"
+ },
+ "spc-brasil": {
+  "id": "160",
+  "campos": [
+   "pdf",
+   "document"
+  ],
+  "nome": "SPC Brasil",
+  "n1": 764,
+  "n2": 637,
+  "add": "17/07/2026"
+ },
+ "pj-suframa": {
+  "id": "254",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "SUFRAMA",
+  "n1": 120,
+  "n2": 80,
+  "add": "27/08/2026"
+ },
+ "pf-telefones": {
+  "id": "214",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Telefones - Pessoa Física",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "pf-telefones-hot-completo": {
+  "id": "215",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Telefones Hot Completo",
+  "n1": 23,
+  "n2": 15,
+  "add": "27/08/2026"
+ },
+ "pj-telefones-socios-hot": {
+  "id": "255",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Telefones Hot dos Sócios",
+  "n1": 20,
+  "n2": 13,
+  "add": "27/08/2026"
+ },
+ "captcha-temu": {
+  "id": "307",
+  "campos": [
+   "body",
+   "body0",
+   "body1",
+   "textinstructions"
+  ],
+  "nome": "Temu por imagem",
+  "n1": 680,
+  "n2": 510,
+  "add": "14/10/2026"
+ },
+ "seguidores-tiktok-brasileiros-cem": {
+  "id": "61",
+  "campos": [
+   "perfil"
+  ],
+  "nome": "TikTok 100 Seguidores Brasileiros",
+  "n1": 522,
+  "n2": 418,
+  "add": "25/07/2024"
+ },
+ "seguidores-tiktok-brasileiros": {
+  "id": "60",
+  "campos": [
+   "perfil"
+  ],
+  "nome": "TikTok 1000 Seguidores Mundiais",
+  "n1": 4482,
+  "n2": 3735,
+  "add": "25/07/2024"
+ },
+ "captcha-tiktok": {
+  "id": "305",
+  "campos": [
+   "body",
+   "body0",
+   "body1",
+   "textinstructions"
+  ],
+  "nome": "TikTok por imagem",
+  "n1": 80,
+  "n2": 60,
+  "add": "14/10/2026"
+ },
+ "pf-validacao-telefone": {
+  "id": "216",
+  "campos": [
+   "pdf",
+   "cpf",
+   "telefone"
+  ],
+  "nome": "Validação de Telefone",
+  "n1": 210,
+  "n2": 140,
+  "add": "27/08/2026"
+ },
+ "pj-veiculos": {
+  "id": "256",
+  "campos": [
+   "pdf",
+   "cnpj"
+  ],
+  "nome": "Veículos por CNPJ",
+  "n1": 480,
+  "n2": 400,
+  "add": "27/08/2026"
+ },
+ "pf-veiculos": {
+  "id": "217",
+  "campos": [
+   "pdf",
+   "cpf"
+  ],
+  "nome": "Veículos por CPF",
+  "n1": 480,
+  "n2": 400,
+  "add": "27/08/2026"
+ },
+ "ic-vipcar": {
+  "id": "96",
+  "campos": [
+   "placa"
+  ],
+  "nome": "Vip car",
+  "n1": 3120,
+  "n2": 2600,
+  "add": "26/04/2025"
+ },
+ "captcha-worldcash": {
+  "id": "313",
+  "campos": [
+   "body"
+  ],
+  "nome": "World.cash por imagem",
+  "n1": 200,
+  "n2": 150,
+  "add": "14/10/2026"
+ }
+}

@@ -36,6 +36,15 @@ import {
   particionarPorAlvo,
   type SocioEncontrado,
 } from "./socios.ts";
+import { extrairUfVeiculo } from "./uf.ts";
+// Lista de endpoints e mapa produto -> APIs GERADOS do site (npm run gerar:edge).
+// Antes eram copiados a mao aqui e divergiam.
+import {
+  findEndpoint,
+  PLAN_API_MAP,
+  CRLV_UF_CODIGO,
+  type ApiFullEndpoint,
+} from "./catalogo.ts";
 // @ts-expect-error - deno global EdgeRuntime
 declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
 
@@ -49,123 +58,6 @@ const APIFULL_MAX_RETRIES = 2;
 const RESERVATION_TTL_MS = 120_000; // 2min pra completar (senao expira)
 const POLL_INTERVAL_MS = 1000;
 const POLL_MAX_MS = 30_000;
-
-// =========================================================================
-// MAPPING APIFULL — espelha src/lib/apifull/mapping.ts
-// (Inline pq Edge Function nao tem acesso ao bundle Next)
-// =========================================================================
-
-interface ApiFullEndpoint {
-  internal: string;
-  path: string;
-  nome: string;
-  categoria: string;
-  paramType: "placa" | "cpf" | "cnpj" | "cep";
-  custoCentavos: number;
-  /** TTL do cache (horas). Sincronizado com src/lib/apifull/mapping.ts. */
-  cacheTTLHours: number;
-}
-
-const APIFULL_ENDPOINTS: ApiFullEndpoint[] = [
-  // Veicular
-  { internal: "placa-basica", path: "placa-basica", nome: "Placa Super Basica", categoria: "veicular", paramType: "placa", custoCentavos: 9, cacheTTLHours: 168 },
-  { internal: "placa-basica-propria", path: "agregados-propria", nome: "Placa Basica (propria)", categoria: "veicular", paramType: "placa", custoCentavos: 11, cacheTTLHours: 168 },
-  { internal: "fipe", path: "fipe", nome: "Tabela FIPE", categoria: "veicular", paramType: "placa", custoCentavos: 12, cacheTTLHours: 720 },
-  { internal: "bin-nacional", path: "ic-bin-nacional", nome: "BIN Nacional", categoria: "veicular", paramType: "placa", custoCentavos: 330, cacheTTLHours: 168 },
-  { internal: "bin-estadual", path: "ic-bin-estadual", nome: "BIN Estadual", categoria: "veicular", paramType: "placa", custoCentavos: 304, cacheTTLHours: 168 },
-  { internal: "recall", path: "ic-recall", nome: "Recall pendente", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 24 },
-  { internal: "gravame", path: "gravame", nome: "Gravame / Alienacao", categoria: "veicular", paramType: "placa", custoCentavos: 242, cacheTTLHours: 6 },
-  { internal: "proprietario-placa", path: "ic-proprietario-atual", nome: "Proprietario atual", categoria: "veicular", paramType: "placa", custoCentavos: 376, cacheTTLHours: 6 },
-  { internal: "historico-roubo-furto", path: "roubo-furto", nome: "Historico Roubo/Furto", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 24 },
-  { internal: "leilao", path: "leilao", nome: "Historico de Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 964, cacheTTLHours: 24 },
-  { internal: "foto-leilao", path: "ic-foto-leilao", nome: "Foto do Leilao", categoria: "leilao", paramType: "placa", custoCentavos: 1320, cacheTTLHours: 720 },
-  { internal: "certificado-seguranca-veicular", path: "csv-renainf-renajud-recall-bin-proprietario", nome: "CSV Completo", categoria: "veicular", paramType: "placa", custoCentavos: 495, cacheTTLHours: 12 },
-  { internal: "crlv", path: "crlv", nome: "CRLV digital", categoria: "veicular", paramType: "placa", custoCentavos: 2231, cacheTTLHours: 168 },
-  { internal: "vip-car", path: "ic-vipcar", nome: "Vip Car (analise tecnica)", categoria: "leilao", paramType: "placa", custoCentavos: 3432, cacheTTLHours: 24 },
-  { internal: "rastreamento-veicular", path: "veiculo-rastreamento", nome: "Rastreamento de Veiculo", categoria: "veicular", paramType: "placa", custoCentavos: 8712, cacheTTLHours: 12 },
-  { internal: "veiculo-debitos", path: "veiculo-dados-debitos", nome: "Multas e Debitos do Veiculo", categoria: "veicular", paramType: "placa", custoCentavos: 297, cacheTTLHours: 12 },
-  { internal: "renainf", path: "renainf", nome: "RENAINF (infracoes nacionais)", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 12 },
-  { internal: "renajud", path: "renajud", nome: "RENAJUD (restricoes judiciais)", categoria: "veicular", paramType: "placa", custoCentavos: 396, cacheTTLHours: 24 },
-  { internal: "atpv-e", path: "atpv-e", nome: "ATPV-e (2a via)", categoria: "veicular", paramType: "placa", custoCentavos: 240, cacheTTLHours: 168 },
-  { internal: "placa-radar", path: "placa-radar", nome: "Placa Radar (passagens)", categoria: "veicular", paramType: "placa", custoCentavos: 83, cacheTTLHours: 24 },
-  // Pessoa
-  { internal: "cpf-simples", path: "pf-dadosbasicos", nome: "CPF Simples", categoria: "pessoa", paramType: "cpf", custoCentavos: 11, cacheTTLHours: 168 },
-  { internal: "cpf-completo", path: "ic-cpf-completo", nome: "CPF Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 66, cacheTTLHours: 168 },
-  { internal: "cpf-ultra-completo", path: "cpf-ultra", nome: "CPF Ultra Completo", categoria: "pessoa", paramType: "cpf", custoCentavos: 292, cacheTTLHours: 168 },
-  { internal: "cpf-ultra-socios", path: "cpf-ultra", nome: "CPF Ultra dos socios", categoria: "pessoa", paramType: "cpf", custoCentavos: 292, cacheTTLHours: 168 },
-  // Empresa
-  { internal: "processos-judiciais-pf", path: "pf-processos-judiciais", nome: "Processos Judiciais (PF)", categoria: "juridico", paramType: "cpf", custoCentavos: 31, cacheTTLHours: 24 },
-  { internal: "antecedentes-criminais", path: "cert-pf-antecedentes-criminais", nome: "Certidao de Antecedentes Criminais", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "darkweb-pf", path: "pf-darkweb", nome: "Exposicao na Dark Web", categoria: "pessoa", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 168 },
-  { internal: "dados-financeiros-pf", path: "pf-dados-financeiros", nome: "Renda e Patrimonio estimados", categoria: "pessoa", paramType: "cpf", custoCentavos: 141, cacheTTLHours: 168 },
-  { internal: "pessoas-relacionadas", path: "pf-pessoas-relacionadas", nome: "Vinculos e Parentes", categoria: "pessoa", paramType: "cpf", custoCentavos: 22, cacheTTLHours: 168 },
-  { internal: "dados-profissionais", path: "pf-dados-profissionais", nome: "Vida Profissional", categoria: "pessoa", paramType: "cpf", custoCentavos: 44, cacheTTLHours: 168 },
-  { internal: "cnh", path: "pf-cnh-v2", nome: "Carteira Nacional de Habilitacao", categoria: "pessoa", paramType: "cpf", custoCentavos: 267, cacheTTLHours: 168 },
-  { internal: "veiculos-por-cpf", path: "pf-veiculos", nome: "Veiculos no CPF", categoria: "veicular", paramType: "cpf", custoCentavos: 528, cacheTTLHours: 168 },
-  { internal: "imoveis", path: "consulta-imoveis", nome: "Imoveis (capitais)", categoria: "pessoa", paramType: "cpf", custoCentavos: 770, cacheTTLHours: 720 },
-  { internal: "processos-judiciais-pj", path: "pj-processos-judiciais", nome: "Processos Judiciais (PJ)", categoria: "juridico", paramType: "cnpj", custoCentavos: 31, cacheTTLHours: 24 },
-  { internal: "quadro-societario", path: "pj-quadro-societario", nome: "Quadro Societario", categoria: "empresa", paramType: "cnpj", custoCentavos: 31, cacheTTLHours: 168 },
-  { internal: "veiculos-por-cnpj", path: "pj-veiculos", nome: "Frota da Empresa", categoria: "veicular", paramType: "cnpj", custoCentavos: 528, cacheTTLHours: 168 },
-  { internal: "sintegra", path: "pj-sintegra", nome: "Sintegra", categoria: "empresa", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 168 },
-  { internal: "cnpj-completo", path: "cnpj", nome: "CNPJ Completo", categoria: "empresa", paramType: "cnpj", custoCentavos: 7, cacheTTLHours: 168 },
-  // Credito (score muda → TTL curto)
-  { internal: "boa-vista-essencial", path: "scpc-boavista", nome: "Boa Vista Essencial", categoria: "credito", paramType: "cpf", custoCentavos: 303, cacheTTLHours: 4 },
-  { internal: "serasa-basico", path: "r-cadastrais-score-dividas", nome: "Serasa Basico", categoria: "credito", paramType: "cpf", custoCentavos: 304, cacheTTLHours: 4 },
-  { internal: "serasa-premium", path: "serasa-premium", nome: "Serasa Premium", categoria: "credito", paramType: "cpf", custoCentavos: 739, cacheTTLHours: 4 },
-  { internal: "spc-brasil", path: "spc-brasil", nome: "SPC Brasil", categoria: "credito", paramType: "cpf", custoCentavos: 840, cacheTTLHours: 4 },
-  { internal: "scr-bacen", path: "scr-premium", nome: "SCR BACEN", categoria: "credito", paramType: "cpf", custoCentavos: 628, cacheTTLHours: 4 },
-  { internal: "scr-bacen-socios", path: "scr-premium", nome: "SCR BACEN dos socios", categoria: "credito", paramType: "cpf", custoCentavos: 628, cacheTTLHours: 4 },
-  { internal: "quod", path: "ic-quod", nome: "QUOD", categoria: "credito", paramType: "cpf", custoCentavos: 526, cacheTTLHours: 4 },
-  { internal: "cred-completa-plus", path: "e-boavista", nome: "Cred Completa Plus", categoria: "credito", paramType: "cpf", custoCentavos: 274, cacheTTLHours: 4 },
-  // Juridico
-  { internal: "cnd-trabalhista", path: "cert-pf-debitos-trabalhistas", nome: "CNDT", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-pgfn-pf", path: "cert-pf-pgfn", nome: "Certidao PGFN (Receita/PGFN)", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-acoes-trabalhistas-pf", path: "cert-pf-acoes-trabalhistas", nome: "Certidao de Acoes Trabalhistas", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-cnj-pf", path: "cert-pf-negativa-cnj", nome: "Certidao Negativa CNJ", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-cgu-pf", path: "cert-pf-negativa-cgu", nome: "Certidao Negativa CGU", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-nada-consta-pf", path: "cert-pf-judicial-nada-consta", nome: "Certidao Judicial Nada Consta", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-divida-ativa-pf", path: "cert-pf-divida-ativa-pgfn", nome: "Divida Ativa PGFN", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-ibama-pf", path: "cert-pf-negativa-ibama", nome: "Certidao Negativa IBAMA", categoria: "juridico", paramType: "cpf", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-fgts-pj", path: "cert-pj-fgts", nome: "Certidao FGTS (CRF)", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-pgfn-pj", path: "cert-pj-pgfn", nome: "Certidao PGFN (Receita/PGFN)", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-situacao-cadastral-pj", path: "cert-pj-situacao-cadastral", nome: "Certidao de Situacao Cadastral", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-debitos-trabalhistas-pj", path: "cert-pj-debitos-trabalhistas", nome: "CNDT (Debitos Trabalhistas)", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-acoes-trabalhistas-pj", path: "cert-pj-acoes-trabalhistas", nome: "Certidao de Acoes Trabalhistas", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-cnj-pj", path: "cert-pj-negativa-cnj", nome: "Certidao Negativa CNJ", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-cgu-pj", path: "cert-pj-negativa-cgu", nome: "Certidao Negativa CGU", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-pcd-pj", path: "cert-pj-contratacao-pcd", nome: "Certidao de Contratacao de PCD", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "cert-ibama-pj", path: "cert-pj-negativa-ibama", nome: "Certidao Negativa IBAMA", categoria: "juridico", paramType: "cnpj", custoCentavos: 116, cacheTTLHours: 24 },
-  { internal: "pld-pf", path: "pf-compliance-pld-v3", nome: "Compliance PLD (PEP, sancoes, risco)", categoria: "juridico", paramType: "cpf", custoCentavos: 225, cacheTTLHours: 24 },
-  { internal: "pld-pj", path: "pj-compliance-pld-v3", nome: "Compliance PLD da Empresa", categoria: "juridico", paramType: "cnpj", custoCentavos: 675, cacheTTLHours: 24 },
-  { internal: "pld-qsa", path: "pj-compliance-pld-qsa-v3", nome: "Compliance PLD dos Socios (QSA)", categoria: "juridico", paramType: "cnpj", custoCentavos: 675, cacheTTLHours: 24 },
-  { internal: "obito", path: "pf-obito", nome: "Dados de Obito", categoria: "pessoa", paramType: "cpf", custoCentavos: 9, cacheTTLHours: 168 },
-  { internal: "mandados-prisao", path: "pf-mandados-prisao", nome: "Mandados de Prisao (BNMP)", categoria: "juridico", paramType: "cpf", custoCentavos: 22, cacheTTLHours: 24 },
-  { internal: "protesto-nacional", path: "protesto-nacional", nome: "Protesto Nacional", categoria: "juridico", paramType: "cpf", custoCentavos: 376, cacheTTLHours: 24 },
-  { internal: "protesto-nacional-pj", path: "protesto-nacional", nome: "Protesto Nacional (empresa)", categoria: "juridico", paramType: "cnpj", custoCentavos: 376, cacheTTLHours: 24 },
-  { internal: "cadin", path: "cadin", nome: "CADIN (dividas federais)", categoria: "juridico", paramType: "cpf", custoCentavos: 88, cacheTTLHours: 24 },
-  { internal: "acoes-processos", path: "r-acoes-e-processos-judiciais", nome: "Acoes e Processos Judiciais", categoria: "juridico", paramType: "cpf", custoCentavos: 198, cacheTTLHours: 24 },
-  { internal: "mercado-sociodemografico", path: "mercado-sociodemografico", nome: "Perfil sociodemografico do CEP", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
-  { internal: "mercado-infraestrutura", path: "mercado-infraestrutura-urbana", nome: "Indice de infraestrutura urbana", categoria: "local", paramType: "cep", custoCentavos: 18, cacheTTLHours: 720 },
-  { internal: "mercado-macroeconomicos", path: "mercado-macroeconomicos", nome: "Indicadores macroeconomicos", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
-  { internal: "mercado-concorrencia", path: "mercado-concorrencia", nome: "Score de concorrencia", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
-  { internal: "mercado-risco-geografico", path: "mercado-risco-geografico", nome: "Risco geografico", categoria: "local", paramType: "cep", custoCentavos: 33, cacheTTLHours: 720 },
-  { internal: "mercado-propensao-seguro", path: "mercado-propensao-seguro", nome: "Propensao a seguro", categoria: "local", paramType: "cep", custoCentavos: 18, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-alimentacao", path: "mercado-gastos-alimentacao", nome: "Gastos com alimentacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-consumo", path: "mercado-gastos-consumo", nome: "Gastos com consumo", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-diversos", path: "mercado-gastos-diversos", nome: "Gastos com diversos", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-educacao", path: "mercado-gastos-educacao", nome: "Gastos com educacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-habitacao", path: "mercado-gastos-habitacao", nome: "Gastos com habitacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-higiene", path: "mercado-gastos-higiene", nome: "Gastos com higiene", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-recreacao", path: "mercado-gastos-recreacao", nome: "Gastos com recreacao", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-saude", path: "mercado-gastos-saude", nome: "Gastos com saude", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-servicos", path: "mercado-gastos-servicos", nome: "Gastos com servicos", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-transporte", path: "mercado-gastos-transporte", nome: "Gastos com transporte", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-  { internal: "mercado-gastos-vestuario", path: "mercado-gastos-vestuario", nome: "Gastos com vestuario", categoria: "local", paramType: "cep", custoCentavos: 9, cacheTTLHours: 720 },
-];
-
-function findEndpoint(internal: string): ApiFullEndpoint | undefined {
-  return APIFULL_ENDPOINTS.find((e) => e.internal === internal);
-}
 
 // =========================================================================
 // APIFULL HTTP CLIENT
@@ -219,16 +111,27 @@ function mascararCpf(cpf: string): string {
   return cpf.length === 11 ? `***.${cpf.slice(3, 6)}.${cpf.slice(6, 9)}-**` : "***";
 }
 
+/** Campos alem do alvo principal que alguns endpoints exigem. */
+interface ExtrasChamada {
+  /** Sigla da UF (certidao estadual: escolhida pelo cliente). */
+  uf?: string;
+  /** Codigo numerico da UF que o `crlv` espera em `state`. */
+  ufCodigo?: string;
+}
+
 async function callApiFull(
   ep: ApiFullEndpoint,
   target: string,
-  token: string
+  token: string,
+  extras: ExtrasChamada = {}
 ): Promise<ApiFullCallResult> {
   const url = `${APIFULL_BASE}/${ep.path}`;
   const body: Record<string, unknown> = { link: ep.path };
 
   switch (ep.paramType) {
     case "placa": body.placa = target; break;
+    // V2: placa OU chassi no campo `parametro` (gravame-v2 e afins)
+    case "parametro": body.parametro = target; body.placa = target; break;
     case "cpf": body.cpf = target; break;
     case "cnpj": body.cnpj = target; break;
     case "cep": body.cep = target; break;
@@ -241,6 +144,8 @@ async function callApiFull(
     body.document = target;
     body.documento = target;
   }
+  if (extras.uf) body.uf = extras.uf;
+  if (extras.ufCodigo) body.state = extras.ufCodigo;
 
   const startedAt = Date.now();
 
@@ -447,7 +352,8 @@ Deno.serve(async (req: Request) => {
     internal: string,
     targetChamada: string,
     hashChamada: string,
-    socio?: SocioEncontrado
+    socio?: SocioEncontrado,
+    extras: ExtrasChamada = {}
   ): Promise<ResultadoChamada> {
       const ep = findEndpoint(internal);
       if (!ep) {
@@ -464,7 +370,9 @@ Deno.serve(async (req: Request) => {
         };
       }
 
-      const cacheKey = `${ep.path}:${hashChamada}`;
+      // Mesmo documento em outra UF e' outra certidao: a UF entra na chave.
+      const sufixoUf = extras.uf ?? extras.ufCodigo ?? "";
+      const cacheKey = sufixoUf ? `${ep.path}:${hashChamada}:${sufixoUf}` : `${ep.path}:${hashChamada}`;
 
       // (A) Cache read
       const cached = await readCache(supabase, cacheKey);
@@ -550,7 +458,7 @@ Deno.serve(async (req: Request) => {
       }
 
       // (C) Cache miss / expiracao / reserva bem-sucedida — chama APIFULL
-      const apiResult = await callApiFull(ep, targetChamada, tokenApiFull);
+      const apiResult = await callApiFull(ep, targetChamada, tokenApiFull, extras);
 
       // (D) Grava resultado real no cache (upsert sobre a reserva)
       if (apiResult.ok && (apiResult.status === "sucesso" || apiResult.status === "not_found")) {
@@ -608,9 +516,60 @@ Deno.serve(async (req: Request) => {
     (internal) => findEndpoint(internal)?.paramType
   );
 
-  const resultadosDiretos = await Promise.all(
-    apisDiretas.map((internal) => executarChamada(internal, target, targetHash))
+  // UF escolhida pelo cliente (certidao estadual) vem na propria consulta.
+  const ufEscolhida = (consulta.target_uf as string | null) ?? undefined;
+  // Endpoints que precisam da UF de registro do veiculo esperam a fase 1.
+  const apisDoVeiculo = apisDiretas.filter((i) => findEndpoint(i)?.uf === "do-veiculo");
+  const apisFase1 = apisDiretas.filter((i) => findEndpoint(i)?.uf !== "do-veiculo");
+
+  const resultadosFase1 = await Promise.all(
+    apisFase1.map((internal) =>
+      executarChamada(
+        internal,
+        target,
+        targetHash,
+        undefined,
+        findEndpoint(internal)?.uf === "escolhida" ? { uf: ufEscolhida } : {}
+      )
+    )
   );
+
+  let resultadosDoVeiculo: ResultadoChamada[] = [];
+  if (apisDoVeiculo.length > 0) {
+    const ufVeiculo = extrairUfVeiculo(resultadosFase1.map((r) => r.dados));
+    const codigo = ufVeiculo ? CRLV_UF_CODIGO[ufVeiculo] : undefined;
+    if (codigo) {
+      resultadosDoVeiculo = await Promise.all(
+        apisDoVeiculo.map((internal) =>
+          executarChamada(internal, target, targetHash, undefined, { ufCodigo: codigo })
+        )
+      );
+    } else {
+      // UF nao achada ou estado sem CRLV na APIFULL: nao chama (seria falha
+      // paga). Marca como nao entregue; o refund parcial devolve a parte.
+      console.log(
+        `[process-consultation] CRLV pulado: UF do veiculo ${ufVeiculo ?? "nao encontrada"}`
+      );
+      resultadosDoVeiculo = apisDoVeiculo.map((internal) => {
+        const ep = findEndpoint(internal);
+        return {
+          internal,
+          path: ep?.path ?? internal,
+          nome: ep?.nome ?? internal,
+          categoria: ep?.categoria ?? "veicular",
+          status: "not_found" as const,
+          dados: undefined,
+          costCents: 0,
+          durationMs: 0,
+          errorMessage: ufVeiculo
+            ? `CRLV nao disponivel para veiculos de ${ufVeiculo} (sem cobranca)`
+            : "UF do veiculo nao identificada — CRLV nao consultado (sem cobranca)",
+        };
+      });
+    }
+  }
+
+  const resultadosDiretos = [...resultadosFase1, ...resultadosDoVeiculo];
 
   let socioUsado: SocioEncontrado | null = null;
   let resultadosDeSocio: ResultadoChamada[] = [];
@@ -834,85 +793,6 @@ function extractApis(consulta: ConsultaRow): string[] {
   }
   return PLAN_API_MAP[consulta.plan_tier] ?? [];
 }
-
-// PLAN_API_MAP — DEVE ficar em sincronia com src/lib/consultas/planos.ts (apisIncluidas).
-// Chaves internas espelham `internal` de APIFULL_ENDPOINTS acima.
-const PLAN_API_MAP: Record<string, string[]> = {
-  // CPF
-  "cpf-espiadinha": ["cpf-simples"],
-  "cpf-investigacao": ["cpf-completo", "boa-vista-essencial"],
-  "cpf-avancada": ["cpf-ultra-completo", "boa-vista-essencial", "serasa-basico", "cred-completa-plus"],
-  "cpf-premium": ["cpf-ultra-completo", "boa-vista-essencial", "serasa-premium", "cred-completa-plus", "cnd-trabalhista", "quod"],
-  "cpf-raio-x": ["cpf-ultra-completo", "boa-vista-essencial", "serasa-premium", "spc-brasil", "scr-bacen", "cred-completa-plus", "cnd-trabalhista", "quod"],
-  // CNPJ
-  "cnpj-espiadinha": ["cnpj-completo"],
-  "cnpj-socios": ["cnpj-completo", "cpf-ultra-socios", "cnd-trabalhista", "boa-vista-essencial"],
-  "cnpj-premium": ["cnpj-completo", "cpf-ultra-socios", "cnd-trabalhista", "cred-completa-plus", "serasa-premium", "boa-vista-essencial"],
-  "cnpj-total": ["cnpj-completo", "cpf-ultra-socios", "cnd-trabalhista", "cred-completa-plus", "serasa-premium", "spc-brasil", "scr-bacen-socios", "boa-vista-essencial"],
-  // Veicular combos
-  "veicular-espiadinha": ["placa-basica", "fipe"],
-  "veicular-completo": ["placa-basica", "fipe", "bin-nacional", "recall"],
-  "veicular-avancado": ["placa-basica", "fipe", "bin-nacional", "bin-estadual", "proprietario-placa", "gravame", "recall", "historico-roubo-furto"],
-  "veicular-premium": ["placa-basica", "fipe", "bin-nacional", "bin-estadual", "proprietario-placa", "gravame", "recall", "historico-roubo-furto", "leilao", "certificado-seguranca-veicular"],
-  "veicular-total": ["placa-basica", "fipe", "bin-nacional", "bin-estadual", "proprietario-placa", "gravame", "recall", "historico-roubo-furto", "leilao", "certificado-seguranca-veicular", "vip-car", "crlv", "foto-leilao"],
-  // Leilao combos
-  "leilao-pre-lance": ["placa-basica", "fipe", "leilao", "foto-leilao", "historico-roubo-furto"],
-  "leilao-pos-compra": ["placa-basica", "certificado-seguranca-veicular", "crlv", "gravame"],
-  "leilao-auctioneer": ["placa-basica", "fipe", "leilao", "foto-leilao", "historico-roubo-furto", "certificado-seguranca-veicular", "crlv", "gravame", "vip-car"],
-  // Avulsos veicular
-  "veicular-avulso-fipe": ["fipe", "placa-basica"],
-  "veicular-avulso-recall": ["recall", "placa-basica"],
-  "veicular-avulso-bin-nacional": ["bin-nacional", "placa-basica"],
-  "veicular-avulso-gravame": ["gravame", "placa-basica"],
-  "veicular-avulso-bin-estadual": ["bin-estadual", "placa-basica"],
-  "veicular-avulso-roubo-furto-basico": ["historico-roubo-furto", "placa-basica"],
-  "veicular-avulso-proprietario": ["proprietario-placa", "placa-basica"],
-  "local-raio-x-cep": ["mercado-sociodemografico", "mercado-gastos-alimentacao", "mercado-gastos-consumo", "mercado-gastos-diversos", "mercado-gastos-educacao", "mercado-gastos-habitacao", "mercado-gastos-higiene", "mercado-gastos-recreacao", "mercado-gastos-saude", "mercado-gastos-servicos", "mercado-gastos-transporte", "mercado-gastos-vestuario", "mercado-infraestrutura", "mercado-macroeconomicos"],
-  "local-ponto-comercial": ["mercado-sociodemografico", "mercado-gastos-alimentacao", "mercado-gastos-consumo", "mercado-gastos-diversos", "mercado-gastos-educacao", "mercado-gastos-habitacao", "mercado-gastos-higiene", "mercado-gastos-recreacao", "mercado-gastos-saude", "mercado-gastos-servicos", "mercado-gastos-transporte", "mercado-gastos-vestuario", "mercado-infraestrutura", "mercado-macroeconomicos", "mercado-concorrencia", "mercado-risco-geografico", "mercado-propensao-seguro"],
-  "compliance-kyc-pf": ["pld-pf", "obito", "mandados-prisao", "antecedentes-criminais", "cpf-simples"],
-  "compliance-kyc-pj": ["pld-pj", "pld-qsa", "cert-situacao-cadastral-pj", "processos-judiciais-pj", "protesto-nacional-pj", "cnpj-completo"],
-  "compliance-pld-pf": ["pld-pf", "cpf-simples"],
-  "compliance-pld-pj": ["pld-pj", "cnpj-completo"],
-  "juridico-radar-pf": ["processos-judiciais-pf", "protesto-nacional", "cadin", "cert-divida-ativa-pf", "cpf-simples"],
-  "juridico-protesto-pf": ["protesto-nacional", "cpf-simples"],
-  "juridico-cadin-pf": ["cadin", "cpf-simples"],
-  "certidao-kit-pf-essencial": ["cert-pgfn-pf", "cnd-trabalhista", "antecedentes-criminais", "cert-cnj-pf", "cert-nada-consta-pf", "cpf-simples"],
-  "certidao-kit-pf-completo": ["cert-pgfn-pf", "cnd-trabalhista", "antecedentes-criminais", "cert-cnj-pf", "cert-nada-consta-pf", "cert-cgu-pf", "cert-acoes-trabalhistas-pf", "cert-divida-ativa-pf", "cert-ibama-pf", "cpf-simples"],
-  "certidao-kit-pj-licitacao": ["cert-fgts-pj", "cert-pgfn-pj", "cert-debitos-trabalhistas-pj", "cert-situacao-cadastral-pj", "sintegra", "cnpj-completo"],
-  "certidao-kit-pj-completo": ["cert-fgts-pj", "cert-pgfn-pj", "cert-debitos-trabalhistas-pj", "cert-situacao-cadastral-pj", "cert-cgu-pj", "cert-cnj-pj", "cert-acoes-trabalhistas-pj", "cert-pcd-pj", "cert-ibama-pj", "sintegra", "cnpj-completo"],
-  "certidao-pgfn-pf": ["cert-pgfn-pf", "cpf-simples"],
-  "certidao-cndt-pf": ["cnd-trabalhista", "cpf-simples"],
-  "certidao-nada-consta-pf": ["cert-nada-consta-pf", "cpf-simples"],
-  "certidao-fgts-pj": ["cert-fgts-pj", "cnpj-completo"],
-  "certidao-pgfn-pj": ["cert-pgfn-pj", "cnpj-completo"],
-  "certidao-situacao-cadastral-pj": ["cert-situacao-cadastral-pj", "cnpj-completo"],
-  "cpf-avulso-score": ["boa-vista-essencial", "cpf-simples"],
-  "cpf-avulso-processos": ["processos-judiciais-pf", "cpf-simples"],
-  "cpf-avulso-antecedentes": ["antecedentes-criminais", "cpf-simples"],
-  "cpf-avulso-darkweb": ["darkweb-pf", "cpf-simples"],
-  "cpf-avulso-financeiro": ["dados-financeiros-pf", "cpf-simples"],
-  "cpf-avulso-vinculos": ["pessoas-relacionadas", "cpf-simples"],
-  "cpf-avulso-profissional": ["dados-profissionais", "cpf-simples"],
-  "cpf-avulso-cnh": ["cnh", "cpf-simples"],
-  "cpf-avulso-veiculos": ["veiculos-por-cpf", "cpf-simples"],
-  "cpf-avulso-imoveis": ["imoveis", "cpf-simples"],
-  "cnpj-avulso-processos": ["processos-judiciais-pj", "cnpj-completo"],
-  "cnpj-avulso-socios": ["quadro-societario", "cnpj-completo"],
-  "cnpj-avulso-veiculos": ["veiculos-por-cnpj", "cnpj-completo"],
-  "cnpj-avulso-sintegra": ["sintegra", "cnpj-completo"],
-  "veicular-avulso-rastreamento": ["rastreamento-veicular", "placa-basica"],
-  "veicular-avulso-debitos": ["veiculo-debitos", "placa-basica"],
-  "veicular-avulso-renainf": ["renainf", "placa-basica"],
-  "veicular-avulso-renajud": ["renajud", "placa-basica"],
-  "veicular-avulso-atpve": ["atpv-e", "placa-basica"],
-  "veicular-avulso-radar": ["placa-radar", "placa-basica"],
-  "veicular-avulso-csv": ["certificado-seguranca-veicular", "placa-basica"],
-  "veicular-avulso-crlv": ["crlv", "placa-basica"],
-  // Avulsos leilao
-  "leilao-avulso-historico": ["leilao", "placa-basica"],
-  "leilao-avulso-foto": ["foto-leilao", "placa-basica"],
-  "leilao-avulso-vip-car": ["vip-car", "placa-basica"],
-};
 
 function resp(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {

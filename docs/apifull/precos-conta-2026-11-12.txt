@@ -1,0 +1,219 @@
+297 | Acerta Essencial e Define Risco | R$2,24 | R$1,87 | Requisição | 05/10/2026
+167 | Ações e processos judiciais | R$1,80 | R$1,50 | Requisição | 19/08/2026
+174 | Análise de Crédito Completa | R$21,34 | R$17,79 | Requisição | 27/08/2026
+175 | Análise de Crédito Essencial | R$16,27 | R$13,56 | Requisição | 27/08/2026
+176 | Análise de Crédito Mais | R$18,08 | R$15,07 | Requisição | 27/08/2026
+303 | Arkose FunCAPTCHA por imagem | R$1,08 | R$0,81 | Requisição | 14/10/2026
+173 | Assistência Social | R$0,20 | R$0,13 | Requisição | 27/08/2026
+308 | AWS WAF por imagem | R$0,40 | R$0,30 | Requisição | 14/10/2026
+296 | Benefício do INSS e Consignados | R$2,16 | R$1,80 | Requisição | 29/09/2026
+83 | BIN Estadual | R$2,76 | R$2,30 | Requisição | 26/04/2025
+320 | BIN Estadual V2 | R$1,44 | R$1,20 | Requisição | 27/10/2026
+82 | BIN Nacional | R$3,00 | R$1,80 | Requisição | 26/04/2025
+319 | BIN Nacional com Motor | R$1,08 | R$0,90 | Requisição | 27/10/2026
+317 | BIN Nacional V2 | R$0,99 | R$0,83 | Requisição | 27/10/2026
+318 | BIN Nacional V3 | R$0,99 | R$0,83 | Requisição | 27/10/2026
+306 | Binance por imagem | R$0,80 | R$0,60 | Requisição | 14/10/2026
+309 | Bitget por imagem | R$0,80 | R$0,60 | Requisição | 14/10/2026
+143 | Boa vista Essencial Positivo | R$2,75 | R$2,29 | Requisição | 26/02/2026
+298 | Busca de NF-e por chave | R$1,00 | R$0,50 | Requisição | 06/10/2026
+107 | Busca pelo nome | R$1,50 | R$1,00 | Requisição | 25/07/2024
+170 | Busca por telefone | R$0,45 | R$0,30 | Requisição | 25/08/2026
+125 | Buscar reputação | R$0,70 | R$0,50 | Requisição | 19/09/2025
+310 | Bux.money / Payup.video por imagem | R$0,40 | R$0,30 | Requisição | 14/10/2026
+155 | CADIN | R$0,80 | R$0,50 | Requisição | 16/06/2026
+300 | CAPTCHA de texto | R$0,40 | R$0,30 | Requisição | 14/10/2026
+179 | Carteira da Pessoa Idosa | R$1,05 | R$0,70 | Requisição | 27/08/2026
+177 | Carteira Nacional de Habilitação | R$2,85 | R$1,90 | Requisição | 27/08/2026
+178 | Carteira Nacional de Habilitação V2 | R$2,43 | R$2,02 | Requisição | 27/08/2026
+180 | Celulares Hot | R$0,26 | R$0,17 | Requisição | 27/08/2026
+219 | Certidão de Ações Trabalhistas - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+257 | Certidão de Ações Trabalhistas - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+218 | Certidão de Antecedentes Criminais | R$1,05 | R$0,70 | Requisição | 27/08/2026
+258 | Certidão de Contratação de PCD | R$1,05 | R$0,70 | Requisição | 27/08/2026
+220 | Certidão de Débitos Estaduais - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+259 | Certidão de Débitos Estaduais - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+226 | Certidão de Débitos Trabalhistas - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+265 | Certidão de Débitos Trabalhistas - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+221 | Certidão de Embargos IBAMA - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+260 | Certidão de Embargos IBAMA - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+222 | Certidão de Regularidade IBAMA - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+261 | Certidão de Regularidade IBAMA - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+268 | Certidão de Situação Cadastral | R$1,05 | R$0,70 | Requisição | 27/08/2026
+262 | Certidão FGTS | R$1,05 | R$0,70 | Requisição | 27/08/2026
+223 | Certidão Judicial Nada Consta - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+73 | Certidão Nacional de Débitos Trabalhistas | R$7,20 | R$6,00 | Requisição | 26/04/2025
+224 | Certidão Negativa CGU - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+263 | Certidão Negativa CGU - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+225 | Certidão Negativa CNJ - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+264 | Certidão Negativa CNJ - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+227 | Certidão Negativa IBAMA - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+266 | Certidão Negativa IBAMA - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+267 | Certidão PGFN - Empresa | R$1,05 | R$0,70 | Requisição | 27/08/2026
+228 | Certidão PGFN - Pessoa Física | R$1,05 | R$0,70 | Requisição | 27/08/2026
+137 | Certificado de Segurança Veicular | R$4,50 | R$3,75 | Requisição | 13/01/2026
+171 | Certificado de Segurança Veicular V2 | R$4,56 | R$3,80 | Requisição | 26/08/2026
+316 | Cloudflare Turnstile | R$3,68 | R$2,76 | Requisição | 14/10/2026
+328 | CNH Completa por CPF ou Registro | R$2,07 | R$1,73 | Requisição | 27/10/2026
+327 | CNH por CPF ou Registro | R$1,44 | R$1,20 | Requisição | 27/10/2026
+5 | CNPJ Completo | R$0,06 | R$0,04 | Requisição | 25/07/2024
+269 | Combo de Veículos RNTRC | R$4,63 | R$3,86 | Requisição | 27/08/2026
+233 | Compliance PLD QSA V3 | R$6,14 | R$5,12 | Requisição | 27/08/2026
+232 | Compliance PLD V3 - Empresa | R$6,14 | R$5,12 | Requisição | 27/08/2026
+183 | Compliance PLD V3 - Pessoa Física | R$2,05 | R$1,71 | Requisição | 27/08/2026
+186 | Conselhos de Classe | R$0,20 | R$0,13 | Requisição | 27/08/2026
+270 | Consulta ANTT por Veículo | R$1,09 | R$0,73 | Requisição | 27/08/2026
+229 | Consulta de Dívida Ativa PGFN - PF | R$1,05 | R$0,70 | Requisição | 27/08/2026
+161 | Consulta de imóveis | R$7,00 | R$5,00 | Requisição | 21/07/2026
+184 | Corretor de Seguros de Danos | R$1,05 | R$0,70 | Requisição | 27/08/2026
+231 | Corretor de Seguros de Danos - PJ | R$1,05 | R$0,70 | Requisição | 27/08/2026
+100 | CPF Completo | R$0,60 | R$0,40 | Requisição | 25/07/2024
+9 | CPF Simples | R$0,10 | R$0,05 | Requisição | 25/07/2024
+166 | CPF Ultra Premium | R$2,65 | R$2,25 | Requisição | 19/08/2026
+132 | Cred Completa Plus | R$2,49 | R$2,29 | Requisição | 18/12/2025
+168 | Crédito Positivo Real Time | R$16,20 | R$13,50 | Requisição | 20/08/2026
+134 | CRLV | R$20,28 | R$16,90 | Requisição | 26/04/2025
+335 | CRLV-e AP | R$8,82 | R$7,35 | Requisição | 27/10/2026
+336 | CRLV-e GO | R$7,31 | R$6,09 | Requisição | 27/10/2026
+337 | CRLV-e MA | R$8,82 | R$7,35 | Requisição | 27/10/2026
+338 | CRLV-e MG | R$12,42 | R$10,35 | Requisição | 27/10/2026
+339 | CRLV-e MT | R$8,82 | R$7,35 | Requisição | 27/10/2026
+340 | CRLV-e PA | R$8,82 | R$7,35 | Requisição | 27/10/2026
+341 | CRLV-e PI | R$7,31 | R$6,09 | Requisição | 27/10/2026
+342 | CRLV-e PR | R$11,25 | R$9,38 | Requisição | 27/10/2026
+343 | CRLV-e RO | R$16,02 | R$13,35 | Requisição | 27/10/2026
+344 | CRLV-e RR | R$7,31 | R$6,09 | Requisição | 27/10/2026
+333 | CRLV-e SP | R$10,80 | R$9,00 | Requisição | 27/10/2026
+334 | CRLV-e SP V2 | R$10,08 | R$8,40 | Requisição | 27/10/2026
+345 | CRLV-e TO | R$7,31 | R$6,09 | Requisição | 27/10/2026
+271 | Dados Básicos do Veículo | R$2,66 | R$2,22 | Requisição | 27/08/2026
+272 | Dados Básicos e Débitos do Veículo | R$3,89 | R$3,24 | Requisição | 27/08/2026
+187 | Dados Cadastrais Básicos | R$0,17 | R$0,11 | Requisição | 27/08/2026
+234 | Dados Cadastrais da Empresa | R$0,34 | R$0,22 | Requisição | 27/08/2026
+185 | Dados Cadastrais e Contato | R$0,52 | R$0,35 | Requisição | 27/08/2026
+123 | Dados cadastrais, score e dívidas | R$2,76 | R$2,30 | Requisição | 26/04/2025
+115 | Dados cadastrais, score e dívidas CP | R$2,99 | R$2,49 | Requisição | 26/04/2025
+235 | Dados de Contato da Empresa | R$0,25 | R$0,17 | Requisição | 27/08/2026
+188 | Dados de Óbito | R$0,08 | R$0,06 | Requisição | 27/08/2026
+189 | Dados Financeiros | R$1,28 | R$0,86 | Requisição | 27/08/2026
+190 | Dados Profissionais | R$0,40 | R$0,27 | Requisição | 27/08/2026
+275 | Dados Sociodemográficos por CEP | R$0,30 | R$0,20 | Requisição | 27/08/2026
+157 | Débitos de veículo | R$2,70 | R$2,25 | Requisição | 06/07/2026
+326 | Débitos Veiculares V2 | R$1,71 | R$1,43 | Requisição | 27/10/2026
+238 | Define Limite Positivo | R$29,07 | R$24,23 | Requisição | 27/08/2026
+239 | Define Negócio Positivo | R$24,64 | R$20,53 | Requisição | 27/08/2026
+240 | Define Risco Positivo | R$15,09 | R$12,58 | Requisição | 27/08/2026
+159 | Diagnóstico Financeiro 360 | R$17,65 | R$16,40 | Requisição | 02/03/2026
+193 | E-mails - Pessoa Física | R$0,20 | R$0,13 | Requisição | 27/08/2026
+194 | Empresas Societárias - Pessoa Física | R$0,28 | R$0,19 | Requisição | 27/08/2026
+242 | Empresas Societárias - PJ | R$0,28 | R$0,19 | Requisição | 27/08/2026
+195 | Endereços - Pessoa Física | R$0,20 | R$0,13 | Requisição | 27/08/2026
+124 | Envio de SMS | R$0,38 | R$0,19 | Requisição | 16/09/2024
+237 | Exposição na Dark Web - Empresa | R$1,05 | R$0,70 | Requisição | 27/08/2026
+191 | Exposição na Dark Web - Pessoa Física | R$1,05 | R$0,70 | Requisição | 27/08/2026
+243 | Finanças da Empresa | R$360,00 | R$300,00 | Requisição | 27/08/2026
+22 | Fipe | R$0,11 | R$0,07 | Requisição | 25/07/2024
+273 | FIPE Estimada | R$1,05 | R$0,70 | Requisição | 27/08/2026
+85 | Foto Leilão | R$12,00 | R$10,00 | Requisição | 26/04/2025
+276 | Gastos com Alimentação por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+277 | Gastos com Assistência à Saúde | R$0,08 | R$0,06 | Requisição | 27/08/2026
+278 | Gastos com Consumo por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+279 | Gastos com Despesas Diversas | R$0,08 | R$0,06 | Requisição | 27/08/2026
+280 | Gastos com Educação por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+281 | Gastos com Habitação por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+283 | Gastos com Outras Despesas | R$0,08 | R$0,06 | Requisição | 27/08/2026
+284 | Gastos com Recreação e Cultura | R$0,08 | R$0,06 | Requisição | 27/08/2026
+285 | Gastos com Serviços por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+286 | Gastos com Transporte por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+287 | Gastos com Vestuário por CEP | R$0,08 | R$0,06 | Requisição | 27/08/2026
+304 | GeeTest por imagem | R$0,80 | R$0,60 | Requisição | 14/10/2026
+46 | Gerador de imagens por IA | R$0,21 | R$0,14 | Requisição | 25/07/2024
+45 | Gerador de QR Code | R$0,03 | R$0,02 | Requisição | 25/07/2024
+136 | Gravame | R$2,20 | R$2,00 | Requisição | 13/01/2026
+325 | Gravame V2 | R$1,53 | R$1,28 | Requisição | 27/10/2026
+302 | hCaptcha por imagem | R$6,00 | R$4,50 | Requisição | 14/10/2026
+138 | Histórico de roubo e furto | R$3,60 | R$3,00 | Requisição | 13/01/2026
+87 | Histórico de roubo ou furto | R$9,36 | R$7,80 | Requisição | 26/04/2025
+197 | Identidade Jovem | R$1,05 | R$0,70 | Requisição | 27/08/2026
+299 | Imóveis em Leilão da Caixa Econômica Federal | R$1,00 | R$0,50 | Requisição | 14/10/2026
+288 | Indicadores Macroeconômicos | R$0,30 | R$0,20 | Requisição | 27/08/2026
+289 | Índice de Infraestrutura Urbana | R$0,17 | R$0,11 | Requisição | 27/08/2026
+291 | Índice de Preços de Serviços de Saúde | R$0,17 | R$0,11 | Requisição | 27/08/2026
+292 | Índice de Propensão a Seguro | R$0,17 | R$0,11 | Requisição | 27/08/2026
+290 | Índice de Seguro por Patologia | R$0,17 | R$0,11 | Requisição | 27/08/2026
+44 | Instagram 100 Curtidas Mundiais | R$1,18 | R$0,98 | Requisição | 25/07/2024
+31 | Instagram 100 Seguidores Mundiais | R$3,57 | R$2,98 | Requisição | 25/07/2024
+43 | Instagram 1000 Curtidas Mundiais | R$11,76 | R$9,80 | Requisição | 25/07/2024
+30 | Instagram 1000 Seguidores Mundiais | R$35,72 | R$29,77 | Requisição | 25/07/2024
+135 | Leilão | R$8,76 | R$7,30 | Requisição | 13/01/2026
+332 | Leilão e Remarketing | R$5,85 | R$4,88 | Requisição | 27/10/2026
+331 | Leilão Varejo | R$5,67 | R$4,73 | Requisição | 27/10/2026
+312 | Linkvertise por imagem | R$0,40 | R$0,30 | Requisição | 14/10/2026
+236 | Localização da Empresa | R$0,22 | R$0,15 | Requisição | 27/08/2026
+198 | Mandados de Prisão | R$0,20 | R$0,13 | Requisição | 27/08/2026
+199 | Nome Social | R$0,08 | R$0,06 | Requisição | 27/08/2026
+200 | Passe Livre | R$1,05 | R$0,70 | Requisição | 27/08/2026
+244 | Percentual de Participação Societária | R$5,13 | R$4,28 | Requisição | 27/08/2026
+202 | Pessoas Relacionadas | R$0,20 | R$0,13 | Requisição | 27/08/2026
+203 | Pessoas Relacionadas em Grafo | R$0,20 | R$0,13 | Requisição | 27/08/2026
+17 | Placa Básica (própria) | R$0,10 | R$0,05 | Requisição | 25/07/2024
+172 | Placa Radar | R$0,75 | R$0,60 | Requisição | 26/08/2026
+105 | Placa Super Básica | R$0,08 | R$0,05 | Requisição | 25/07/2024
+245 | Processos Judiciais - Empresa | R$0,28 | R$0,19 | Requisição | 27/08/2026
+204 | Processos Judiciais - Pessoa Física | R$0,28 | R$0,19 | Requisição | 27/08/2026
+106 | Produtos por dados do veículo | R$0,08 | R$0,05 | Requisição | 25/07/2024
+321 | Proprietário Atual V2 | R$0,54 | R$0,45 | Requisição | 27/10/2026
+91 | Proprietário placa | R$2,28 | R$1,90 | Requisição | 26/04/2025
+164 | Prospecção de clientes por CEP | R$1,08 | R$0,90 | Requisição | 17/08/2026
+295 | Protesto Nacional | R$3,42 | R$2,85 | Requisição | 01/09/2026
+246 | Quadro Societário | R$0,28 | R$0,19 | Requisição | 27/08/2026
+80 | QUOD | R$4,78 | R$3,98 | Requisição | 26/04/2025
+247 | QUOD Consulta - Empresa | R$12,73 | R$10,61 | Requisição | 27/08/2026
+207 | QUOD Consulta - Pessoa Física | R$9,79 | R$8,16 | Requisição | 27/08/2026
+248 | QUOD Negativo Detalhe - Empresa | R$6,37 | R$5,31 | Requisição | 27/08/2026
+206 | QUOD Negativo Detalhe - Pessoa Física | R$3,89 | R$3,25 | Requisição | 27/08/2026
+249 | QUOD Negativo Flag - Empresa | R$3,83 | R$3,19 | Requisição | 27/08/2026
+205 | QUOD Negativo Flag - Pessoa Física | R$2,91 | R$2,43 | Requisição | 27/08/2026
+208 | QUOD Score de Crédito | R$6,26 | R$5,22 | Requisição | 27/08/2026
+250 | QUOD Score de Crédito - Empresa | R$8,16 | R$6,80 | Requisição | 27/08/2026
+274 | Rastreamento de Veículos | R$79,20 | R$66,00 | Requisição | 27/08/2026
+156 | Rating Score | R$10,62 | R$8,85 | Requisição | 02/03/2026
+92 | Recall | R$3,60 | R$3,00 | Requisição | 26/04/2025
+322 | Recall V2 | R$0,54 | R$0,45 | Requisição | 27/10/2026
+301 | reCAPTCHA por imagem | R$0,40 | R$0,30 | Requisição | 14/10/2026
+314 | reCAPTCHA v2 / Invisible | R$2,20 | R$1,65 | Requisição | 14/10/2026
+315 | reCAPTCHA v3 | R$2,20 | R$1,65 | Requisição | 14/10/2026
+153 | Renainf | R$3,60 | R$3,00 | Requisição | 28/05/2025
+323 | Renainf V2 | R$1,53 | R$1,28 | Requisição | 27/10/2026
+152 | Renajud | R$3,60 | R$3,00 | Requisição | 28/05/2025
+324 | Renajud V2 | R$1,62 | R$1,35 | Requisição | 27/10/2026
+209 | Restituição de Imposto de Renda | R$0,20 | R$0,13 | Requisição | 27/08/2026
+293 | Risco Geográfico | R$0,30 | R$0,20 | Requisição | 27/08/2026
+329 | Roubo e Furto V2 | R$1,26 | R$1,05 | Requisição | 27/10/2026
+330 | Roubo e Furto V3 | R$1,44 | R$1,20 | Requisição | 27/10/2026
+294 | Score de Concorrência | R$0,30 | R$0,20 | Requisição | 27/08/2026
+211 | Score de Dados Cadastrais | R$0,17 | R$0,11 | Requisição | 27/08/2026
+252 | Score de Dados Cadastrais - Empresa | R$0,34 | R$0,22 | Requisição | 27/08/2026
+151 | SCR e Score (BACEN) | R$6,30 | R$5,25 | Requisição | 25/01/2025
+130 | SCR e Score (BACEN) V2 | R$9,36 | R$7,80 | Requisição | 25/01/2025
+169 | SCR Premium | R$5,71 | R$4,76 | Requisição | 25/08/2026
+311 | Seo-fast / Profitcentr / Seotime por imagem | R$0,40 | R$0,30 | Requisição | 14/10/2026
+146 | Serasa Premium | R$6,72 | R$5,60 | Requisição | 02/03/2026
+163 | Serasa Premium V2 | R$6,90 | R$5,90 | Requisição | 13/08/2026
+346 | Serasa Relatório básico e score | R$5,88 | R$4,90 | Requisição | 10/11/2026
+212 | Servidor Público | R$0,20 | R$0,13 | Requisição | 27/08/2026
+253 | Sintegra | R$1,05 | R$0,70 | Requisição | 27/08/2026
+160 | SPC Brasil | R$7,64 | R$6,37 | Requisição | 17/07/2026
+254 | SUFRAMA | R$1,20 | R$0,80 | Requisição | 27/08/2026
+214 | Telefones - Pessoa Física | R$0,20 | R$0,13 | Requisição | 27/08/2026
+215 | Telefones Hot Completo | R$0,23 | R$0,15 | Requisição | 27/08/2026
+255 | Telefones Hot dos Sócios | R$0,20 | R$0,13 | Requisição | 27/08/2026
+307 | Temu por imagem | R$6,80 | R$5,10 | Requisição | 14/10/2026
+61 | TikTok 100 Seguidores Brasileiros | R$5,22 | R$4,18 | Requisição | 25/07/2024
+60 | TikTok 1000 Seguidores Mundiais | R$44,82 | R$37,35 | Requisição | 25/07/2024
+305 | TikTok por imagem | R$0,80 | R$0,60 | Requisição | 14/10/2026
+216 | Validação de Telefone | R$2,10 | R$1,40 | Requisição | 27/08/2026
+256 | Veículos por CNPJ | R$4,80 | R$4,00 | Requisição | 27/08/2026
+217 | Veículos por CPF | R$4,80 | R$4,00 | Requisição | 27/08/2026
+96 | Vip car | R$31,20 | R$26,00 | Requisição | 26/04/2025
+313 | World.cash por imagem | R$2,00 | R$1,50 | Requisição | 14/10/2026

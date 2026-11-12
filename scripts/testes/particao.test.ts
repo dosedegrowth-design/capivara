@@ -28,7 +28,8 @@ for (const item of CATALOGO_COMPLETO) {
   encadeadas += deSocio.length;
   for (const a of diretas) {
     const p = findEndpoint(a)?.paramType;
-    if (p && p !== item.alvo && p !== "documentos" && p !== "nome") {
+    const compativel = p === item.alvo || p === "documentos" || p === "nome" || (p === "parametro" && item.alvo === "placa");
+    if (p && !compativel) {
       vazamentos.push(`${item.id} -> ${a} (${p} != ${item.alvo})`);
     }
   }
