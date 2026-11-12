@@ -1,8 +1,8 @@
 # Capivara — o que falta
 
-> **Atualizado:** 30/10/2026
+> **Atualizado:** 12/11/2026
 > **Produção:** https://suacapivara.com.br
-> **Catálogo:** 68 consultas (14 planos · 3 combos · 51 avulsas)
+> **Catálogo:** 81 consultas (14 planos · 3 combos · 64 avulsas)
 
 Tudo que dependia só de código está feito. O que segue precisa de você:
 conta, credencial ou decisão de negócio.
@@ -75,6 +75,36 @@ reinicia. Precisa de conta.
 
 **14. NF-e.** O site fala em recibo. NF-e de verdade é uma sprint; só vale
 se cliente empresa pedir.
+
+**15. Trocar endpoints por versões V2 mais baratas.** A conta liberou
+proprietário atual (R$ 0,54), recall (R$ 0,54) e BIN nacional (R$ 0,99), mais
+baratos que os que usamos hoje. Só troco depois de uma consulta real de cada
+(custa centavos) pra conferir que o retorno tem o mesmo conteúdo. Me autoriza?
+
+**16. Produtos mapeados e não lançados.** NF-e por chave, imóveis da Caixa,
+CRLV-e por estado, busca por telefone/nome/CEP (sensível, mesma conversa do
+item 11), validação de telefone (pede um segundo campo no formulário) e
+Finanças da Empresa (custo R$ 360, só faz sentido sob encomenda).
+
+---
+
+## Feito em 12/11
+
+- Conta APIFULL inteira mapeada: 219 consultas com preço, link e campos
+  (`docs/apifull/`)
+- 14 produtos novos no ar: análise de crédito essencial/mais/completa, INSS,
+  servidor público, registro profissional; CNPJ define risco/negócio/limite e
+  participação societária; débitos estaduais PF e PJ (cliente escolhe o
+  estado); kit ambiental PJ (IBAMA); RNTRC
+- Custos de todas as consultas atualizados pela tabela da conta
+- 3 falhas que já estavam em produção, corrigidas:
+  - gravame mudou de endpoint (V2, aceita placa ou chassi)
+  - CRLV exigia o estado: agora a Edge tira a UF da consulta da placa, sem
+    pergunta a mais pro cliente; estado sem CRLV não é cobrado
+  - ATPV-e e "gastos com higiene" saíram da conta: ATPV-e redireciona pra
+    página veicular; o raio-X de CEP usa "outras despesas" no lugar
+- Edge v45 no ar; a lista de consultas da Edge agora é gerada do catálogo
+  (`npm run gerar:edge`), o check falha se ficar defasada
 
 ---
 
